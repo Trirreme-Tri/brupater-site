@@ -354,7 +354,7 @@
         campo("aparencia.grao", "Grão de filme por cima do site", { tipo: "check" }) +
         campo("aparencia.barras", "Barras pretas de cinema na abertura e nos interlúdios", { tipo: "check" }) +
         linha(campo("aparencia.movimento", "Animações", { tipo: "select", opcoes: [{ v: "normal", t: "Normais" }, { v: "suave", t: "Suaves" }, { v: "desligado", t: "Desligadas" }] }),
-              campo("aparencia.tema", "Tema de quem visita", { tipo: "select", opcoes: [{ v: "auto", t: "Igual ao celular/computador da pessoa" }, { v: "escuro", t: "Sempre escuro" }, { v: "claro", t: "Sempre claro" }], ajuda: "A pessoa ainda pode trocar no botão do site." })));
+              campo("aparencia.tema", "Tema de quem visita", { tipo: "select", opcoes: [{ v: "auto", t: "Igual ao celular/computador da pessoa" }, { v: "escuro", t: "Sempre escuro" }, { v: "claro", t: "Sempre claro" }], ajuda: "Em \"igual ao celular\", o site fica claro ou escuro conforme o aparelho de quem visita." })));
   }
 
   /* ----- 09 backup ----- */

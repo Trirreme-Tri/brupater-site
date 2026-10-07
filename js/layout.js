@@ -24,7 +24,6 @@
       }).join("") + "</nav>" +
       '<div class="nav-acoes">' +
         '<a class="btn cheio nav-cta" href="encomendas.html"' + (pagina === "encomendas" ? ' aria-current="page"' : "") + ">Encomendar</a>" +
-        '<button class="tema-btn" type="button" id="tema-btn" aria-label="Alternar tema claro ou escuro"></button>' +
         '<button class="menu-btn" type="button" id="menu-btn" aria-expanded="false" aria-controls="menu-movel" aria-label="Abrir menu"><span></span><span></span></button>' +
       "</div>" +
     "</div>" +

@@ -24,11 +24,11 @@ function temaAplicar(site) {
   raiz.dataset.barras = ap.barras ? "on" : "off";
   raiz.dataset.movimento = ap.movimento;
 
-  /* "auto" segue o sistema; a pessoa ainda pode trocar no botão do site,
-     e essa troca vale só pra ela (fica no navegador dela) */
-  var escolhaVisitante = null;
-  try { escolhaVisitante = localStorage.getItem("brupater:tema"); } catch (e) {}
-  var tema = escolhaVisitante || (ap.tema === "auto" ? "" : (ap.tema === "claro" ? "light" : "dark"));
+  /* "auto" segue o modo claro/escuro do celular ou computador de quem visita.
+     Não tem botão de trocar no site; apaga escolhas antigas feitas no botão
+     que existia antes, pra ninguém ficar preso num tema. */
+  try { localStorage.removeItem("brupater:tema"); } catch (e) {}
+  var tema = ap.tema === "auto" ? "" : (ap.tema === "claro" ? "light" : "dark");
   if (tema) raiz.setAttribute("data-theme", tema); else raiz.removeAttribute("data-theme");
 
   temaCarregarFontes(ap.fontes);

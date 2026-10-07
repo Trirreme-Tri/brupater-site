@@ -65,13 +65,6 @@ p { margin: 0; }
 .btn.cheio:hover { box-shadow: 0 14px 36px -10px var(--rosa); }
 .btn[aria-disabled="true"] { opacity: .45; pointer-events: none; }
 
-/* botão de tema claro/escuro */
-.tema-btn {
-  width: 44px; height: 44px; border-radius: 50%;
-  display: grid; place-items: center;
-  border: 1.5px solid currentColor; background: transparent; cursor: pointer;
-}
-.tema-btn svg { width: 20px; height: 20px; }
 
 /* ===== grão de filme =====
    PARADO de propósito: a versão animada fazia as imagens parecerem tremer. */
