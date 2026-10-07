@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Brunna Paternostro · RPG Character Creation</title>
+<meta name="description" content="Brunna Paternostro (@_.brupater): ilustração de personagens de RPG, portfólio, agenda e encomendas.">
+<meta name="theme-color" content="#0E0A0F">
+<link rel="icon" href="assets/avatar.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/site.css">
+<!-- sem defer: aplicam cor e fonte escolhidas no painel antes da página aparecer -->
+<script src="js/dados.js"></script>
+<script src="js/loja.js"></script>
+<script src="js/tema.js"></script>
+<script src="js/icones.js" defer></script>
+<script src="js/cinema.js" defer></script>
+<script src="js/site.js" defer></script>
+<script src="js/encomenda.js" defer></script>
+</head>
+<body>
+
+<div class="cortina" aria-hidden="true"></div>
+
+<!-- ===== navegação ===== -->
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="marca" href="#topo" aria-label="Início">
+      <img class="js-avatar" src="assets/avatar.webp" width="150" height="150" alt="">
+      <span class="t-cinema js-nome-curto">Brupater</span>
+    </a>
+    <nav class="nav-links" aria-label="Seções">
+      <a href="#ficha">Quem sou</a>
+      <a href="#portfolio">Portfólio</a>
+      <a href="#agenda">Agenda</a>
+      <a href="#perguntas">Dúvidas</a>
+    </nav>
+    <div class="nav-acoes">
+      <a class="btn cheio nav-cta" href="#encomendas">Encomendar</a>
+      <button class="tema-btn" type="button" id="tema-btn" aria-label="Alternar tema claro ou escuro"></button>
+    </div>
+  </div>
+</header>
+
+<main id="topo">
+
+<!-- ===== CENA 01 · abertura ===== -->
+<section class="abertura" id="abertura" aria-label="Abertura">
+  <div class="abertura-img" id="abertura-img" role="img" aria-label="Ilustração da Brunna: uma guerreira cavalgando para fora de um portão de pedra"></div>
+  <div class="vinheta"></div>
+  <div class="barra-cine topo" aria-hidden="true"></div>
+  <div class="barra-cine base" aria-hidden="true"></div>
+
+  <div class="abertura-txt wrap">
+    <p class="rotulo abertura-kicker"><span class="timecode">CENA 01</span> <span id="ab-kicker"></span></p>
+    <h1 class="abertura-titulo t-cinema" id="ab-nome"></h1>
+    <p class="abertura-frase t-mao" id="ab-frase"></p>
+    <p class="abertura-legenda" id="ab-legenda"></p>
+    <div class="abertura-ctas">
+      <a class="btn cheio" href="#encomendas">Crie seu personagem</a>
+      <a class="btn" href="#portfolio">Ver portfólio</a>
+      <a class="btn trilha" id="ab-trilha" href="#" target="_blank" rel="noopener" hidden>
+        <span aria-hidden="true">&#9654;</span> <span id="ab-trilha-txt"></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="abertura-status" id="ab-status"></div>
+  <a class="role" href="#creditos"><span>role para dar play</span><i aria-hidden="true"></i></a>
+</section>
+
+<!-- ===== créditos iniciais: links ===== -->
+<section class="creditos-ini" id="creditos" aria-labelledby="creditos-t">
+  <div class="wrap">
+    <h2 class="rotulo creditos-t surge" id="creditos-t">créditos iniciais · onde me achar</h2>
+    <div class="links" id="links"></div>
+  </div>
+</section>
+
+<!-- ===== CENA 02 · ficha (pôster) ===== -->
+<section class="ficha papel" id="ficha" aria-labelledby="ficha-nome">
+  <div class="wrap ficha-in">
+    <div class="ficha-topo surge">
+      <img class="ficha-retrato js-avatar" id="ficha-retrato" src="assets/avatar.webp" width="150" height="150" alt="Autorretrato da Brunna em ilustração">
+      <div>
+        <p class="rotulo ficha-cena"><span class="timecode">CENA 02</span> ficha da personagem</p>
+        <h2 class="ficha-nome t-poster" id="ficha-nome"></h2>
+        <p class="ficha-lista" id="ficha-lista"></p>
+      </div>
+    </div>
+    <p class="ficha-extra surge" id="ficha-extra"></p>
+
+    <div class="ficha-palco">
+      <p class="ficha-palavra t-poster" id="ficha-palavra" aria-hidden="true"></p>
+      <img class="ficha-arte" id="ficha-arte" src="assets/hey.webp" width="1016" height="1016" alt="Ilustração da Brunna: a tiefling de cabelo rosa acenando" loading="lazy">
+    </div>
+
+    <div class="ficha-base">
+      <p class="ficha-texto surge" id="ficha-texto"></p>
+      <div class="ficha-lema surge">
+        <p class="t-poster" id="ficha-lema"></p>
+        <p class="rotulo">copyright <span id="ano"></span>&copy;</p>
+        <div class="barcode" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== interlúdio 1 ===== -->
+<section class="interludio" id="interludio1" aria-label="Interlúdio">
+  <div class="interludio-img" data-parallax></div>
+  <div class="barra-cine topo" aria-hidden="true"></div>
+  <div class="barra-cine base" aria-hidden="true"></div>
+  <blockquote class="interludio-frase wrap">
+    <p class="t-cinema"></p>
+    <cite class="rotulo"></cite>
+  </blockquote>
+</section>
+
+<!-- ===== CENA 03 · portfólio ===== -->
+<section class="portfolio" id="portfolio" aria-labelledby="portfolio-t">
+  <div class="wrap">
+    <header class="cena-cab surge">
+      <p class="rotulo"><span class="timecode">CENA 03</span> portfólio</p>
+      <h2 class="t-cinema" id="portfolio-t">Galeria de personagens</h2>
+      <p class="cena-sub">Toque numa arte para ver em tela cheia.</p>
+    </header>
+    <div class="filtros" id="filtros" role="group" aria-label="Filtrar portfólio"></div>
+    <div class="galeria" id="galeria"></div>
+    <p class="galeria-mais"><a href="#" id="galeria-ig" target="_blank" rel="noopener">tem muito mais no Instagram &#8599;</a></p>
+  </div>
+</section>
+
+<!-- ===== CENA 04 · agenda ===== -->
+<section class="agenda" id="agenda" aria-labelledby="agenda-t">
+  <div class="wrap">
+    <header class="cena-cab surge">
+      <p class="rotulo"><span class="timecode">CENA 04</span> agenda de encomendas</p>
+      <h2 class="t-cinema" id="agenda-t">Quando abre a próxima sessão?</h2>
+    </header>
+
+    <div class="agenda-grade">
+      <div class="agenda-status surge" id="agenda-status"></div>
+      <div class="agenda-cal surge" id="agenda-cal"></div>
+    </div>
+
+    <div class="agenda-grade dois">
+      <div class="agenda-eventos surge">
+        <h3 class="rotulo">próximas datas</h3>
+        <ol class="linha-tempo" id="agenda-eventos"></ol>
+      </div>
+      <div class="agenda-fila surge">
+        <h3 class="rotulo">fila de produção</h3>
+        <ol class="fila" id="agenda-fila"></ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== interlúdio 2 ===== -->
+<section class="interludio" id="interludio2" aria-label="Interlúdio">
+  <div class="interludio-img" data-parallax></div>
+  <div class="barra-cine topo" aria-hidden="true"></div>
+  <div class="barra-cine base" aria-hidden="true"></div>
+  <blockquote class="interludio-frase wrap">
+    <p class="t-cinema"></p>
+    <cite class="rotulo"></cite>
+  </blockquote>
+</section>
+
+<!-- ===== CENA 05 · encomendas ===== -->
+<section class="encomendas papel" id="encomendas" aria-labelledby="enc-t">
+  <div class="wrap">
+    <header class="enc-cab surge">
+      <p class="rotulo"><span class="timecode">CENA 05</span> encomendas</p>
+      <h2 class="enc-titulo t-cinema" id="enc-t">Crie seu <span>personagem</span></h2>
+      <p class="enc-sub">Escolha o enquadramento e o acabamento, veja o preço na hora e mande o resumo direto pra mim.</p>
+      <div class="enc-aviso" id="enc-aviso" hidden></div>
+    </header>
+
+    <div class="enc-grade">
+      <div class="construtor surge" id="construtor">
+
+        <div class="passo">
+          <p class="passo-t"><span class="passo-n">1</span> Enquadramento</p>
+          <div class="opcoes grandes" id="op-enquadramento" role="group" aria-label="Enquadramento"></div>
+        </div>
+
+        <div class="passo">
+          <p class="passo-t"><span class="passo-n">2</span> Acabamento</p>
+          <div class="opcoes" id="op-acabamento" role="group" aria-label="Acabamento"></div>
+        </div>
+
+        <div class="passo">
+          <p class="passo-t"><span class="passo-n">3</span> Personagens na arte</p>
+          <div class="linha-passo">
+            <div class="stepper">
+              <button type="button" id="pers-menos" aria-label="Menos personagens">&minus;</button>
+              <output id="pers-qtd" aria-live="polite">1</output>
+              <button type="button" id="pers-mais" aria-label="Mais personagens">+</button>
+            </div>
+            <p class="passo-nota" id="pers-nota"></p>
+          </div>
+        </div>
+
+        <div class="passo">
+          <p class="passo-t"><span class="passo-n">4</span> Fundo</p>
+          <div class="opcoes" id="op-fundo" role="group" aria-label="Fundo"></div>
+        </div>
+
+        <div class="passo">
+          <p class="passo-t"><span class="passo-n">5</span> Quantas artes iguais a essa</p>
+          <div class="stepper">
+            <button type="button" id="qtd-menos" aria-label="Diminuir quantidade">&minus;</button>
+            <output id="qtd" aria-live="polite">1</output>
+            <button type="button" id="qtd-mais" aria-label="Aumentar quantidade">+</button>
+          </div>
+        </div>
+
+        <div class="construtor-pe">
+          <p class="rascunho-preco" id="rascunho-preco"></p>
+          <button class="btn cheio" type="button" id="add-item">Adicionar ao pedido</button>
+        </div>
+      </div>
+
+      <aside class="pedido surge" id="pedido" aria-labelledby="pedido-t">
+        <h3 class="rotulo" id="pedido-t">seu pedido</h3>
+        <p class="pedido-vazio" id="pedido-vazio">Nada aqui ainda. Monte um personagem ao lado pra começar.</p>
+        <ul class="pedido-itens" id="pedido-itens"></ul>
+        <p class="pedido-desconto" id="pedido-desconto"></p>
+        <label class="comercial" id="comercial-linha">
+          <input type="checkbox" id="comercial">
+          <span><b>Uso comercial</b><small id="comercial-txt"></small></span>
+        </label>
+        <div class="recibo" id="recibo"></div>
+        <div class="pedido-ctas">
+          <button class="btn" type="button" id="copiar">Copiar resumo</button>
+          <a class="btn cheio" id="fechar" href="#" target="_blank" rel="noopener">Fechar na DM</a>
+        </div>
+        <p class="pedido-nota" id="pedido-nota"></p>
+      </aside>
+    </div>
+
+    <div class="regras surge" id="regras"></div>
+
+    <div class="tabela-dela surge">
+      <button type="button" class="tabela-btn" data-lb-src="assets/tabela-comissoes.webp" data-lb-titulo="Tabela de comissões">
+        <img src="assets/tabela-comissoes.webp" width="812" height="1016" alt="Tabela de comissões da Brunna: busto a partir de R$ 110, meio corpo a partir de R$ 160 e corpo inteiro a partir de R$ 220" loading="lazy">
+      </button>
+      <p class="t-mao">a tabela original, do jeitinho que ela aparece no Instagram &#8599;</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CENA 06 · perguntas ===== -->
+<section class="perguntas" id="perguntas" aria-labelledby="faq-t">
+  <div class="wrap estreito">
+    <header class="cena-cab surge">
+      <p class="rotulo"><span class="timecode">CENA 06</span> perguntas</p>
+      <h2 class="t-cinema" id="faq-t">A Bru responde</h2>
+    </header>
+    <div class="faq" id="faq"></div>
+  </div>
+</section>
+
+</main>
+
+<!-- barra fixa do total (aparece só na cena de encomendas) -->
+<div class="barra-total" id="barra-total" aria-hidden="true">
+  <div class="barra-total-in">
+    <div><span class="rotulo">total</span><strong id="barra-valor">R$ 0,00</strong></div>
+    <a class="btn cheio" id="barra-cta" href="#pedido">Ver pedido</a>
+  </div>
+</div>
+
+<footer class="rodape">
+  <div class="wrap">
+    <p class="fim">Fim</p>
+    <p class="fim-sub" id="rod-assinatura"></p>
+    <div class="creditos">
+      <span>arte e personagens <b id="rod-nome"></b></span>
+      <span><a href="#" id="rod-ig" target="_blank" rel="noopener"></a></span>
+    </div>
+    <p class="trirreme">Site desenvolvido pela <a href="https://trirreme.com" target="_blank" rel="noopener">TRIRREME</a></p>
+  </div>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Arte em tela cheia">
+  <button class="fechar" type="button" aria-label="Fechar">&times;</button>
+  <button class="ant" type="button" aria-label="Arte anterior">&#8592;</button>
+  <figure><img id="lb-img" src="" alt=""><figcaption id="lb-cap"></figcaption></figure>
+  <button class="prox" type="button" aria-label="Próxima arte">&#8594;</button>
+</div>
+
+</body>
+</html>
