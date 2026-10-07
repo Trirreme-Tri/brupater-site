@@ -8,7 +8,10 @@ com painel de edição. Desenvolvido pela [TRIRREME](https://trirreme.com).
 
 | Página | Arquivo | O que é |
 |---|---|---|
-| Site | `index.html` | Página única em "cenas": abertura, links, ficha, portfólio, agenda, encomendas, perguntas |
+| Início | `index.html` | Abertura, links, ficha da personagem, interlúdios e chamadas para as outras páginas |
+| Portfólio | `portfolio.html` | Galeria com filtros e tela cheia |
+| Agenda | `agenda.html` | Situação atual, agendas por mês (vagas e ESGOTADO automático), calendário e fila |
+| Encomendas | `encomendas.html` | Calculadora de encomendas e perguntas frequentes |
 | Painel | `admin.html` | Edição de agenda, preços, galeria, cenas, perfil, links, perguntas, cores, fontes e backup |
 | Apresentação | `apresentacao.html` | Documento temporário para a cliente: links, acesso, estilo, fontes, cores e fluxos |
 
@@ -26,13 +29,21 @@ js/
   loja.js           onde o conteúdo fica salvo (hoje: localStorage) + utilidades (esc, brl)
   tema.js           aplica cores, fontes e efeitos; carrega SITE
   icones.js         ícones dos links
-  cinema.js         barras de cinema, parallax, entrada ao rolar, tema, lightbox
-  site.js           desenha a página pública e a agenda
+  layout.js         navegação, rodapé e lightbox comuns às páginas públicas
+  agenda.js         regras da agenda: estado de cada sessão (em breve, aberta, esgotado)
+  cinema.js         barras de cinema, entrada ao rolar, tema, lightbox
+  site.js           desenha as páginas públicas
   encomenda.js      calculadora de encomendas
   admin.js          painel
   apresentacao.js   partes dinâmicas da apresentação
 assets/             imagens (.webp); portfólio em assets/galeria/
 ```
+
+**Agenda:** cada sessão tem data de abertura e número de vagas. O estado é
+calculado em `js/agenda.js`; a cliente só marca no painel cada vaga confirmada.
+
+**Movimento:** nenhuma imagem se mexe sozinha (sem parallax, sem zoom contínuo,
+grão de filme parado) — a versão anterior dava a sensação de imagem tremendo.
 
 **Regra:** todo conteúdo que a cliente pode mudar mora em `PADRAO` (`js/dados.js`),
 nunca solto no HTML. O painel edita uma cópia e salva pelo `js/loja.js`.

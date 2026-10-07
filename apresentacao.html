@@ -36,7 +36,7 @@
     <div class="cartoes-links">
       <div class="cartao">
         <p class="rotulo">site que seus clientes acessam</p>
-        <a class="url" id="url-site" href="index.html" target="_blank" rel="noopener"></a>
+        <ul class="paginas-links" id="paginas-links"></ul>
         <a class="btn cheio" href="index.html" target="_blank" rel="noopener">Ver o site</a>
       </div>
       <div class="cartao">
@@ -56,18 +56,12 @@
   <section class="bloco" aria-labelledby="b2">
     <p class="rotulo"><span class="num">02</span> o que o site tem</p>
     <h2 class="t-cinema" id="b2">O roteiro, cena por cena</h2>
-    <p class="bloco-sub">O site é uma página só, montada como um filme: cada parte é uma "cena", com cortes de tela cheia entre elas.</p>
+    <p class="bloco-sub">O site tem quatro páginas, cada uma com o seu próprio link, montadas como cenas de um filme. Assim você pode mandar direto o link das encomendas ou da agenda pra quem perguntar.</p>
     <ol class="roteiro">
-      <li><b>Cena 01 · Abertura</b><span>Sua arte em tela cheia com barras de cinema, um zoom lento, seu nome em letras de pôster e a etiqueta do status (<i>Commissions open</i>, <i>Lista de espera</i> ou <i>Comms closed</i>), igual à do seu post.</span></li>
-      <li><b>Créditos iniciais</b><span>Os seus links (Instagram, Threads e atalhos pras encomendas e pra agenda), no estilo dos créditos de abertura de um filme.</span></li>
-      <li><b>Cena 02 · Ficha da personagem</b><span>Uma seção inspirada no seu pôster <i>Oásis</i>: retrato, nome, bandas, jogos, animes, curiosidades, palavra gigante e código de barras.</span></li>
-      <li><b>Interlúdio</b><span>Um corte em tela cheia com uma frase grande. A imagem se move devagar enquanto a pessoa rola a página.</span></li>
-      <li><b>Cena 03 · Portfólio</b><span>A galeria com filtros (Pôsteres, Personagens, Cenas, Estudos). Tocando numa arte, ela abre em tela cheia e dá pra passar pras próximas.</span></li>
-      <li><b>Cena 04 · Agenda</b><span>O quadro de status, a contagem pra próxima abertura, as vagas em estrelinhas, um calendário com as datas marcadas e a fila de produção mostrando em que etapa está cada encomenda.</span></li>
-      <li><b>Interlúdio</b><span>Outro corte de cinema, com o seu caderno de campanha.</span></li>
-      <li><b>Cena 05 · Crie seu personagem</b><span>A calculadora de encomendas: a pessoa escolhe enquadramento, acabamento, quantos personagens, fundo e quantidade, vê o preço na hora e manda o pedido pronto pra você.</span></li>
-      <li><b>Cena 06 · A Bru responde</b><span>Perguntas frequentes: pagamento, reembolso, acabamentos, prazos.</span></li>
-      <li><b>Fim</b><span>O "FIM" de filme, com os créditos e a sua assinatura.</span></li>
+      <li><b>Início</b><span>Sua arte em tela cheia com barras de cinema, seu nome em letras de pôster e a etiqueta da agenda (<i>Commissions open</i>, <i>Esgotado</i> ou <i>Comms closed</i>). Depois vêm os créditos iniciais (seus links), a ficha da personagem no estilo do pôster <i>Oásis</i>, um interlúdio em tela cheia e três cartões que levam pras outras páginas.</span></li>
+      <li><b>Portfólio</b><span>A galeria com filtros (Pôsteres, Personagens, Cenas, Estudos). Tocando numa arte, ela abre em tela cheia e dá pra passar pras próximas.</span></li>
+      <li><b>Agenda</b><span>A situação agora (aberta, esgotada ou fechada), a contagem pra próxima abertura, as agendas de cada mês com as vagas em estrelinhas e o carimbo de ESGOTADO, um calendário e a fila de produção.</span></li>
+      <li><b>Encomendas</b><span>A calculadora "Crie seu personagem": enquadramento, acabamento, quantos personagens, fundo e quantidade, com o preço na hora e o pedido pronto pra mandar. No fim, as perguntas frequentes.</span></li>
     </ol>
   </section>
 
@@ -83,10 +77,10 @@
       <figure><img src="assets/tabela-comissoes.webp" width="812" height="1016" alt="Tabela de comissões" loading="lazy"><figcaption>Brilho violeta neon da sua tabela</figcaption></figure>
     </div>
     <ul class="lista-estilo">
-      <li><b>Seções "cinema"</b> (abertura, agenda, interlúdios): sempre escuras, com grão de filme, barras pretas e zoom lento.</li>
+      <li><b>Seções "cinema"</b> (abertura, topo das páginas, agenda, interlúdios): sempre escuras, com grão de filme e barras pretas.</li>
       <li><b>Seções "papel"</b> (ficha e encomendas): sempre claras, como algo impresso.</li>
       <li><b>O resto</b> segue o celular de quem visita: tema claro ou escuro. A pessoa também pode trocar no botão do topo.</li>
-      <li><b>Movimento:</b> a página "abre do preto", os títulos sobem como letreiro e os elementos aparecem conforme a pessoa rola. Quem pediu menos movimento no celular vê tudo parado.</li>
+      <li><b>Movimento:</b> a página "abre do preto", a imagem do topo assenta uma vez e para, os títulos sobem como letreiro e os elementos aparecem conforme a pessoa rola. As imagens ficam paradas, sem tremer. Quem pediu menos movimento no celular vê tudo parado.</li>
     </ul>
   </section>
 
@@ -127,12 +121,14 @@
     </div>
 
     <h3 class="fluxo-t">A agenda</h3>
+    <p class="bloco-sub">Você cria uma agenda pra cada abertura, por exemplo "Agenda de novembro: abre dia 1º, 4 vagas". O site cuida do resto sozinho:</p>
     <div class="agenda-estados">
-      <div><span class="etiqueta">Commissions open</span><p><b>Abertas:</b> o botão do pedido vira "Fechar na DM" e o quadro mostra quantas vagas sobram.</p></div>
-      <div><span class="etiqueta espera">Lista de espera</span><p><b>Lista de espera:</b> a pessoa monta o pedido e manda pra entrar na lista.</p></div>
-      <div><span class="etiqueta fechada">Comms closed</span><p><b>Fechadas:</b> aparece a contagem até a próxima abertura e o botão "Me avisa quando abrir".</p></div>
+      <div><span class="etiqueta fechada">Comms closed</span><p><b>Antes da data:</b> aparece "abre em X dias" e o botão "Me avisa quando abrir".</p></div>
+      <div><span class="etiqueta">Commissions open</span><p><b>No dia:</b> abre sozinha e mostra quantas vagas sobram. O botão do pedido vira "Fechar na DM".</p></div>
+      <div><span class="etiqueta esgotado">Esgotado</span><p><b>Quando enche:</b> cada vez que alguém pagar os 50%, você marca <b>+1</b> no painel. Na última vaga, aparece ESGOTADO e o pedido vira lista de espera.</p></div>
     </div>
-    <p class="bloco-sub">Você troca o status com um clique no painel. As datas que você cadastrar aparecem no calendário e na linha do tempo; a fila mostra cada encomenda passando por Esboço, Lineart, Cor, Render e Entregue.</p>
+    <p class="bloco-sub">Se precisar parar antes (férias, imprevisto), tem a opção de pausar. As datas de entrega e avisos aparecem no calendário junto com as aberturas, e a fila mostra cada encomenda passando por Esboço, Lineart, Cor, Render e Entregue.</p>
+    <p class="bloco-sub"><b>O botão "Me avisa quando abrir"</b> abre a sua DM com a mensagem já copiada: a pessoa só cola e envia. O site não guarda a lista sozinho; quem avisa é você, pelas mensagens que chegarem.</p>
 
     <h3 class="fluxo-t">O painel</h3>
     <ol class="fluxo">
@@ -147,7 +143,8 @@
     <p class="rotulo"><span class="num">07</span> a estrutura</p>
     <h2 class="t-cinema" id="b7">Do que o site é feito</h2>
     <div class="estrutura">
-      <div><b>3 páginas</b><span><code>index.html</code> o site · <code>admin.html</code> o painel · <code>apresentacao.html</code> esta página</span></div>
+      <div><b>4 páginas do site</b><span><code>index.html</code> início · <code>portfolio.html</code> · <code>agenda.html</code> · <code>encomendas.html</code></span></div>
+      <div><b>E mais duas</b><span><code>admin.html</code> o painel · <code>apresentacao.html</code> esta página</span></div>
       <div><b>Imagens</b><span>Na pasta <code>assets/</code>. As do portfólio ficam em <code>assets/galeria/</code>.</span></div>
       <div><b>Conteúdo</b><span>Todo texto, preço, data, link, cor e fonte mora num lugar só, que o painel edita. Nada fica "preso" no código.</span></div>
       <div><b>Celular primeiro</b><span>Pensado pra tela do celular e ajustado pra tablet e computador.</span></div>
@@ -159,10 +156,10 @@
     <p class="rotulo"><span class="num">08</span> o que você pode editar sozinha</p>
     <h2 class="t-cinema" id="b8">As abas do painel</h2>
     <ol class="abas-lista">
-      <li><b>Agenda</b> status, recado, próxima abertura, vagas, datas do calendário, fila e etapas</li>
+      <li><b>Agenda</b> agendas de cada mês (data, vagas e o botão +1 vaga), pausa, textos de cada situação, datas do calendário, fila e etapas</li>
       <li><b>Preços e encomendas</b> enquadramentos, acabamentos, personagem extra, fundos, descontos, uso comercial e regras de pagamento (com as imagens de exemplo)</li>
       <li><b>Galeria</b> enviar artes do computador, trocar título e categoria, esconder, reordenar ou apagar</li>
-      <li><b>Cenas e imagens</b> a imagem da abertura e dos dois interlúdios, a parte em destaque e as frases</li>
+      <li><b>Cenas e imagens</b> a imagem da abertura, o topo de cada página e os dois interlúdios, com a parte em destaque e as frases</li>
       <li><b>Perfil e ficha</b> nome, avatar, frase, Instagram, WhatsApp, música, e tudo da ficha</li>
       <li><b>Links</b> adicionar, trocar ícone, esconder ou reordenar</li>
       <li><b>Perguntas</b> as perguntas e respostas do fim</li>

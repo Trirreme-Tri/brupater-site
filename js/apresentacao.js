@@ -8,8 +8,10 @@
 
   /* endereços completos, do jeito que vão aparecer no ar */
   var base = location.href.replace(/[^/]*([?#].*)?$/, "");
-  $("#url-site").textContent = base.replace(/^https?:\/\//, "");
-  $("#url-site").href = base;
+  $("#paginas-links").innerHTML = [["Início", ""], ["Portfólio", "portfolio.html"], ["Agenda", "agenda.html"], ["Encomendas", "encomendas.html"]].map(function (p) {
+    var u = base + p[1];
+    return '<li><b>' + p[0] + '</b><a class="url" href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(u.replace(/^https?:\/\//, "")) + "</a></li>";
+  }).join("");
   $("#url-painel").textContent = (base + "admin.html").replace(/^https?:\/\//, "");
   $("#url-painel").href = base + "admin.html";
 
@@ -55,7 +57,7 @@
   var desc = p.descontosVolume.filter(function (d) { return d.pct > 0; }).map(function (d) { return d.pct + "% a partir de " + d.min + " artes"; });
   if (desc.length) itens.push("Desconto por quantidade: <b>" + esc(desc.join(" · ")) + "</b>");
   itens.push("Uso comercial: <b>+" + p.comercialPct + "%</b>");
-  itens.push("As <b>datas da agenda e a fila de produção</b> estão preenchidas com exemplos: troque pelas suas no painel");
+  itens.push("As <b>agendas de outubro, novembro e dezembro</b>, as datas e a fila estão preenchidas com exemplos: troque pelas suas no painel");
   itens.push("O texto <b>\"Sobre você\"</b> e as respostas das perguntas foram escritos a partir dos seus posts: ajuste pra sua voz");
   $("#conferir").innerHTML = itens.map(function (t) { return "<li>" + t + "</li>"; }).join("");
 })();

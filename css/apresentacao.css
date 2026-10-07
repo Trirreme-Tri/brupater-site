@@ -101,3 +101,7 @@ html[data-movimento="desligado"] .doc-capa-img { animation: none; }
 @media (min-width: 640px) { .bloco.destaque { padding: 36px 32px; } }
 .conferir { margin: 0 0 18px; padding-left: 1.2em; display: grid; gap: 8px; }
 .conferir li::marker { color: var(--rosa); }
+.paginas-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; width: 100%; }
+.paginas-links li { display: grid; gap: 2px; }
+.paginas-links b { font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; }
+.etiqueta.esgotado { background: var(--noite); color: var(--rosa); border-color: var(--rosa); box-shadow: 4px 4px 0 var(--rosa); }

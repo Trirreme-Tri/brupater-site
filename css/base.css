@@ -73,18 +73,13 @@ p { margin: 0; }
 }
 .tema-btn svg { width: 20px; height: 20px; }
 
-/* ===== grão de filme ===== */
+/* ===== grão de filme =====
+   PARADO de propósito: a versão animada fazia as imagens parecerem tremer. */
 html[data-grao="on"] body::after {
-  content: ""; position: fixed; inset: -50%; z-index: 9000; pointer-events: none;
+  content: ""; position: fixed; inset: 0; z-index: 9000; pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: .11; mix-blend-mode: overlay;
-  animation: grao 1.1s steps(6) infinite;
+  opacity: .08; mix-blend-mode: overlay;
 }
-@keyframes grao {
-  0% { transform: translate(0, 0); } 20% { transform: translate(-3%, 2%); } 40% { transform: translate(2%, -3%); }
-  60% { transform: translate(-2%, -1%); } 80% { transform: translate(3%, 3%); } 100% { transform: translate(0, 0); }
-}
-html[data-movimento="desligado"] body::after { animation: none; }
 
 /* ===== entrada dos elementos ao rolar (js/cinema.js adiciona .visto) ===== */
 .surge { opacity: 0; transform: translateY(28px); filter: blur(6px);
@@ -95,7 +90,6 @@ html[data-movimento="desligado"] .surge { opacity: 1; transform: none; filter: n
 @media (prefers-reduced-motion: reduce) {
   .surge { opacity: 1; transform: none; filter: none; transition: none; }
   html { scroll-behavior: auto; }
-  html[data-grao="on"] body::after { animation: none; }
 }
 
 /* ===== rodapé (todas as páginas) ===== */

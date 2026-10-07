@@ -65,7 +65,7 @@ var Encomenda = (function () {
     return partes.join(" · ");
   }
 
-  function aberta() { return SITE.agenda.status === "aberta"; }
+  function aberta() { return estadoAgenda().estado === "aberta"; }
 
   function resumo() {
     var c = calcular();
@@ -152,17 +152,22 @@ var Encomenda = (function () {
     $("#barra-valor").textContent = brl(c.total);
   }
 
+  /* faixa no topo da calculadora: sempre mostra a situação da agenda */
   function renderAviso() {
-    var av = $("#enc-aviso");
-    av.hidden = aberta();
-    if (aberta()) return;
-    var st = STATUS[SITE.agenda.status] || STATUS.fechada;
-    var abre = dataLocal(SITE.agenda.proximaAbertura);
-    av.innerHTML = '<span class="etiqueta ' + st.classe + '">' + esc(st.etiqueta) + "</span><p>" +
-      (SITE.agenda.status === "espera"
-        ? "As vagas desta sessão já foram preenchidas, mas a lista de espera está aberta. Monte seu pedido e entre na lista: você é avisada(o) primeiro."
-        : "As encomendas estão fechadas agora" + (abre ? " (previsão de abertura: " + esc(dataExtenso(abre)) + ")" : "") + ". Você pode simular seu pedido e mandar pra lista de espera.") +
-      ' <a href="#agenda" style="color:var(--rosa)">ver agenda</a></p>';
+    var av = $("#enc-aviso"), ag = estadoAgenda();
+    var txt;
+    if (ag.estado === "aberta") {
+      txt = "<b>" + esc(ag.atual.sessao.nome) + "</b>: " + ag.atual.livres + " de " + ag.atual.vagas + (ag.atual.vagas === 1 ? " vaga livre" : " vagas livres") + ". A vaga é garantida quando o pagamento de 50% é confirmado.";
+    } else if (ag.estado === "esgotado") {
+      txt = "<b>" + esc(ag.atual.sessao.nome) + "</b> está esgotada. Você pode montar seu pedido e mandar pra lista de espera" +
+        (ag.proxima ? " da próxima agenda, que abre em " + esc(dataExtenso(ag.proxima.abre)) : "") + ".";
+    } else {
+      txt = "As encomendas estão fechadas agora" + (ag.proxima ? " (a <b>" + esc(ag.proxima.sessao.nome) + "</b> abre em " + esc(dataExtenso(ag.proxima.abre)) + ")" : "") +
+        ". Você pode simular seu pedido e mandar pra lista de espera.";
+    }
+    av.hidden = false;
+    av.className = "enc-aviso " + ag.estado;
+    av.innerHTML = etiquetaHtml(ag.estado) + "<p>" + txt + ' <a href="agenda.html">ver agenda</a></p>';
   }
 
   function regras() {

@@ -1,8 +1,9 @@
 "use strict";
 
 /*
- * Desenha a página pública a partir de SITE (js/tema.js carrega com
- * lojaCarregar()). Nada de conteúdo fixo aqui: tudo vem de SITE.
+ * Desenha as páginas públicas a partir de SITE (carregado em js/tema.js).
+ * Cada função de desenho só roda se a página tiver o lugar dela — assim o
+ * mesmo arquivo serve pra Início, Portfólio, Agenda e Encomendas.
  */
 
 /* ===== contato: WhatsApp se tiver número, senão DM do Instagram ===== */
@@ -14,21 +15,38 @@ function contatoLink(texto) {
 }
 function instagramUrl() { return "https://www.instagram.com/" + encodeURIComponent(SITE.perfil.instagram || "") + "/"; }
 
-/* datas "AAAA-MM-DD" viram data local (sem o fuso empurrar pro dia anterior) */
-function dataLocal(txt) {
-  var p = String(txt || "").split("-").map(Number);
-  if (p.length !== 3 || !p[0]) return null;
-  return new Date(p[0], p[1] - 1, p[2]);
+function copiarTexto(txt) {
+  return new Promise(function (ok, falha) {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, tentar);
+    else tentar();
+    function tentar() {
+      var ta = document.createElement("textarea");
+      ta.value = txt; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); ok(); } catch (e) { falha(e); }
+      document.body.removeChild(ta);
+    }
+  });
 }
-function hojeZero() { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
-var MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
-function dataExtenso(d) { return d.getDate() + " de " + MESES[d.getMonth()] + " de " + d.getFullYear(); }
 
-var STATUS = {
-  aberta:  { etiqueta: "Commissions open", classe: "", titulo: "Encomendas abertas" },
-  espera:  { etiqueta: "Lista de espera", classe: "espera", titulo: "Lista de espera aberta" },
-  fechada: { etiqueta: "Comms closed", classe: "fechada", titulo: "Encomendas fechadas" }
-};
+var timerAviso;
+function avisoSite(txt) {
+  var el = document.getElementById("aviso-site");
+  if (!el) return;
+  el.textContent = txt;
+  el.classList.add("visivel");
+  clearTimeout(timerAviso);
+  timerAviso = setTimeout(function () { el.classList.remove("visivel"); }, 5000);
+}
+
+var TITULOS_ESTADO = { aberta: "Encomendas abertas", esgotado: "Vagas esgotadas", fechada: "Encomendas fechadas" };
+var CLASSE_ESTADO = { aberta: "", esgotado: "esgotado", fechada: "fechada" };
+function etiquetaHtml(estado) {
+  var txt = (SITE.agenda.etiquetas || {})[estado] || TITULOS_ESTADO[estado];
+  return '<span class="etiqueta ' + CLASSE_ESTADO[estado] + '">' + esc(txt) + "</span>";
+}
+var MSG_AVISAR = "Oi, Bru! Quero ser avisada(o) quando a próxima agenda de encomendas abrir ✨";
+
 var TIPOS_EVENTO = {
   abertura:   { nome: "Abertura", cor: "var(--rosa)" },
   fechamento: { nome: "Fechamento", cor: "var(--cine-ink)" },
@@ -38,21 +56,41 @@ var TIPOS_EVENTO = {
 
 var Site = (function () {
   var $ = function (s) { return document.querySelector(s); };
+  var tem = function (s) { return !!document.querySelector(s); };
   var filtroAtual = "Todos";
-  var mesCal = null; // primeiro dia do mês mostrado no calendário
+  var mesCal = null;
 
   function img(url) { return urlSegura(url, true); }
 
+  /* ===== comum ===== */
   function renderAvatar() {
     var a = img(SITE.perfil.avatar) || "assets/avatar.webp";
     Array.prototype.forEach.call(document.querySelectorAll(".js-avatar"), function (el) { el.src = a; });
-    var ret = $("#ficha-retrato");
-    if (ret) ret.src = img(SITE.sobre.retrato) || a;
     var nc = $(".js-nome-curto");
     if (nc) nc.textContent = String(SITE.perfil.handle || "brupater").replace(/^[_.@]+/, "");
   }
+  function renderRodape() {
+    if (!tem("#rod-nome")) return;
+    $("#rod-assinatura").textContent = SITE.perfil.assinatura ? SITE.perfil.assinatura + " ✦" : "";
+    $("#rod-nome").textContent = SITE.perfil.nome;
+    $("#rod-ig").href = instagramUrl();
+    $("#rod-ig").textContent = "@" + SITE.perfil.instagram;
+  }
+  /* cabeçalho de cinema das páginas internas */
+  function renderCabecalho() {
+    var cab = $("#cabecalho");
+    if (!cab) return;
+    var c = (SITE.cenas.paginas || {})[document.body.dataset.pagina] || {};
+    var fundo = cab.querySelector(".cab-img");
+    fundo.style.backgroundImage = "url('" + img(c.img) + "')";
+    fundo.style.setProperty("--foco", c.foco || "50% 40%");
+    cab.querySelector(".cab-titulo").textContent = c.titulo || "";
+    cab.querySelector(".cab-sub").textContent = c.sub || "";
+  }
 
+  /* ===== início ===== */
   function renderAbertura() {
+    if (!tem("#abertura")) return;
     var c = SITE.cenas.abertura, p = SITE.perfil;
     var fundo = $("#abertura-img");
     fundo.style.backgroundImage = "url('" + img(c.img) + "')";
@@ -63,23 +101,22 @@ var Site = (function () {
     $("#ab-nome").innerHTML = '<span class="linha"><span>' + esc(l1) + "</span></span>" + (l2 ? '<span class="linha"><span>' + esc(l2) + "</span></span>" : "");
     $("#ab-frase").textContent = p.frase;
     $("#ab-legenda").textContent = c.legenda;
-
     var trilha = $("#ab-trilha"), url = urlSegura(p.trilha && p.trilha.url);
     trilha.hidden = !url;
     if (url) { trilha.href = url; $("#ab-trilha-txt").textContent = p.trilha.texto || "Dar play"; }
-
-    var st = STATUS[SITE.agenda.status] || STATUS.fechada;
-    $("#ab-status").innerHTML = '<a href="#agenda" aria-label="' + esc(st.titulo) + ', ver agenda"><span class="etiqueta ' + st.classe + '">' + esc(st.etiqueta) + "</span></a>";
+    var ag = estadoAgenda();
+    $("#ab-status").innerHTML = '<a href="agenda.html" aria-label="' + esc(TITULOS_ESTADO[ag.estado]) + ', ver agenda">' + etiquetaHtml(ag.estado) + "</a>";
   }
 
   function renderLinks() {
+    if (!tem("#links")) return;
     $("#links").innerHTML = SITE.links.filter(function (l) { return l.visivel !== false; }).map(function (l) {
       var url = urlSegura(l.url) || "#";
       var externo = /^https?:/i.test(url);
       return '<a class="link surge" href="' + esc(url) + '"' + (externo ? ' target="_blank" rel="noopener"' : "") + ">" +
         '<span class="ico">' + iconeSvg(l.icone) + "</span>" +
         '<span><span class="nome">' + esc(l.nome) + '</span><span class="desc">' + esc(l.desc) + "</span></span>" +
-        '<span class="seta" aria-hidden="true">' + (externo ? "&#8599;" : "&#8595;") + "</span></a>";
+        '<span class="seta" aria-hidden="true">' + (externo ? "&#8599;" : "&#8594;") + "</span></a>";
     }).join("");
   }
 
@@ -92,17 +129,17 @@ var Site = (function () {
       return '<span class="r">' + esc(f.rotulo) + "</span>" + SEP + valores.join(SEP);
     }).join(SEP);
   }
-
   function renderFicha() {
+    if (!tem("#ficha")) return;
     var s = SITE.sobre;
+    $("#ficha-retrato").src = img(s.retrato) || img(SITE.perfil.avatar) || "assets/avatar.webp";
     $("#ficha-nome").textContent = SITE.perfil.nome;
     $("#ficha-lista").innerHTML = linhaFicha(s.ficha || []);
     var ex = $("#ficha-extra");
     ex.hidden = !(s.extra && s.extra.valor);
     if (!ex.hidden) ex.innerHTML = linhaFicha([s.extra]);
     $("#ficha-palavra").textContent = s.palavra || "";
-    var arte = $("#ficha-arte");
-    arte.src = img(s.imagem) || "assets/hey.webp";
+    $("#ficha-arte").src = img(s.imagem) || "assets/hey.webp";
     $("#ficha-texto").textContent = s.texto;
     /* o lema do pôster: a última frase ganha a cor de destaque, como no Oásis */
     var frases = String(s.lema || "").replace(/([.!?])\s+/g, "$1\n").split("\n");
@@ -113,18 +150,43 @@ var Site = (function () {
 
   function renderInterludio(id, cena) {
     var sec = document.getElementById(id);
+    if (!sec || !cena) return;
     var fundo = sec.querySelector(".interludio-img");
     fundo.style.backgroundImage = "url('" + img(cena.img) + "')";
     fundo.style.setProperty("--foco", cena.foco || "50% 40%");
-    var p = sec.querySelector(".interludio-frase p"), cite = sec.querySelector(".interludio-frase cite");
-    p.textContent = cena.frase; p.classList.add("surge-frase");
-    cite.textContent = cena.credito; cite.classList.add("surge-frase");
+    sec.querySelector(".interludio-frase p").textContent = cena.frase;
+    sec.querySelector(".interludio-frase cite").textContent = cena.credito;
     sec.setAttribute("aria-label", cena.frase || "Interlúdio");
   }
 
-  function obrasVisiveis() { return SITE.galeria.filter(function (o) { return o.visivel !== false && img(o.img); }); }
+  /* cartões "próximas cenas" da página inicial */
+  function renderChamadas() {
+    if (!tem("#chamadas")) return;
+    var pg = SITE.cenas.paginas || {};
+    var ag = estadoAgenda();
+    var txtAgenda = ag.estado === "aberta" ? ag.atual.livres + (ag.atual.livres === 1 ? " vaga livre" : " vagas livres") + " · " + ag.atual.sessao.nome
+      : (ag.proxima ? "Próxima: " + ag.proxima.sessao.nome + " · abre " + dataExtenso(ag.proxima.abre) : TITULOS_ESTADO[ag.estado]);
+    var cartoes = [
+      { href: "portfolio.html", n: "03", c: pg.portfolio, extra: obrasVisiveis().length + " artes" },
+      { href: "agenda.html", n: "04", c: pg.agenda, extra: txtAgenda, etiqueta: etiquetaHtml(ag.estado) },
+      { href: "encomendas.html", n: "05", c: pg.encomendas, extra: "a partir de " + brl(Math.min.apply(null, SITE.precos.enquadramentos.map(function (e) { return Number(e.preco) || 0; }).concat([Infinity]))) }
+    ];
+    $("#chamadas").innerHTML = cartoes.map(function (k) {
+      var c = k.c || {};
+      return '<a class="chamada surge" href="' + k.href + '">' +
+        '<span class="chamada-img" style="background-image:url(\'' + esc(img(c.img)) + '\');--foco:' + esc(c.foco || "50% 40%") + '"></span>' +
+        '<span class="chamada-txt"><span class="rotulo"><span class="timecode">CENA ' + k.n + "</span></span>" +
+        (k.etiqueta || "") +
+        '<span class="chamada-t t-cinema">' + esc(c.titulo) + "</span>" +
+        '<span class="chamada-sub">' + esc(c.sub) + "</span>" +
+        '<span class="chamada-extra">' + esc(k.extra) + ' <b aria-hidden="true">&#8594;</b></span></span></a>';
+    }).join("");
+  }
 
+  /* ===== portfólio ===== */
+  function obrasVisiveis() { return SITE.galeria.filter(function (o) { return o.visivel !== false && img(o.img); }); }
   function renderGaleria() {
+    if (!tem("#galeria")) return;
     var obras = obrasVisiveis();
     var tags = ["Todos"];
     obras.forEach(function (o) { if (o.tag && tags.indexOf(o.tag) < 0) tags.push(o.tag); });
@@ -145,52 +207,83 @@ var Site = (function () {
   function estrela(cheia) {
     return '<svg viewBox="0 0 24 24" class="' + (cheia ? "cheia" : "vazia") + '" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>';
   }
-
-  function renderStatus() {
-    var a = SITE.agenda, st = STATUS[a.status] || STATUS.fechada;
-    var total = Math.max(0, Number(a.vagas.total) || 0);
-    var ocupadas = Math.min(total, Math.max(0, Number(a.vagas.ocupadas) || 0));
-    var livres = total - ocupadas;
-    var abre = dataLocal(a.proximaAbertura);
-    var dias = abre ? Math.round((abre - hojeZero()) / 86400000) : null;
-
-    var numeroEsq;
-    if (a.status === "aberta") {
-      numeroEsq = '<div class="st-num"><span class="rotulo">vagas livres</span><strong>' + livres + "</strong><small>de " + total + " nesta sessão</small></div>";
-    } else if (a.mostrarContagem && dias !== null && dias >= 0) {
-      numeroEsq = '<div class="st-num"><span class="rotulo">abre em</span><strong>' + (dias === 0 ? "hoje" : dias) + "</strong><small>" +
-        (dias === 0 ? "" : (dias === 1 ? "dia · " : "dias · ")) + esc(dataExtenso(abre)) + "</small></div>";
-    } else {
-      numeroEsq = '<div class="st-num"><span class="rotulo">próxima abertura</span><strong>' + (abre ? esc(String(abre.getDate()).padStart(2, "0") + "/" + String(abre.getMonth() + 1).padStart(2, "0")) : "em breve") + "</strong><small>" + (abre ? esc(dataExtenso(abre)) : "fique de olho no Instagram") + "</small></div>";
-    }
-    var estrelas = "";
-    for (var i = 0; i < total; i++) estrelas += estrela(i < ocupadas);
-    var numeroDir = '<div class="st-num"><span class="rotulo">vagas da sessão</span><div class="estrelas" role="img" aria-label="' + ocupadas + " de " + total + ' vagas preenchidas">' + estrelas +
-      "</div><small>" + ocupadas + " de " + total + " preenchidas</small></div>";
-
-    var ctas;
-    if (a.status === "aberta") {
-      ctas = '<a class="btn cheio" href="#encomendas">Encomendar agora</a><a class="btn" href="' + esc(contatoLink("")) + '" target="_blank" rel="noopener">Tirar dúvida</a>';
-    } else if (a.status === "espera") {
-      ctas = '<a class="btn cheio" href="#encomendas">Montar pedido e entrar na lista</a><a class="btn" href="' + esc(instagramUrl()) + '" target="_blank" rel="noopener">Seguir no Instagram</a>';
-    } else {
-      ctas = '<a class="btn cheio" href="' + esc(contatoLink("Oi, Bru! Quero ser avisada(o) quando as encomendas abrirem ✨")) + '" target="_blank" rel="noopener">Me avisa quando abrir</a><a class="btn" href="#encomendas">Simular meu pedido</a>';
-    }
-
-    $("#agenda-status").innerHTML =
-      '<div class="st-topo"><span class="etiqueta ' + st.classe + '">' + esc(st.etiqueta) + "</span></div>" +
-      '<h3 class="st-titulo">' + esc(st.titulo) + "</h3>" +
-      '<p class="st-aviso">' + esc(a.aviso) + "</p>" +
-      '<div class="st-numeros">' + numeroEsq + numeroDir + "</div>" +
-      '<div class="st-ctas">' + ctas + "</div>";
+  function estrelas(ocupadas, total) {
+    var h = "";
+    for (var i = 0; i < total; i++) h += estrela(i < ocupadas);
+    return '<div class="estrelas" role="img" aria-label="' + ocupadas + " de " + total + ' vagas preenchidas">' + h + "</div>";
+  }
+  function ctaAvisar(classe) {
+    return '<button type="button" class="btn ' + (classe || "") + '" data-avisar>Me avisa quando abrir</button>';
   }
 
+  function renderStatus() {
+    if (!tem("#agenda-status")) return;
+    var ag = estadoAgenda(), a = SITE.agenda;
+    var esq, dir = "";
+    if (ag.estado === "aberta") {
+      esq = '<div class="st-num"><span class="rotulo">vagas livres</span><strong>' + ag.atual.livres + "</strong><small>de " + ag.atual.vagas + " · " + esc(ag.atual.sessao.nome) + "</small></div>";
+      dir = '<div class="st-num"><span class="rotulo">vagas preenchidas</span>' + estrelas(ag.atual.ocupadas, ag.atual.vagas) + "<small>" + ag.atual.ocupadas + " de " + ag.atual.vagas + "</small></div>";
+    } else {
+      if (ag.proxima && a.mostrarContagem) {
+        var d = diasAte(ag.proxima.abre);
+        esq = '<div class="st-num"><span class="rotulo">próxima agenda abre em</span><strong>' + (d === 0 ? "hoje" : d) + "</strong><small>" + (d === 0 ? "" : (d === 1 ? "dia · " : "dias · ")) + esc(dataExtenso(ag.proxima.abre)) + "</small></div>";
+      } else if (ag.proxima) {
+        esq = '<div class="st-num"><span class="rotulo">próxima agenda</span><strong>' + String(ag.proxima.abre.getDate()).padStart(2, "0") + "/" + String(ag.proxima.abre.getMonth() + 1).padStart(2, "0") + "</strong><small>" + esc(dataExtenso(ag.proxima.abre)) + "</small></div>";
+      } else {
+        esq = '<div class="st-num"><span class="rotulo">próxima agenda</span><strong>em breve</strong><small>fique de olho no Instagram</small></div>';
+      }
+      if (ag.proxima) dir = '<div class="st-num"><span class="rotulo">' + esc(ag.proxima.sessao.nome) + "</span>" + estrelas(0, ag.proxima.vagas) + "<small>" + ag.proxima.vagas + " vagas</small></div>";
+    }
+    var ctas = ag.estado === "aberta"
+      ? '<a class="btn cheio" href="encomendas.html">Garantir minha vaga</a><a class="btn" href="' + esc(contatoLink("")) + '" target="_blank" rel="noopener">Tirar dúvida</a>'
+      : ctaAvisar("cheio") + '<a class="btn" href="encomendas.html">Simular meu pedido</a>';
+
+    $("#agenda-status").innerHTML =
+      '<div class="st-topo">' + etiquetaHtml(ag.estado) + "</div>" +
+      '<h2 class="st-titulo">' + esc(TITULOS_ESTADO[ag.estado]) + "</h2>" +
+      '<p class="st-aviso">' + esc((a.avisos || {})[ag.estado] || "") + "</p>" +
+      '<div class="st-numeros">' + esq + dir + "</div>" +
+      '<div class="st-ctas">' + ctas + "</div>" +
+      (ag.estado !== "aberta" ? '<p class="st-nota">O botão copia a mensagem e abre a minha DM: é só colar e enviar.</p>' : "");
+  }
+
+  var NOMES_SESSAO = { aberta: "Aberta", esgotado: "Esgotado", embreve: "Em breve", encerrada: "Encerrada" };
+  function renderSessoes() {
+    if (!tem("#agenda-sessoes")) return;
+    var lista = sessoesOrdenadas();
+    var hoje = hojeZero();
+    /* esconde sessões antigas que já acabaram: mostra a atual e as próximas */
+    var ag = estadoAgenda();
+    var visiveis = lista.filter(function (x) { return x.abre >= hoje || (ag.atual && x.sessao === ag.atual.sessao); });
+    $("#agenda-sessoes").innerHTML = visiveis.length ? visiveis.map(function (x) {
+      var estado = SITE.agenda.pausa && x.estado === "aberta" ? "encerrada" : x.estado;
+      var info = estado === "embreve" ? "abre em " + dataExtenso(x.abre)
+        : estado === "aberta" ? x.livres + (x.livres === 1 ? " vaga livre" : " vagas livres")
+        : estado === "esgotado" ? "todas as " + x.vagas + " vagas preenchidas" : "agenda encerrada";
+      return '<li class="sessao ' + estado + ' surge">' +
+        '<div class="sessao-cab">' + (estado === "esgotado"
+          ? '<span class="carimbo">' + esc((SITE.agenda.etiquetas || {}).esgotado || "Esgotado") + "</span>"
+          : '<span class="sessao-chip">' + NOMES_SESSAO[estado] + "</span>") + "</div>" +
+        '<h3 class="sessao-nome">' + esc(x.sessao.nome) + "</h3>" +
+        estrelas(x.ocupadas, x.vagas) +
+        '<p class="sessao-info">' + esc(info) + "</p>" +
+        (x.sessao.nota ? '<p class="sessao-nota">' + esc(x.sessao.nota) + "</p>" : "") +
+        (estado === "aberta" ? '<a class="btn cheio" href="encomendas.html">Garantir minha vaga</a>' : estado === "embreve" ? ctaAvisar("") : "") +
+        "</li>";
+    }).join("") : '<li class="vazio-cine">Nenhuma agenda marcada por enquanto. Fique de olho no Instagram!</li>';
+  }
+
+  /* datas manuais + aberturas das sessões, tudo junto */
   function eventosOrdenados() {
-    return (SITE.agenda.eventos || []).map(function (e) { return { e: e, d: dataLocal(e.data) }; })
-      .filter(function (x) { return x.d; }).sort(function (a, b) { return a.d - b.d; });
+    var manuais = (SITE.agenda.eventos || []).map(function (e) { return { e: e, d: dataLocal(e.data) }; });
+    var sessoes = sessoesOrdenadas().map(function (x) {
+      return { e: { tipo: "abertura", titulo: "Abre: " + x.sessao.nome, desc: x.vagas + (x.vagas === 1 ? " vaga" : " vagas") + (x.sessao.nota ? " · " + x.sessao.nota : "") }, d: x.abre };
+    });
+    return manuais.concat(sessoes).filter(function (x) { return x.d; }).sort(function (a, b) { return a.d - b.d; });
   }
 
   function renderCalendario() {
+    if (!tem("#agenda-cal")) return;
     var hoje = hojeZero();
     if (!mesCal) mesCal = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
     var ano = mesCal.getFullYear(), mes = mesCal.getMonth();
@@ -209,7 +302,7 @@ var Site = (function () {
       if (data.getTime() === hoje.getTime()) cls.push("hoje");
       if (evs) {
         cls.push("marcado");
-        if (evs.some(function (e) { return e.tipo === "abertura"; })) cls.push("abertura");
+        if (evs.some(function (e) { return e.tipo === "abertura"; })) cls.push("dia-abertura");
         var cor = (TIPOS_EVENTO[evs[0].tipo] || TIPOS_EVENTO.aviso).cor;
         cel.push('<button type="button" class="' + cls.join(" ") + '" data-dia="' + d + '" style="--cor-ev:' + cor + '" aria-label="' + d + " de " + MESES[mes] + ": " + esc(evs.map(function (e) { return e.titulo; }).join(", ")) + '">' + d + "</button>");
       } else {
@@ -218,7 +311,7 @@ var Site = (function () {
     }
     var legenda = Object.keys(TIPOS_EVENTO).map(function (k) { return '<span style="--c:' + TIPOS_EVENTO[k].cor + '">' + TIPOS_EVENTO[k].nome + "</span>"; }).join("");
     $("#agenda-cal").innerHTML =
-      '<div class="cal-topo"><h3 class="cal-mes">' + MESES[mes] + " <small style=\"font-size:.55em;opacity:.6\">" + ano + "</small></h3>" +
+      '<div class="cal-topo"><h3 class="cal-mes">' + MESES[mes] + ' <small style="font-size:.55em;opacity:.6">' + ano + "</small></h3>" +
       '<div class="cal-nav"><button type="button" data-cal="-1" aria-label="Mês anterior">&#8592;</button><button type="button" data-cal="1" aria-label="Próximo mês">&#8594;</button></div></div>' +
       '<div class="cal-grade">' + cel.join("") + "</div>" +
       '<p class="cal-detalhe" id="cal-detalhe" aria-live="polite">' + (Object.keys(porDia).length ? "Toque num dia marcado para ver o que acontece." : "Nenhuma data marcada neste mês.") + "</p>" +
@@ -227,8 +320,10 @@ var Site = (function () {
   }
 
   function renderEventos() {
+    if (!tem("#agenda-eventos")) return;
     var hoje = hojeZero();
-    var lista = eventosOrdenados();
+    /* só o que ainda vai acontecer (e o que passou nos últimos 7 dias) */
+    var lista = eventosOrdenados().filter(function (x) { return x.d >= new Date(hoje.getTime() - 7 * 86400000); });
     $("#agenda-eventos").innerHTML = lista.length ? lista.map(function (x) {
       var t = TIPOS_EVENTO[x.e.tipo] || TIPOS_EVENTO.aviso;
       return '<li class="ev' + (x.d < hoje ? " passado" : "") + '" style="--cor-ev:' + t.cor + '">' +
@@ -238,41 +333,39 @@ var Site = (function () {
   }
 
   function renderFila() {
+    if (!tem("#agenda-fila")) return;
     var etapas = SITE.agenda.etapas || [];
     var n = etapas.length;
     var fila = SITE.agenda.fila || [];
     $("#agenda-fila").innerHTML = fila.length ? fila.map(function (f) {
       var e = Math.max(0, Math.min(n - 1, Number(f.etapa) || 0));
       var barras = "";
-      for (var i = 0; i < n; i++) barras += "<i class=\"" + (i < e || e === n - 1 ? "ok" : (i === e ? "agora" : "")) + "\"></i>";
+      for (var i = 0; i < n; i++) barras += '<i class="' + (i < e || e === n - 1 ? "ok" : (i === e ? "agora" : "")) + '"></i>';
       return '<li class="fila-item"><div class="fila-cab"><span><b>' + esc(f.nome) + "</b> <small>" + esc(f.detalhe) + '</small></span><span class="fila-etapa">' + esc(etapas[e] || "") + "</span></div>" +
         '<div class="fila-barra" style="--n:' + n + '" role="img" aria-label="Etapa ' + (e + 1) + " de " + n + ": " + esc(etapas[e] || "") + '">' + barras + "</div></li>";
     }).join("") : '<li class="vazio-cine">A fila está vazia agora.</li>';
   }
 
+  /* ===== encomendas: perguntas ===== */
   function renderFaq() {
+    if (!tem("#faq")) return;
     $("#faq").innerHTML = SITE.faq.map(function (f) {
       return '<details class="surge"><summary>' + esc(f.p) + '</summary><p class="resp">' + esc(f.r) + "</p></details>";
     }).join("");
   }
 
-  function renderRodape() {
-    $("#rod-assinatura").textContent = SITE.perfil.assinatura ? SITE.perfil.assinatura + " ✦" : "";
-    $("#rod-nome").textContent = SITE.perfil.nome;
-    var ig = $("#rod-ig");
-    ig.href = instagramUrl();
-    ig.textContent = "@" + SITE.perfil.instagram;
-  }
-
   function renderTudo() {
     renderAvatar();
+    renderCabecalho();
     renderAbertura();
     renderLinks();
     renderFicha();
     renderInterludio("interludio1", SITE.cenas.interludio1);
     renderInterludio("interludio2", SITE.cenas.interludio2);
+    renderChamadas();
     renderGaleria();
     renderStatus();
+    renderSessoes();
     renderCalendario();
     renderEventos();
     renderFila();
@@ -283,6 +376,15 @@ var Site = (function () {
 
   function ligarEventos() {
     document.addEventListener("click", function (e) {
+      var av = e.target.closest("[data-avisar]");
+      if (av) {
+        var link = contatoLink(MSG_AVISAR);
+        if (contatoTemWhats()) { window.open(link, "_blank", "noopener"); return; }
+        /* DM do Instagram não aceita texto pronto: copia antes de abrir */
+        copiarTexto(MSG_AVISAR).then(function () { avisoSite("Mensagem copiada! Cole na DM que vai abrir e envie ✨"); }, function () {});
+        window.open(link, "_blank", "noopener");
+        return;
+      }
       var f = e.target.closest(".filtro");
       if (f) {
         filtroAtual = f.dataset.tag;
@@ -312,9 +414,7 @@ var Site = (function () {
         Array.prototype.forEach.call(document.querySelectorAll(".cal-dia.sel"), function (d) { d.classList.remove("sel"); });
         dia.classList.add("sel");
         var evs = $("#agenda-cal").porDia[dia.dataset.dia] || [];
-        $("#cal-detalhe").innerHTML = evs.map(function (ev) {
-          return "<b>" + esc(ev.titulo) + "</b> · " + esc(ev.desc);
-        }).join("<br>");
+        $("#cal-detalhe").innerHTML = evs.map(function (ev) { return "<b>" + esc(ev.titulo) + "</b> · " + esc(ev.desc); }).join("<br>");
       }
     });
 

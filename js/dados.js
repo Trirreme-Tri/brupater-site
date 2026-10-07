@@ -38,6 +38,11 @@ var PADRAO = {
       frase: "Colors and lines bring your ideas to life.",
       credito: "interlúdio · estudo de cor"
     },
+    paginas: {
+      portfolio: { img: "assets/oasis.webp", foco: "50% 30%", titulo: "Portfólio", sub: "Personagens, pôsteres, cenas e estudos." },
+      agenda: { img: "assets/tabela-comissoes.webp", foco: "50% 20%", titulo: "Agenda", sub: "Quando abre, quantas vagas e como anda a fila." },
+      encomendas: { img: "assets/commissions-open.webp", foco: "50% 30%", titulo: "Encomendas", sub: "Crie seu personagem e veja o preço na hora." }
+    },
     interludio2: {
       img: "assets/caderno-1.webp",
       foco: "50% 50%",
@@ -64,16 +69,28 @@ var PADRAO = {
   },
 
   agenda: {
-    // "aberta" | "espera" | "fechada"
-    status: "fechada",
-    aviso: "As encomendas estão fechadas enquanto eu finalizo os pedidos da fila e termino meus estudos. Acompanhe aqui quando a agenda abre de novo!",
-    proximaAbertura: "2026-12-01",
+    /* Cada sessão é uma "agenda" com data de abertura e número de vagas.
+       O estado é calculado sozinho (js/site.js → estadoAgenda):
+         antes da data de abertura ........ fechada ("abre em X dias")
+         aberta e com vaga sobrando ........ aberta
+         todas as vagas preenchidas ......... esgotado
+       A Bru só marca no painel cada vaga confirmada (pagou os 50%). */
+    sessoes: [
+      { nome: "Agenda de outubro", abre: "2026-10-01", vagas: 4, ocupadas: 4, encerrada: false, nota: "Busto, meio corpo e corpo inteiro." },
+      { nome: "Agenda de novembro", abre: "2026-11-01", vagas: 4, ocupadas: 0, encerrada: false, nota: "Busto, meio corpo e corpo inteiro." },
+      { nome: "Agenda de dezembro", abre: "2026-12-01", vagas: 3, ocupadas: 0, encerrada: false, nota: "Sessão curta antes da pausa de fim de ano." }
+    ],
+    /* true = fecha tudo na hora, mesmo com vaga (férias, imprevisto) */
+    pausa: false,
     mostrarContagem: true,
-    vagas: { total: 5, ocupadas: 5 },
+    etiquetas: { aberta: "Commissions open", esgotado: "Esgotado", fechada: "Comms closed" },
+    avisos: {
+      aberta: "A agenda está aberta! Monte seu pedido e me chame na DM pra garantir sua vaga.",
+      esgotado: "Todas as vagas desta agenda foram preenchidas. Obrigada, little stars! Fica de olho na próxima abertura.",
+      fechada: "As encomendas estão fechadas enquanto eu finalizo os pedidos da fila. Acompanhe aqui quando a próxima agenda abre."
+    },
     eventos: [
       { data: "2026-10-20", tipo: "entrega", titulo: "Entrega das encomendas de outubro", desc: "Últimos ajustes e envio dos arquivos finais." },
-      { data: "2026-11-15", tipo: "aviso", titulo: "Lista de espera abre", desc: "Quem entrar na lista recebe aviso primeiro quando as vagas abrirem." },
-      { data: "2026-12-01", tipo: "abertura", titulo: "Abertura das encomendas", desc: "5 vagas para personagens: busto, meio corpo e corpo inteiro." },
       { data: "2026-12-20", tipo: "fechamento", titulo: "Pausa de fim de ano", desc: "Pedidos novos voltam a andar em janeiro." }
     ],
     fila: [
@@ -149,8 +166,9 @@ var PADRAO = {
   links: [
     { nome: "Instagram", desc: "Artes novas, estudos e avisos de abertura", url: "https://www.instagram.com/_.brupater/", icone: "instagram", visivel: true },
     { nome: "Threads", desc: "Conversas, bastidores e recadinhos", url: "https://www.threads.com/@_.brupater", icone: "threads", visivel: true },
-    { nome: "Crie seu personagem", desc: "Monte sua encomenda e veja o preço na hora", url: "#encomendas", icone: "dado", visivel: true },
-    { nome: "Agenda de encomendas", desc: "Quando abre, quantas vagas e como anda a fila", url: "#agenda", icone: "agenda", visivel: true }
+    { nome: "Crie seu personagem", desc: "Monte sua encomenda e veja o preço na hora", url: "encomendas.html", icone: "dado", visivel: true },
+    { nome: "Portfólio", desc: "Personagens, pôsteres, cenas e estudos", url: "portfolio.html", icone: "estrela", visivel: true },
+    { nome: "Agenda de encomendas", desc: "Quando abre, quantas vagas e como anda a fila", url: "agenda.html", icone: "agenda", visivel: true }
   ],
 
   faq: [

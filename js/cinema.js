@@ -4,7 +4,6 @@
  * Efeitos de cinema da página pública:
  *  - barras pretas (letterbox) da abertura que recolhem ao rolar
  *  - navegação que fica sólida depois da abertura
- *  - parallax nas imagens dos interlúdios
  *  - entrada dos elementos ao rolar (.surge → .visto)
  *  - botão de tema claro/escuro
  *  - lightbox (arte em tela cheia)
@@ -61,7 +60,8 @@ var Cinema = (function () {
     });
   }
 
-  /* ===== rolagem: barras, navegação e parallax ===== */
+  /* ===== rolagem: barras de cinema e navegação =====
+     (sem parallax nem imagem se mexendo sozinha: imagem parada não "treme") */
   var agendado = false;
   function aoRolar() {
     if (agendado) return;
@@ -69,25 +69,12 @@ var Cinema = (function () {
     requestAnimationFrame(function () {
       agendado = false;
       var y = window.scrollY || window.pageYOffset;
-      var vh = window.innerHeight;
-      var abertura = document.getElementById("abertura");
+      var topo = document.querySelector("[data-topo]");
       var nav = document.getElementById("nav");
-
-      if (abertura) {
-        var p = Math.min(1, Math.max(0, y / (vh * 0.45)));
-        abertura.style.setProperty("--barra", String(1 - p));
-        if (nav) nav.classList.toggle("solida", y > abertura.offsetHeight - 90);
-      }
-
-      if (!semMovimento()) {
-        var fator = raiz.dataset.movimento === "suave" ? 0.06 : 0.14;
-        Array.prototype.forEach.call(document.querySelectorAll("[data-parallax]"), function (el) {
-          var r = el.parentNode.getBoundingClientRect();
-          if (r.bottom < -100 || r.top > vh + 100) return;
-          var centro = r.top + r.height / 2 - vh / 2;
-          el.style.setProperty("--py", (-centro * fator).toFixed(1) + "px");
-        });
-      }
+      if (!topo) { if (nav) nav.classList.add("solida"); return; }
+      var p = Math.min(1, Math.max(0, y / (window.innerHeight * 0.45)));
+      topo.style.setProperty("--barra", String(1 - p));
+      if (nav) nav.classList.toggle("solida", y > topo.offsetHeight - 90);
     });
   }
 

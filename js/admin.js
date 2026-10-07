@@ -146,28 +146,44 @@
   }
 
   /* ----- 01 agenda ----- */
+  var NOMES_ESTADO = { aberta: "Aberta", esgotado: "Esgotado", embreve: "Em breve", encerrada: "Encerrada", fechada: "Fechada" };
   function abaAgenda() {
     var a = rascunho.agenda;
-    var status = [
-      { v: "aberta", t: "Abertas", d: "Aceitando pedidos agora" },
-      { v: "espera", t: "Lista de espera", d: "Vagas cheias, mas dá pra entrar na lista" },
-      { v: "fechada", t: "Fechadas", d: "Sem pedidos novos por enquanto" }
-    ];
-    var radios = '<div class="status-opcoes" role="radiogroup" aria-label="Status das encomendas">' + status.map(function (s) {
-      return '<label class="status-op' + (a.status === s.v ? " sel" : "") + '"><input type="radio" name="status" data-k="agenda.status" data-rerender value="' + s.v + '"' + (a.status === s.v ? " checked" : "") + "><b>" + s.t + "</b><small>" + s.d + "</small></label>";
-    }).join("") + "</div>";
-
+    var ag = estadoAgenda(a);
     var etapas = a.etapas.map(function (e, i) { return { v: i, t: e }; });
     var tipos = Object.keys(TIPOS_ADMIN).map(function (k) { return { v: k, t: TIPOS_ADMIN[k] }; });
 
-    return secao("Status das encomendas", "Muda a etiqueta da abertura, o quadro da agenda e o botão de fechar pedido.",
-        radios +
-        campo("agenda.aviso", "Recado para quem visita", { tipo: "textarea", ajuda: "Aparece no quadro de status da agenda." }) +
-        linha(campo("agenda.proximaAbertura", "Próxima abertura", { tipo: "date" }),
-              campo("agenda.vagas.total", "Vagas da sessão", { tipo: "number", min: 0 }),
-              campo("agenda.vagas.ocupadas", "Vagas preenchidas", { tipo: "number", min: 0 })) +
+    var agora = ag.estado === "aberta" ? "<b>" + esc(ag.atual.sessao.nome) + "</b> está aberta com " + ag.atual.livres + " de " + ag.atual.vagas + " vagas livres."
+      : ag.estado === "esgotado" ? "<b>" + esc(ag.atual.sessao.nome) + "</b> está esgotada."
+      : a.pausa ? "A pausa está ligada: o site mostra as encomendas fechadas."
+      : "Nenhuma agenda aberta agora.";
+    if (ag.estado !== "aberta" && ag.proxima) agora += " A próxima é <b>" + esc(ag.proxima.sessao.nome) + "</b>, em " + esc(dataExtenso(ag.proxima.abre)) + ".";
+
+    return secao("Situação agora", "Calculada sozinha a partir das agendas abaixo. Não precisa trocar nada na mão.",
+        '<div class="situacao estado-' + ag.estado + '"><span class="situacao-chip">' + NOMES_ESTADO[ag.estado] + "</span><p>" + agora + "</p></div>" +
+        campo("agenda.pausa", "Pausar encomendas agora (fecha tudo, mesmo com vaga sobrando)", { tipo: "check" }) +
         campo("agenda.mostrarContagem", "Mostrar contagem regressiva (\"abre em X dias\") quando estiver fechada", { tipo: "check" })) +
-      secao("Datas da agenda", "Cada data aparece no calendário e na linha do tempo do site.",
+      secao("Agendas de encomenda", "Cada agenda abre numa data e tem um número de vagas. Quando alguém confirmar o pagamento, marque +1 vaga preenchida. Quando enche, o site mostra ESGOTADO sozinho.",
+        lista("agenda.sessoes", function (x, i, c) {
+          var est = estadoSessao(x);
+          return '<div class="sessao-admin">' +
+            '<div class="vagas-rapido"><span class="situacao-chip ch-' + est.estado + '">' + NOMES_ESTADO[est.estado] + "</span>" +
+            '<span class="vagas-txt">Vagas preenchidas</span>' +
+            '<span class="vagas-ctrl"><button type="button" class="ico-btn" data-vaga="' + i + '" data-d="-1" aria-label="Uma vaga a menos"' + (est.ocupadas <= 0 ? " disabled" : "") + ">&minus;</button>" +
+            "<b>" + est.ocupadas + " / " + est.vagas + "</b>" +
+            '<button type="button" class="ico-btn" data-vaga="' + i + '" data-d="1" aria-label="Uma vaga a mais"' + (est.ocupadas >= est.vagas ? " disabled" : "") + ">+</button></span></div>" +
+            linha(campo(c + ".nome", "Nome", { placeholder: "Agenda de novembro" }), campo(c + ".abre", "Abre em", { tipo: "date" }), campo(c + ".vagas", "Total de vagas", { tipo: "number", min: 1 })) +
+            campo(c + ".nota", "Observação (opcional)", { placeholder: "Ex.: só busto e meio corpo" }) +
+            campo(c + ".encerrada", "Encerrar esta agenda antes de encher", { tipo: "check" }) + "</div>";
+        }, function () {
+          var d = new Date(); d = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+          return { nome: "Agenda de " + MESES[d.getMonth()], abre: d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-01", vagas: 4, ocupadas: 0, encerrada: false, nota: "" };
+        }, "Adicionar agenda", "Nenhuma agenda criada.")) +
+      secao("Textos de cada situação", "A etiqueta inclinada (como o OPEN dos seus posts) e o recado do quadro da agenda.",
+        ["aberta", "esgotado", "fechada"].map(function (k) {
+          return '<h3 class="sub-t">' + NOMES_ESTADO[k] + "</h3>" + linha(campo("agenda.etiquetas." + k, "Etiqueta"), campo("agenda.avisos." + k, "Recado", { largo: true }));
+        }).join("")) +
+      secao("Outras datas", "Entregas, avisos e pausas. As aberturas das agendas já entram no calendário sozinhas.",
         lista("agenda.eventos", function (ev, i, c) {
           return linha(campo(c + ".data", "Data", { tipo: "date" }), campo(c + ".tipo", "Tipo", { tipo: "select", opcoes: tipos })) +
             campo(c + ".titulo", "Título") + campo(c + ".desc", "Descrição", { tipo: "textarea", linhas: 2 });
@@ -232,11 +248,19 @@
         campo("cenas.abertura.foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco("cenas.abertura.foco") }) +
         campo("cenas.abertura.kicker", "Linha pequena acima do nome") +
         campo("cenas.abertura.legenda", "Texto curto abaixo da frase", { tipo: "textarea", linhas: 2 })) +
-      secao("Interlúdio 1", "A cena em tela cheia entre a ficha e o portfólio.",
+      ["portfolio", "agenda", "encomendas"].map(function (k) {
+        var nomes = { portfolio: "Portfólio", agenda: "Agenda", encomendas: "Encomendas" };
+        var c = "cenas.paginas." + k;
+        return secao("Topo da página " + nomes[k], "A faixa de cinema no alto da página " + nomes[k] + " e o cartão dela na página inicial.",
+          campoImg(c + ".img", "Imagem") +
+          campo(c + ".foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco(c + ".foco") }) +
+          linha(campo(c + ".titulo", "Título"), campo(c + ".sub", "Frase curta", { largo: true })));
+      }).join("") +
+      secao("Interlúdio 1", "A cena em tela cheia depois da ficha, na página inicial.",
         campoImg("cenas.interludio1.img", "Imagem") +
         campo("cenas.interludio1.foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco("cenas.interludio1.foco") }) +
         campo("cenas.interludio1.frase", "Frase grande") + campo("cenas.interludio1.credito", "Legenda pequena")) +
-      secao("Interlúdio 2", "A cena em tela cheia entre a agenda e as encomendas.",
+      secao("Interlúdio 2", "A cena em tela cheia no fim da página inicial.",
         campoImg("cenas.interludio2.img", "Imagem") +
         campo("cenas.interludio2.foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco("cenas.interludio2.foco") }) +
         campo("cenas.interludio2.frase", "Frase grande") + campo("cenas.interludio2.credito", "Legenda pequena"));
@@ -419,7 +443,7 @@
       var el = e.target;
       if (el.dataset.k && (el.tagName === "SELECT" || el.type === "checkbox" || el.type === "radio")) aoMudarCampo(el);
       /* campos de texto: ao sair do campo, redesenha pra atualizar miniaturas e títulos */
-      else if (el.dataset.k && /\.img$|avatar$|retrato$|imagem$/.test(el.dataset.k)) render();
+      else if (el.dataset.k && (/\.img$|avatar$|retrato$|imagem$/.test(el.dataset.k) || /^agenda\.sessoes\.\d+\.(abre|vagas)$/.test(el.dataset.k))) render();
 
       if (el.dataset.img && el.files[0]) {
         var grande = /^cenas\./.test(el.dataset.img);
@@ -460,6 +484,11 @@
       if ((b = e.target.closest("[data-remover]"))) {
         if (!confirm("Remover este item?")) return;
         get(b.dataset.l).splice(Number(b.dataset.i), 1); marcarSujo(); render(); return;
+      }
+      if ((b = e.target.closest("[data-vaga]"))) {
+        var ses = rascunho.agenda.sessoes[Number(b.dataset.vaga)];
+        ses.ocupadas = Math.max(0, Math.min(Number(ses.vagas) || 0, (Number(ses.ocupadas) || 0) + Number(b.dataset.d)));
+        marcarSujo(); render(); return;
       }
       if ((b = e.target.closest("[data-limpar-img]"))) { set(b.dataset.limparImg, ""); marcarSujo(); render(); return; }
       if ((b = e.target.closest("[data-paleta]"))) {

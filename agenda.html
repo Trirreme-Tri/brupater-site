@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Agenda · Brunna Paternostro</title>
+<meta name="description" content="Agenda de encomendas da Brunna Paternostro (@_.brupater): quando abre, quantas vagas e como anda a fila.">
+<meta name="theme-color" content="#0E0A0F">
+<link rel="icon" href="assets/avatar.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/site.css">
+<!-- sem defer: aplicam cor e fonte escolhidas no painel antes da página aparecer -->
+<script src="js/dados.js"></script>
+<script src="js/loja.js"></script>
+<script src="js/tema.js"></script>
+<script src="js/layout.js" defer></script>
+<script src="js/icones.js" defer></script>
+<script src="js/cinema.js" defer></script>
+<script src="js/agenda.js" defer></script>
+<script src="js/site.js" defer></script>
+</head>
+<body data-pagina="agenda">
+
+<div class="cortina" aria-hidden="true"></div>
+
+<!-- cabeçalho de cinema (imagem e textos editáveis no painel: Cenas e imagens) -->
+<section class="cabecalho" id="cabecalho" data-topo aria-labelledby="cab-t">
+  <div class="cab-img"></div>
+  <div class="barra-cine topo" aria-hidden="true"></div>
+  <div class="barra-cine base" aria-hidden="true"></div>
+  <div class="wrap cab-txt">
+    <p class="rotulo"><span class="timecode">CENA 04</span></p>
+    <h1 class="cab-titulo t-cinema" id="cab-t"></h1>
+    <p class="cab-sub"></p>
+  </div>
+</section>
+
+<main class="agenda" id="agenda">
+  <div class="wrap">
+    <div class="agenda-grade">
+      <div class="agenda-status surge" id="agenda-status"></div>
+      <div class="agenda-cal surge" id="agenda-cal"></div>
+    </div>
+
+    <section class="agenda-bloco" aria-labelledby="sessoes-t">
+      <h2 class="rotulo" id="sessoes-t">agendas de encomenda</h2>
+      <ol class="sessoes" id="agenda-sessoes"></ol>
+    </section>
+
+    <div class="agenda-grade dois">
+      <div class="agenda-eventos surge">
+        <h2 class="rotulo">próximas datas</h2>
+        <ol class="linha-tempo" id="agenda-eventos"></ol>
+      </div>
+      <div class="agenda-fila surge">
+        <h2 class="rotulo">fila de produção</h2>
+        <ol class="fila" id="agenda-fila"></ol>
+      </div>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
