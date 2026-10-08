@@ -75,6 +75,9 @@
       }).join("") + "</select>";
     } else if (tipo === "number") {
       input = '<input type="number" inputmode="decimal" data-tipo="num" step="' + (opts.passo || 1) + '"' + (opts.min != null ? ' min="' + opts.min + '"' : "") + k + ' value="' + esc(v) + '">';
+    } else if (tipo === "faixa") {
+      /* controle deslizante (ex.: volume de 0 a 100), com o número ao lado */
+      input = '<span class="faixa-par"><input type="range" data-tipo="num" min="' + (opts.min || 0) + '" max="' + (opts.max || 100) + '" step="' + (opts.passo || 1) + '"' + k + ' value="' + esc(v) + '" oninput="this.nextElementSibling.textContent=this.value + (this.dataset.sufixo || \'\')" data-sufixo="' + esc(opts.sufixo || "") + '"><output>' + esc(v) + esc(opts.sufixo || "") + "</output></span>";
     } else if (tipo === "fator") {
       /* o código guarda multiplicador (1.25); a Bru edita em % de acréscimo (25) */
       input = '<input type="number" inputmode="decimal" data-tipo="fator" step="1"' + k + ' value="' + Math.round((Number(v) - 1) * 100) + '">';
@@ -405,7 +408,8 @@
         campo("perfil.trilha.url", "Link da playlist", { tipo: "url", placeholder: "https://www.youtube.com/playlist?list=...",
           ajuda: "<b>Recomendado: playlist do YouTube</b> (ou YouTube Music): toca as músicas inteiras pra todo mundo e repete sem parar. Também aceita Spotify (quem não está logado no Spotify ouve só 30 segundos de cada música, e não repete sozinho) e SoundCloud." }) +
         '<p class="ajuda dica-tam" id="mu-detectado">' + musicaDetectada() + "</p>" +
-        linha(campo("perfil.trilha.rotulo", "Nome no botão do canto"), campo("perfil.trilha.texto", "Texto do botão no topo da página inicial"))) +
+        linha(campo("perfil.trilha.rotulo", "Nome no botão do canto"),
+              campo("perfil.trilha.volume", "Volume inicial da música", { tipo: "faixa", min: 0, max: 100, passo: 5, sufixo: "%", ajuda: "Com quanto de volume a música começa. Quem visita ainda pode aumentar ou diminuir no próprio player." }))) +
       secao("Ficha da personagem (pôster)", "A seção no estilo do seu pôster Oásis.",
         linha(campoImg("sobre.retrato", "Retrato do topo"), campoImg("sobre.imagem", "Arte grande do pôster")) +
         campo("sobre.palavra", "Palavra gigante", { ajuda: "Curta funciona melhor (até ~8 letras)." }) +

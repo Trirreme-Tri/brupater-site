@@ -857,3 +857,13 @@ body:has(.barra-total.ativa) .musica { bottom: 86px; }
 }
 /* não cobre o "ver arte inteira" e as miniaturas do topo no celular */
 @media (max-width: 899px) { .com-musica .vit-lado { padding-left: 62px; } }
+.mu-volume { display: flex; align-items: center; gap: 10px; padding: 10px 14px 12px; cursor: pointer; }
+.mu-volume input { flex: 1; accent-color: var(--rosa); height: 28px; min-width: 0; }
+.mu-volume output { min-width: 4ch; font-size: .72rem; font-weight: 800; color: var(--cine-soft); text-align: right; font-variant-numeric: tabular-nums; }
+.mu-vol-ico { font-size: 1rem; line-height: 1; }
+.mu-player { display: grid; place-items: center; }
+.mu-tocar { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 22px; border-radius: 999px; border: 0; cursor: pointer;
+  background: var(--rosa); color: #1A0710; font: inherit; font-weight: 800; font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; }
+.mu-tocar:hover { filter: brightness(1.08); }
+/* fixo (clicado): o botão fica marcado */
+.musica.fixo .mu-botao { border-color: var(--rosa); box-shadow: 0 0 0 3px color-mix(in srgb, var(--rosa) 30%, transparent), 0 12px 26px -12px rgba(0, 0, 0, .55); }

@@ -28,7 +28,7 @@ var PADRAO = {
     assinatura: "Beijokinhas de estrela",
     /* mini player de música (js/musica.js). Link de playlist do YouTube
        (recomendado: toca inteira e repete), Spotify ou SoundCloud */
-    trilha: { mostrar: true, rotulo: "Trilha sonora", texto: "Dar play na imersão", url: "" }
+    trilha: { mostrar: true, rotulo: "Trilha sonora", url: "", volume: 50 }
   },
 
   cenas: {
