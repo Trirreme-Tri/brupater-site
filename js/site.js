@@ -178,7 +178,7 @@ var Site = (function () {
     sec.setAttribute("aria-label", cena.frase || "Interlúdio");
   }
 
-  /* cartões "próximas cenas" da página inicial */
+  /* cartões das outras páginas, na página inicial */
   function renderChamadas() {
     if (!tem("#chamadas")) return;
     var pg = SITE.cenas.paginas || {};

@@ -9,19 +9,19 @@
 <link rel="icon" href="assets/avatar.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="css/tokens.css?v=20261008-1623">
-<link rel="stylesheet" href="css/base.css?v=20261008-1623">
-<link rel="stylesheet" href="css/site.css?v=20261008-1623">
+<link rel="stylesheet" href="css/tokens.css?v=20261008-1630">
+<link rel="stylesheet" href="css/base.css?v=20261008-1630">
+<link rel="stylesheet" href="css/site.css?v=20261008-1630">
 <!-- sem defer: aplicam cor e fonte escolhidas no painel antes da página aparecer -->
-<script src="js/dados.js?v=20261008-1623"></script>
-<script src="js/loja.js?v=20261008-1623"></script>
-<script src="js/tema.js?v=20261008-1623"></script>
-<script src="js/layout.js?v=20261008-1623" defer></script>
-<script src="js/icones.js?v=20261008-1623" defer></script>
-<script src="js/cinema.js?v=20261008-1623" defer></script>
-<script src="js/agenda.js?v=20261008-1623" defer></script>
-<script src="js/site.js?v=20261008-1623" defer></script>
-<script src="js/encomenda.js?v=20261008-1623" defer></script>
+<script src="js/dados.js?v=20261008-1630"></script>
+<script src="js/loja.js?v=20261008-1630"></script>
+<script src="js/tema.js?v=20261008-1630"></script>
+<script src="js/layout.js?v=20261008-1630" defer></script>
+<script src="js/icones.js?v=20261008-1630" defer></script>
+<script src="js/cinema.js?v=20261008-1630" defer></script>
+<script src="js/agenda.js?v=20261008-1630" defer></script>
+<script src="js/site.js?v=20261008-1630" defer></script>
+<script src="js/encomenda.js?v=20261008-1630" defer></script>
 </head>
 <body data-pagina="encomendas">
 
@@ -39,19 +39,18 @@
 </div>
 <script>cortinaPreparar();</script>
 
-<!-- cabeçalho de cinema (imagem e textos editáveis no painel: Cenas e imagens) -->
+<!-- cabeçalho de cinema (imagem e textos editáveis no painel: Textos e imagens) -->
 <section class="cabecalho" id="cabecalho" data-topo aria-labelledby="cab-t">
   <div class="cab-img"></div>
   <div class="barra-cine topo" aria-hidden="true"></div>
   <div class="barra-cine base" aria-hidden="true"></div>
   <div class="wrap cab-txt">
-    <p class="rotulo"><span class="timecode">CENA 05</span></p>
     <h1 class="cab-titulo t-cinema" id="cab-t"></h1>
     <p class="cab-sub"></p>
   </div>
 </section>
 
-<!-- ===== CENA 05 · encomendas ===== -->
+<!-- ===== encomendas ===== -->
 <main class="encomendas papel" id="encomendas" aria-labelledby="enc-t">
   <div class="wrap">
     <header class="enc-cab surge">
@@ -155,7 +154,7 @@
   <section class="perguntas-enc" id="perguntas" aria-labelledby="faq-t">
     <div class="wrap estreito">
       <header class="cena-cab surge">
-        <p class="rotulo"><span class="timecode">CENA 06</span> perguntas</p>
+        <p class="rotulo">perguntas</p>
         <h2 class="t-cinema" id="faq-t">A Bru responde</h2>
       </header>
       <div class="faq" id="faq"></div>
@@ -163,7 +162,7 @@
   </section>
 </main>
 
-<!-- barra fixa do total (aparece só na cena de encomendas) -->
+<!-- barra fixa do total (aparece só na área de encomendas) -->
 <div class="barra-total" id="barra-total" aria-hidden="true">
   <div class="barra-total-in">
     <div><span class="rotulo">total estimado*</span><strong id="barra-valor">R$ 0,00</strong></div>

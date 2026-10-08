@@ -135,7 +135,7 @@
     { id: "encomendas", nome: "Preços e pacotes", icone: "dado", render: abaEncomendas, desc: "Os preços da calculadora, os pacotes de identidade visual e a tabela.", previa: "encomendas.html" },
     { id: "galeria", nome: "Minhas artes", icone: "estrela", render: abaGaleria, desc: "Todas as artes do portfólio. Marque \"Destaque\" pra arte passar no topo da página inicial.", previa: "portfolio.html" },
     { id: "projetos", nome: "Projetos", icone: "artstation", render: abaProjetos, desc: "Suas coleções (ilustração e identidade visual): capa, texto e imagens.", previa: "index.html" },
-    { id: "cenas", nome: "Textos e imagens", icone: "youtube", render: abaCenas, desc: "O topo de cada página, as cenas em tela cheia e as páginas de aviso (erro e fora do ar).", previa: "index.html" },
+    { id: "cenas", nome: "Textos e imagens", icone: "youtube", render: abaCenas, desc: "O topo de cada página, as faixas em tela cheia e as páginas de aviso (erro e fora do ar).", previa: "index.html" },
     { id: "perfil", nome: "Sobre mim e contato", icone: "coracao", render: abaPerfil, desc: "Seu nome, foto, frase, WhatsApp, Instagram e a ficha da personagem.", previa: "index.html" },
     { id: "links", nome: "Links", icone: "link", render: abaLinks, desc: "Os botões de links da página inicial.", previa: "index.html" },
     { id: "perguntas", nome: "Perguntas", icone: "email", render: abaPerguntas, desc: "As perguntas e respostas da página de encomendas.", previa: "encomendas.html" },
@@ -179,7 +179,7 @@
       ["projetos", "artstation", "Projetos", "Criar ou editar uma coleção"],
       ["encomendas", "dado", "Mudar preços", "Ilustração e identidade visual"],
       ["aparencia", "musica", "Mudar as cores", "Modo claro e modo escuro"],
-      ["cenas", "youtube", "Textos e fotos das páginas", "Topo, cenas e avisos"],
+      ["cenas", "youtube", "Textos e fotos das páginas", "Topo, faixas e avisos"],
       ["perfil", "coracao", "WhatsApp e Instagram", "Seus contatos e sua foto"]
     ];
     return '<div class="ola"><img src="' + esc(urlSegura(rascunho.perfil.avatar, true) || "assets/avatar.webp") + '" alt=""><div><p class="t-mao">Oi, ' + esc(rascunho.perfil.apelido || "Bru") + '! ✨</p><p>O que você quer mudar hoje?</p></div></div>' +
@@ -361,7 +361,7 @@
           campo(c + ".foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco(c + ".foco") }) +
           linha(campo(c + ".titulo", "Título"), campo(c + ".sub", "Frase curta", { largo: true })));
       }).join("") +
-      secao("Interlúdio 1", "A cena em tela cheia depois da ficha, na página inicial.",
+      secao("Interlúdio 1", "A faixa em tela cheia depois da ficha, na página inicial.",
         campoImg("cenas.interludio1.img", "Imagem", tam(3)) +
         campo("cenas.interludio1.foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco("cenas.interludio1.foco") }) +
         campo("cenas.interludio1.frase", "Frase grande") + campo("cenas.interludio1.credito", "Legenda pequena")) +
@@ -372,7 +372,7 @@
             linha(campo(c + ".rotulo", "Linha pequena"), campo(c + ".titulo", "Título")) + campo(c + ".texto", "Texto", { tipo: "textarea", linhas: 2 }) +
             linha(campo(c + ".botao", "Texto do botão")) + campoImg(c + ".img", "Imagem", tam(6));
         }).join("")) +
-      secao("Interlúdio 2", "A cena em tela cheia no fim da página inicial.",
+      secao("Interlúdio 2", "A faixa em tela cheia no fim da página inicial.",
         campoImg("cenas.interludio2.img", "Imagem", tam(3)) +
         campo("cenas.interludio2.foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco("cenas.interludio2.foco") }) +
         campo("cenas.interludio2.frase", "Frase grande") + campo("cenas.interludio2.credito", "Legenda pequena"));
@@ -408,7 +408,7 @@
   /* ----- 06 links ----- */
   function abaLinks() {
     var icones = Object.keys(ICONES).map(function (k) { return { v: k, t: ICONES[k].nome }; });
-    return secao("Créditos iniciais (links)", "Para levar a uma parte do próprio site, use #encomendas, #agenda, #portfolio ou #ficha.",
+    return secao("Links da página inicial", "Para levar a uma parte do próprio site, use #encomendas, #agenda, #portfolio ou #ficha.",
       lista("links", function (l, i, c) {
         return '<div class="link-admin"><span class="link-ico">' + iconeSvg(l.icone) + "</span><div>" +
           linha(campo(c + ".nome", "Nome"), campo(c + ".icone", "Ícone", { tipo: "select", opcoes: icones })) +
@@ -438,7 +438,7 @@
     violeta: ["Violeta neon", "Estrelas das vagas e brilho da agenda"],
     teal: ["Turquesa", "Etapas da fila e entregas"],
     papel: ["Papel", "Fundo das seções impressas"],
-    noite: ["Noite", "Fundo das cenas de cinema"]
+    noite: ["Noite", "Fundo das partes escuras"]
   };
   var NOMES_MODO = {
     fundo: ["Fundo do site", "A cor de trás de tudo"],
@@ -490,7 +490,7 @@
         campo("aparencia.botaoTema", "Mostrar o botão sol/lua no topo (quem visita escolhe claro ou escuro)", { tipo: "check" }) +
         campo("aparencia.carregamento", "Tela de carregamento com abertura de cinema", { tipo: "check", ajuda: "Na primeira visita aparece seu nome e a barrinha; depois as faixas abrem como uma tela de cinema." })) +
       secao("Paletas prontas", "Um clique troca as cores da marca e os fundos dos dois modos. Dá pra ajustar uma por uma depois.", paletas) +
-      secao("Cores da marca", "Valem nos dois modos: botões, etiquetas, destaques e as cenas de cinema.", cores) +
+      secao("Cores da marca", "Valem nos dois modos: botões, etiquetas, destaques e as partes escuras.", cores) +
       secao("Fontes", "",
         fonte("cinema", "Fonte de cinema (títulos grandes)", "Brunna Paternostro", "am-cinema") +
         fonte("poster", "Fonte de pôster (ficha e rótulos)", "Força e ódio", "am-poster") +

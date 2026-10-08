@@ -21,7 +21,7 @@
 
   var ap = SITE.aparencia;
   var fontes = [
-    { nome: ap.fontes.cinema, papel: "Fonte de cinema", uso: "Seu nome na abertura, títulos das cenas, preços, o \"FIM\". É alta e fina, como o COMMISSIONS do seu post.", amostra: "Brunna Paternostro", classe: "f-cinema" },
+    { nome: ap.fontes.cinema, papel: "Fonte de cinema", uso: "Seu nome na abertura, títulos das páginas, preços, o \"FIM\". É alta e fina, como o COMMISSIONS do seu post.", amostra: "Brunna Paternostro", classe: "f-cinema" },
     { nome: ap.fontes.poster, papel: "Fonte de pôster", uso: "A ficha da personagem, a palavra gigante e os rótulos pequenos. Pesada, como o OÁSIS. Também é a letra dos textos do site.", amostra: "Força e ódio", classe: "f-poster" },
     { nome: ap.fontes.mao, papel: "Fonte de mão", uso: "A frase da abertura e as anotações, como o \"Savage!\" e o \"Hey!\" das suas artes.", amostra: "Colors and lines bring your ideas to life.", classe: "f-mao" }
   ];
@@ -37,7 +37,7 @@
     violeta: ["Violeta neon", "estrelas das vagas e brilho da agenda"],
     teal: ["Turquesa", "fila de produção e entregas"],
     papel: ["Papel", "fundo das seções impressas"],
-    noite: ["Noite", "fundo das cenas de cinema"]
+    noite: ["Noite", "fundo das partes escuras"]
   };
   $("#cores").innerHTML = Object.keys(NOMES).map(function (k) {
     var hex = ap.cores[k];

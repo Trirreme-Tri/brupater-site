@@ -51,7 +51,33 @@ var MIGRACOES = [
   /* out/2026: o topo passou a mostrar a arte inteira por padrão (estava cortando) */
   { id: "2026-10-topo-inteira", rodar: function (s) { s.cenas.abertura.modo = "inteira"; } },
   /* ...e voltou a cobrir a tela toda, como o Wellington aprovou (out/2026) */
-  { id: "2026-10-topo-fundo", rodar: function (s) { s.cenas.abertura.modo = "fundo"; } }
+  { id: "2026-10-topo-fundo", rodar: function (s) { s.cenas.abertura.modo = "fundo"; } },
+  /* out/2026: o site deixou de falar em "cenas" — troca os textos antigos do
+     padrão (só se ainda estiverem iguais ao que era entregue) */
+  { id: "2026-10-sem-cenas", rodar: function (s) {
+    var troca = {
+      "Personagens de RPG, OCs e heróis da sua mesa ganhando cor, traço e história.": "Personagens, ilustrações e identidades visuais ganhando cor, traço e história.",
+      "Personagens, cenas e identidades visuais ganhando cor, traço e história.": "Personagens, ilustrações e identidades visuais ganhando cor, traço e história.",
+      "Personagens, pôsteres, cenas e estudos.": "Personagens, pôsteres, ilustrações e estudos.",
+      "Personagens, pôsteres, cenas e estudos": "Personagens, pôsteres, ilustrações e estudos",
+      "Ambiente desenhado, como uma cena de filme.": "Ambiente desenhado por trás do personagem.",
+      "interlúdio · estudo de cor": "estudo de cor",
+      "interlúdio · caderno de campanha": "caderno de campanha",
+      "Erro 404 · cena perdida": "Erro 404",
+      "Ops, essa cena não existe": "Ops, essa página não existe"
+    };
+    function t(o, k) { if (o && typeof o[k] === "string" && troca[o[k]]) o[k] = troca[o[k]]; }
+    t(s.cenas.abertura, "legenda");
+    t((s.cenas.paginas || {}).portfolio, "sub");
+    t(s.cenas.interludio1, "credito"); t(s.cenas.interludio2, "credito");
+    (s.links || []).forEach(function (l) { t(l, "desc"); });
+    (s.precos.fundos || []).forEach(function (f) { t(f, "desc"); });
+    var av = (s.paginasAviso || {}).naoEncontrada; t(av, "rotulo"); t(av, "titulo");
+    (s.galeria || []).forEach(function (o) { if (o.tag === "Cenas") o.tag = "Ilustrações"; });
+    (s.projetos || []).forEach(function (p) {
+      if (p.id === "cenas") { p.id = "ilustracoes"; if (p.titulo === "Cenas") p.titulo = "Ilustrações"; if (p.resumo === "Cenas de aventura com luz e clima.") p.resumo = "Aventura com luz, clima e movimento."; }
+    });
+  } }
 ];
 
 function lojaCarregar() {

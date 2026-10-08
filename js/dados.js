@@ -36,16 +36,16 @@ var PADRAO = {
       /* "fundo": a arte cobre a tela toda (padrão; use imagens deitadas,
          1920 x 1080). "inteira": a arte aparece inteira, sem corte, à direita */
       modo: "fundo",
-      legenda: "Personagens, cenas e identidades visuais ganhando cor, traço e história."
+      legenda: "Personagens, ilustrações e identidades visuais ganhando cor, traço e história."
     },
     interludio1: {
       img: "assets/obras/a-fuga.webp",
       foco: "50% 30%",
       frase: "Colors and lines bring your ideas to life.",
-      credito: "interlúdio · estudo de cor"
+      credito: "estudo de cor"
     },
     paginas: {
-      portfolio: { img: "assets/obras/catedral.webp", foco: "50% 35%", titulo: "Portfólio", sub: "Personagens, pôsteres, cenas e estudos." },
+      portfolio: { img: "assets/obras/catedral.webp", foco: "50% 35%", titulo: "Portfólio", sub: "Personagens, pôsteres, ilustrações e estudos." },
       agenda: { img: "assets/obras/caderno-alvar.webp", foco: "50% 50%", titulo: "Agenda", sub: "Quando abre, quantas vagas e como anda a fila." },
       encomendas: { img: "assets/obras/commissions-open.webp", foco: "50% 30%", titulo: "Encomendas", sub: "Crie seu personagem e veja o preço na hora." }
     },
@@ -53,7 +53,7 @@ var PADRAO = {
       img: "assets/obras/caderno-de-campanha.webp",
       foco: "50% 50%",
       frase: "Toda campanha começa num rascunho.",
-      credito: "interlúdio · caderno de campanha"
+      credito: "caderno de campanha"
     }
   },
 
@@ -125,7 +125,7 @@ var PADRAO = {
     fundos: [
       { id: "sem", nome: "Sem fundo", preco: 0, desc: "Fundo liso ou transparente." },
       { id: "simples", nome: "Fundo simples", preco: 30, desc: "Cor, textura ou elementos soltos." },
-      { id: "cenario", nome: "Cenário", preco: 90, desc: "Ambiente desenhado, como uma cena de filme." }
+      { id: "cenario", nome: "Cenário", preco: 90, desc: "Ambiente desenhado por trás do personagem." }
     ],
     descontosVolume: [
       { min: 1, pct: 0 },
@@ -162,7 +162,7 @@ var PADRAO = {
 
   /* Páginas de aviso: 404 (não existe), erro (algo deu errado) e manutenção (fora do ar) */
   paginasAviso: {
-    naoEncontrada: { rotulo: "Erro 404 · cena perdida", titulo: "Ops, essa cena não existe", texto: "A página que você procurou não existe ou mudou de lugar. Mas tem muita arte te esperando no início.", botao: "Voltar ao início", img: "assets/obras/a-fuga.webp" },
+    naoEncontrada: { rotulo: "Erro 404", titulo: "Ops, essa página não existe", texto: "A página que você procurou não existe ou mudou de lugar. Mas tem muita arte te esperando no início.", botao: "Voltar ao início", img: "assets/obras/a-fuga.webp" },
     erro: { rotulo: "Corta!", titulo: "Algo saiu do roteiro", texto: "Alguma coisa deu errado ao abrir esta página. Tenta de novo daqui a pouquinho; se continuar, me chama no WhatsApp.", botao: "Tentar de novo", img: "assets/obras/queda.webp" },
     manutencao: { rotulo: "Bastidores", titulo: "Voltamos já", texto: "O site está passando por uns ajustes e volta em breve. Enquanto isso, me encontra no Instagram ou no WhatsApp.", botao: "Ir pro Instagram", img: "assets/obras/caderno-de-campanha.webp" }
   },
@@ -195,10 +195,10 @@ var PADRAO = {
       ]
     },
     {
-      id: "cenas", titulo: "Cenas", categoria: "Ilustração", visivel: true,
+      id: "ilustracoes", titulo: "Ilustrações", categoria: "Ilustração", visivel: true,
       capa: "assets/obras/a-fuga.webp", foco: "50% 45%",
-      resumo: "Cenas de aventura com luz e clima.",
-      texto: "Ilustrações de cena pensadas como um quadro de filme: luz, clima e movimento contando a história.",
+      resumo: "Aventura com luz, clima e movimento.",
+      texto: "Ilustrações completas, com ambiente: luz, clima e movimento contando a história.",
       imagens: [
         { img: "assets/obras/a-fuga.webp", legenda: "" },
         { img: "assets/obras/correnteza.webp", legenda: "" },
@@ -223,7 +223,7 @@ var PADRAO = {
       id: "caderno-de-campanha", titulo: "Caderno de campanha", categoria: "Ilustração", visivel: true,
       capa: "assets/obras/caderno-de-campanha.webp", foco: "50% 50%",
       resumo: "Esboços e estudos a lápis.",
-      texto: "As páginas do caderno onde tudo começa: esboços, estudos de personagem e cenas a lápis antes da cor.",
+      texto: "As páginas do caderno onde tudo começa: esboços, estudos de personagem e desenhos a lápis antes da cor.",
       imagens: [
         { img: "assets/obras/caderno-de-campanha.webp", legenda: "" },
         { img: "assets/obras/caderno-alvar.webp", legenda: "" },
@@ -253,16 +253,16 @@ var PADRAO = {
      foco = a parte da arte que fica visível no topo quando ela cobre a tela.
      mini = versão menor usada na grade; img = versão grande da tela cheia. */
   galeria: [
-    { img: "assets/obras/correnteza.webp", mini: "assets/obras/correnteza-g.webp", w: 1350, h: 1800, titulo: "Correnteza", tag: "Cenas", destaque: true, visivel: true, foco: "50% 30%" },
-    { img: "assets/obras/a-fuga.webp", mini: "assets/obras/a-fuga-g.webp", w: 1440, h: 1439, titulo: "A fuga", tag: "Cenas", destaque: true, visivel: true, foco: "45% 45%" },
-    { img: "assets/obras/catedral.webp", mini: "assets/obras/catedral-g.webp", w: 1350, h: 1800, titulo: "Catedral", tag: "Cenas", destaque: true, visivel: true, foco: "50% 22%" },
+    { img: "assets/obras/correnteza.webp", mini: "assets/obras/correnteza-g.webp", w: 1350, h: 1800, titulo: "Correnteza", tag: "Ilustrações", destaque: true, visivel: true, foco: "50% 30%" },
+    { img: "assets/obras/a-fuga.webp", mini: "assets/obras/a-fuga-g.webp", w: 1440, h: 1439, titulo: "A fuga", tag: "Ilustrações", destaque: true, visivel: true, foco: "45% 45%" },
+    { img: "assets/obras/catedral.webp", mini: "assets/obras/catedral-g.webp", w: 1350, h: 1800, titulo: "Catedral", tag: "Ilustrações", destaque: true, visivel: true, foco: "50% 22%" },
     { img: "assets/obras/tiefling-cartas.webp", mini: "assets/obras/tiefling-cartas-g.webp", w: 1350, h: 1800, titulo: "Tiefling das cartas", tag: "Personagens", destaque: true, visivel: true, foco: "50% 28%" },
     { img: "assets/obras/commissions-open.webp", mini: "assets/obras/commissions-open-g.webp", w: 1440, h: 1800, titulo: "Commissions Open", tag: "Pôsteres", destaque: true, visivel: true, foco: "50% 32%" },
-    { img: "assets/obras/sombra-dourada.webp", mini: "assets/obras/sombra-dourada-g.webp", w: 1440, h: 1439, titulo: "Sombra dourada", tag: "Cenas", destaque: true, visivel: true, foco: "40% 22%" },
+    { img: "assets/obras/sombra-dourada.webp", mini: "assets/obras/sombra-dourada-g.webp", w: 1440, h: 1439, titulo: "Sombra dourada", tag: "Ilustrações", destaque: true, visivel: true, foco: "40% 22%" },
     { img: "assets/obras/brasa.webp", mini: "assets/obras/brasa-g.webp", w: 1080, h: 1080, titulo: "Brasa", tag: "Personagens", destaque: true, visivel: true, foco: "60% 32%" },
     { img: "assets/obras/oasis.webp", mini: "assets/obras/oasis-g.webp", w: 1350, h: 1688, titulo: "Oásis", tag: "Pôsteres", destaque: false, visivel: true },
     { img: "assets/obras/elfa-das-aguas.webp", mini: "assets/obras/elfa-das-aguas-g.webp", w: 1080, h: 1080, titulo: "Elfa das águas", tag: "Personagens", destaque: false, visivel: true },
-    { img: "assets/obras/stand-up-and-fight.webp", mini: "assets/obras/stand-up-and-fight-g.webp", w: 1440, h: 1440, titulo: "Stand up and fight", tag: "Cenas", destaque: false, visivel: true },
+    { img: "assets/obras/stand-up-and-fight.webp", mini: "assets/obras/stand-up-and-fight-g.webp", w: 1440, h: 1440, titulo: "Stand up and fight", tag: "Ilustrações", destaque: false, visivel: true },
     { img: "assets/obras/lamina-violeta.webp", mini: "assets/obras/lamina-violeta-g.webp", w: 1080, h: 1080, titulo: "Lâmina violeta", tag: "Personagens", destaque: false, visivel: true },
     { img: "assets/obras/character.webp", mini: "assets/obras/character-g.webp", w: 1440, h: 1800, titulo: "Character", tag: "Pôsteres", destaque: false, visivel: true },
     { img: "assets/obras/guardiao-da-coruja.webp", mini: "assets/obras/guardiao-da-coruja-g.webp", w: 1350, h: 1688, titulo: "O guardião da coruja", tag: "Personagens", destaque: false, visivel: true },
@@ -291,7 +291,7 @@ var PADRAO = {
     { nome: "Instagram", desc: "Artes novas, estudos e avisos de abertura", url: "https://www.instagram.com/_.brupater/", icone: "instagram", visivel: true },
     { nome: "Threads", desc: "Conversas, bastidores e recadinhos", url: "https://www.threads.com/@_.brupater", icone: "threads", visivel: true },
     { nome: "Crie seu personagem", desc: "Monte sua encomenda e veja o preço na hora", url: "encomendas.html", icone: "dado", visivel: true },
-    { nome: "Portfólio", desc: "Personagens, pôsteres, cenas e estudos", url: "portfolio.html", icone: "estrela", visivel: true },
+    { nome: "Portfólio", desc: "Personagens, pôsteres, ilustrações e estudos", url: "portfolio.html", icone: "estrela", visivel: true },
     { nome: "Agenda de encomendas", desc: "Quando abre, quantas vagas e como anda a fila", url: "agenda.html", icone: "agenda", visivel: true }
   ],
 
@@ -349,7 +349,7 @@ var TAMANHOS_IMAGEM = [
   { onde: "Topo da página inicial (artes em destaque)", tamanho: "1920 × 1080 px", formato: "deitada (16:9)", dica: "A arte cobre a tela toda. Os textos ficam embaixo à esquerda: deixe o rosto/assunto no meio ou à direita. Mínimo 1600 × 900." },
   { onde: "Topo da página inicial no celular (opcional)", tamanho: "1080 × 1920 px", formato: "em pé (9:16)", dica: "Uma versão vertical da mesma arte, só pro celular. Os textos ficam na metade de baixo: deixe o assunto na metade de cima. Sem ela, o celular mostra o meio da arte deitada." },
   { onde: "Topo do Portfólio, da Agenda e das Encomendas", tamanho: "1920 × 1080 px", formato: "deitada (16:9)", dica: "O título fica à esquerda, sobre um degradê: deixe o assunto na metade da direita. A arte aparece inteira na altura." },
-  { onde: "Cenas em tela cheia (interlúdios)", tamanho: "1920 × 1080 px", formato: "deitada (16:9)", dica: "A frase fica embaixo, então evite detalhes importantes no rodapé da arte." },
+  { onde: "Faixas em tela cheia (interlúdios)", tamanho: "1920 × 1080 px", formato: "deitada (16:9)", dica: "A frase fica embaixo, então evite detalhes importantes no rodapé da arte." },
   { onde: "Capa de projeto", tamanho: "1600 × 1200 px", formato: "deitada (4:3)", dica: "Os dois primeiros projetos aparecem um pouco mais largos (16:10): deixe uma folguinha nas laterais." },
   { onde: "Imagens dentro de um projeto e do portfólio", tamanho: "1800 px no lado maior", formato: "qualquer formato", dica: "Cada arte aparece no formato dela, sem corte." },
   { onde: "Páginas de aviso (erro, fora do ar)", tamanho: "1800 px no lado maior", formato: "qualquer formato", dica: "A arte aparece inteira ao lado do texto." },
