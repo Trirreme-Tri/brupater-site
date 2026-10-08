@@ -817,3 +817,43 @@ body[data-pagina="aviso"] { background: var(--casa-bg); color: var(--casa-ink); 
 .aviso-assina img { border-radius: 50%; border: 2px solid var(--rosa); }
 .aviso-trirreme { font-size: .78rem; color: var(--casa-soft); }
 .aviso-trirreme a { color: inherit; font-weight: 800; }
+
+/* ===================== mini player de música (js/musica.js) =====================
+   Botão fixo no canto ESQUERDO (o WhatsApp fica no direito). Abre um painel
+   pequeno com o player; minimizar só esconde (a música continua). */
+.musica { position: fixed; left: max(16px, env(safe-area-inset-left)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 70;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px; transition: bottom .35s var(--ease-cine); }
+body:has(.barra-total.ativa) .musica { bottom: 86px; }
+.mu-botao { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px 0 14px; border-radius: 999px; cursor: pointer;
+  border: 1.5px solid color-mix(in srgb, var(--rosa) 55%, transparent); background: color-mix(in srgb, var(--noite) 88%, transparent); color: var(--cine-ink);
+  font: inherit; font-weight: 800; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 12px 26px -12px rgba(0, 0, 0, .55); }
+.mu-botao:hover { border-color: var(--rosa); }
+.mu-botao:focus-visible { outline: 3px solid var(--rosa); outline-offset: 3px; }
+/* equalizador: parado quando não toca, dançando quando o player está carregado */
+.mu-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+.mu-eq i { width: 3px; height: 40%; background: var(--rosa); border-radius: 2px; }
+.musica.tocando .mu-eq i { animation: mu-eq 1s ease-in-out infinite; }
+.musica.tocando .mu-eq i:nth-child(2) { animation-delay: .2s; }
+.musica.tocando .mu-eq i:nth-child(3) { animation-delay: .4s; }
+@keyframes mu-eq { 0%, 100% { height: 30%; } 50% { height: 100%; } }
+@media (prefers-reduced-motion: reduce) { .musica.tocando .mu-eq i { animation: none; height: 80%; } }
+.mu-painel { width: min(340px, calc(100vw - 32px)); border-radius: 16px; overflow: hidden; background: var(--noite); color: var(--cine-ink);
+  border: 1.5px solid color-mix(in srgb, var(--rosa) 40%, transparent); box-shadow: 0 24px 50px -20px rgba(0, 0, 0, .6); }
+.mu-painel[hidden] { display: none !important; }
+.mu-cab { display: flex; align-items: center; gap: 6px; padding: 8px 8px 8px 14px; }
+.mu-titulo { flex: 1; font-family: var(--f-cinema); text-transform: uppercase; font-size: 1.05rem; line-height: 1; }
+.mu-titulo small { font-family: var(--f-corpo); font-size: .62rem; letter-spacing: .14em; color: var(--cine-soft); margin-left: 6px; }
+.mu-ico { width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .08); color: inherit; cursor: pointer; font-size: 1.1rem; line-height: 1; }
+.mu-ico:hover { background: var(--rosa); color: #1A0710; }
+.mu-player { background: #000; }
+.mu-player iframe { width: 100%; height: 100%; border: 0; display: block; }
+.mu-nota { font-size: .68rem; color: var(--cine-soft); padding: 8px 14px 10px; }
+@media (max-width: 640px) {
+  .mu-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .mu-botao { width: 50px; height: 50px; padding: 0; justify-content: center; }
+  .musica.aberto .mu-txt { position: static; width: auto; height: auto; clip: auto; }
+  .musica.aberto .mu-botao { width: auto; padding: 0 16px; }
+}
+/* não cobre o "ver arte inteira" e as miniaturas do topo no celular */
+@media (max-width: 899px) { .com-musica .vit-lado { padding-left: 62px; } }

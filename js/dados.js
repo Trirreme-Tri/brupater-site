@@ -26,7 +26,9 @@ var PADRAO = {
     whatsappBotao: "Fale comigo no WhatsApp",
     whatsappMensagem: "Oi, Bru! Vim pelo seu site ✨",
     assinatura: "Beijokinhas de estrela",
-    trilha: { texto: "Dar play na imersão", url: "" }
+    /* mini player de música (js/musica.js). Link de playlist do YouTube
+       (recomendado: toca inteira e repete), Spotify ou SoundCloud */
+    trilha: { mostrar: true, rotulo: "Trilha sonora", texto: "Dar play na imersão", url: "" }
   },
 
   cenas: {

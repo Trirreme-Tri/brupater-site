@@ -378,6 +378,15 @@
         campo("cenas.interludio2.frase", "Frase grande") + campo("cenas.interludio2.credito", "Legenda pequena"));
   }
 
+  /* mostra pra Bru se o link de música foi reconhecido */
+  function musicaDetectada() {
+    var url = (rascunho.perfil.trilha || {}).url;
+    if (!url) return "Sem link: o mini player fica escondido.";
+    var e = window.Musica ? Musica.embed(url) : null;
+    if (!e) return "&#9888; Não reconheci esse link. Use um link de playlist do YouTube, do Spotify ou do SoundCloud.";
+    return "&#10003; Reconhecido: <b>" + esc(e.servico) + "</b> (" + esc(e.tipo) + ")" + (e.loop ? ", repete sem parar." : ". Esse serviço não repete sozinho.");
+  }
+
   /* ----- 05 perfil ----- */
   function abaPerfil() {
     return secao("Perfil", "",
@@ -391,8 +400,12 @@
               campo("perfil.whatsapp", "WhatsApp com DDD", { placeholder: "5511999999999", ajuda: "Só números, com 55 + DDD." })) +
         campo("perfil.whatsappFlutuante", "Mostrar o botão flutuante do WhatsApp", { tipo: "check" }) +
         linha(campo("perfil.whatsappBotao", "Texto do botão flutuante"), campo("perfil.whatsappMensagem", "Mensagem que já vem escrita", { largo: true }))) +
-      secao("Trilha sonora", "Um botão \"play\" na abertura, pra quem quiser ouvir uma música enquanto vê o portfólio. Sem link, o botão some.",
-        linha(campo("perfil.trilha.texto", "Texto do botão"), campo("perfil.trilha.url", "Link da música", { tipo: "url", placeholder: "https://open.spotify.com/..." }))) +
+      secao("Trilha sonora (mini player)", "Um botão no canto esquerdo da tela abre um player pequeno com a sua playlist. A música só começa quando a pessoa clica (regra dos navegadores) e para se ela trocar de página.",
+        campo("perfil.trilha.mostrar", "Mostrar o mini player no site", { tipo: "check" }) +
+        campo("perfil.trilha.url", "Link da playlist", { tipo: "url", placeholder: "https://www.youtube.com/playlist?list=...",
+          ajuda: "<b>Recomendado: playlist do YouTube</b> (ou YouTube Music): toca as músicas inteiras pra todo mundo e repete sem parar. Também aceita Spotify (quem não está logado no Spotify ouve só 30 segundos de cada música, e não repete sozinho) e SoundCloud." }) +
+        '<p class="ajuda dica-tam" id="mu-detectado">' + musicaDetectada() + "</p>" +
+        linha(campo("perfil.trilha.rotulo", "Nome no botão do canto"), campo("perfil.trilha.texto", "Texto do botão no topo da página inicial"))) +
       secao("Ficha da personagem (pôster)", "A seção no estilo do seu pôster Oásis.",
         linha(campoImg("sobre.retrato", "Retrato do topo"), campoImg("sobre.imagem", "Arte grande do pôster")) +
         campo("sobre.palavra", "Palavra gigante", { ajuda: "Curta funciona melhor (até ~8 letras)." }) +
@@ -599,6 +612,7 @@
       if (el.dataset.k && (el.tagName === "SELECT" || el.type === "checkbox" || el.type === "radio")) aoMudarCampo(el);
       /* campos de texto: ao sair do campo, redesenha pra atualizar miniaturas e títulos */
       else if (el.dataset.k && /^aparencia\.modos\./.test(el.dataset.k)) render();
+      else if (el.dataset.k === "perfil.trilha.url") { var d = document.getElementById("mu-detectado"); if (d) d.innerHTML = musicaDetectada(); }
       else if (el.dataset.k && (/\.img$|avatar$|retrato$|imagem$|capa$/.test(el.dataset.k) || /^agenda\.sessoes\.\d+\.(abre|vagas)$/.test(el.dataset.k))) render();
 
       if (el.dataset.img && el.files[0]) {

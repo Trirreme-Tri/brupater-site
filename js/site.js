@@ -120,9 +120,15 @@ var Site = (function () {
     $("#ab-h1").textContent = (p.nome || "") + (p.titulo ? " · " + p.titulo : "");
     $("#ab-frase").textContent = p.frase;
     $("#ab-legenda").textContent = c.legenda;
+    /* botão do topo: abre o mini player (js/musica.js); se o link não for de
+       um serviço que o player conhece, abre o link numa aba nova */
     var trilha = $("#ab-trilha"), url = urlSegura(p.trilha && p.trilha.url);
-    trilha.hidden = !url;
+    trilha.hidden = !url || (p.trilha && p.trilha.mostrar === false);
     if (url) { trilha.href = url; $("#ab-trilha-txt").textContent = p.trilha.texto || "Dar play"; }
+    if (!trilha.dataset.ligado) {
+      trilha.dataset.ligado = "1";
+      trilha.addEventListener("click", function (e) { if (window.Musica && Musica.abrir()) e.preventDefault(); });
+    }
     var ag = estadoAgenda();
     $("#ab-status").innerHTML = '<a href="agenda.html" aria-label="' + esc(TITULOS_ESTADO[ag.estado]) + ', ver agenda">' + etiquetaHtml(ag.estado) + "</a>";
   }
@@ -461,6 +467,7 @@ var Site = (function () {
       if (window.Encomenda) Encomenda.recarregar();
       if (window.Vitrine) Vitrine.montar();
       if (window.Projetos) Projetos.render();
+      if (window.Musica) Musica.montar();
       Cinema.pintarBotaoTema();
     });
 
