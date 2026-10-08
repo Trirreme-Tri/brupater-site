@@ -265,3 +265,4 @@ body.admin.em-login .rodape-mini { display: none; }
 .tam-medida { font-family: var(--f-cinema); text-transform: uppercase; font-size: 1.35rem; line-height: 1; color: var(--rosa); }
 .tam small { color: var(--ink-soft); font-size: .76rem; line-height: 1.4; }
 .dica-tam { margin: -4px 0 12px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--rosa) 10%, transparent); }
+.nota-banco { margin-top: 12px; padding: 12px 14px; border-radius: 12px; border: 1.5px dashed var(--line); }

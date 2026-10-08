@@ -196,7 +196,8 @@
         return '<button type="button" class="atalho" data-ir="' + t[0] + '">' + iconeSvg(t[1]) + "<b>" + t[2] + "</b><small>" + t[3] + "</small></button>";
       }).join("") + "</div>" +
       secao("Tamanho ideal das imagens", "Pra cada lugar do site. Com o tamanho certo, a arte aparece bem enquadrada e nítida.", tamanhosHtml()) +
-      '<ol class="passos-ajuda"><li><b>Mude</b> o que quiser em qualquer aba.</li><li><b>Confira</b> na prévia (botão "Prévia" lá em cima).</li><li><b>Salve</b> na barra que aparece embaixo. Só aí o site muda pra todo mundo.</li></ol>';
+      '<ol class="passos-ajuda"><li><b>Mude</b> o que quiser em qualquer aba.</li><li><b>Confira</b> na prévia (botão "Prévia" lá em cima).</li><li><b>Salve</b> na barra que aparece embaixo.</li></ol>' +
+      '<p class="ajuda nota-banco"><b>Por enquanto</b> o que você salva fica guardado neste navegador, pra testar. Quando o site ganhar o banco de dados (próxima etapa), passa a valer pra todo mundo.</p>';
   }
 
   /* ----- 01 agenda ----- */
@@ -691,7 +692,7 @@
         lojaSalvar(rascunho);
         SITE = copiaProfunda(rascunho);
         limparSujo(); agendarPrevia();
-        toast("Salvo! O site já mostra as mudanças.");
+        toast("Salvo! Neste navegador o site já mostra as mudanças.");
       } catch (err) { toast(err.message, true); }
     }
     $("#salvar-btn").addEventListener("click", salvar);
