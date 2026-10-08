@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Encomendas · Brunna Paternostro</title>
 <meta name="description" content="Crie seu personagem: monte sua encomenda com a Brunna Paternostro (@_.brupater) e veja o preço na hora.">
-<meta name="theme-color" content="#EFE6E1">
+<meta name="theme-color" content="#0E0A0F">
 <link rel="icon" href="assets/avatar.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,13 +43,18 @@
 <main class="encomendas papel" id="encomendas" aria-labelledby="enc-t">
   <div class="wrap">
     <header class="enc-cab surge">
-      <h2 class="enc-titulo t-cinema" id="enc-t">Crie seu <span>personagem</span></h2>
-      <p class="enc-sub">Escolha o enquadramento e o acabamento, veja o preço na hora e mande o resumo direto pra mim.</p>
+      <h2 class="enc-titulo t-cinema" id="enc-t">Faça sua <span>encomenda</span></h2>
+      <p class="enc-sub">Escolha o que você quer criar, veja o valor estimado na hora e mande o pedido direto pro meu WhatsApp.</p>
       <div class="enc-aviso" id="enc-aviso" hidden></div>
     </header>
 
     <div class="enc-grade">
       <div class="construtor surge" id="construtor">
+
+        <!-- duas categorias: ilustração (como sempre foi) e identidade visual -->
+        <div class="enc-tipos" id="enc-tipos" role="group" aria-label="O que você quer criar"></div>
+
+        <div id="monta-ilu">
 
         <div class="passo">
           <p class="passo-t"><span class="passo-n">1</span> Enquadramento</p>
@@ -91,6 +96,18 @@
           <p class="rascunho-preco" id="rascunho-preco"></p>
           <button class="btn cheio" type="button" id="add-item">Adicionar ao pedido</button>
         </div>
+        </div>
+
+        <div id="monta-idv" hidden>
+          <div class="passo">
+            <p class="passo-t"><span class="passo-n">1</span> Escolha o pacote</p>
+            <div class="pacotes" id="op-pacotes" role="group" aria-label="Pacote de identidade visual"></div>
+          </div>
+          <div class="construtor-pe">
+            <p class="rascunho-preco" id="idv-preco"></p>
+            <button class="btn cheio" type="button" id="add-idv">Adicionar ao pedido</button>
+          </div>
+        </div>
       </div>
 
       <aside class="pedido surge" id="pedido" aria-labelledby="pedido-t">
@@ -104,10 +121,11 @@
         </label>
         <div class="recibo" id="recibo"></div>
         <div class="pedido-ctas">
-          <button class="btn" type="button" id="copiar">Copiar resumo</button>
-          <a class="btn cheio" id="fechar" href="#" target="_blank" rel="noopener">Fechar na DM</a>
+          <a class="btn cheio" id="fechar" href="#" target="_blank" rel="noopener">Enviar pedido</a>
+          <button class="btn btn-ig" type="button" id="copiar">Copiar resumo pro Instagram</button>
         </div>
         <p class="pedido-nota" id="pedido-nota"></p>
+        <p class="pedido-ig" id="pedido-ig"></p>
       </aside>
     </div>
 
@@ -135,7 +153,7 @@
 <!-- barra fixa do total (aparece só na cena de encomendas) -->
 <div class="barra-total" id="barra-total" aria-hidden="true">
   <div class="barra-total-in">
-    <div><span class="rotulo">total</span><strong id="barra-valor">R$ 0,00</strong></div>
+    <div><span class="rotulo">total estimado*</span><strong id="barra-valor">R$ 0,00</strong></div>
     <a class="btn cheio" id="barra-cta" href="#pedido">Ver pedido</a>
   </div>
 </div>

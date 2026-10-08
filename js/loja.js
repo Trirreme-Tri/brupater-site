@@ -29,10 +29,31 @@ function mesclar(base, salvo) {
 
 function copiaProfunda(obj) { return JSON.parse(JSON.stringify(obj)); }
 
+/* Ajustes que rodam UMA vez em dados já salvos no navegador. Sem isso, um
+   campo que já tinha sido salvo (ex.: WhatsApp vazio, título antigo) não
+   recebe o valor novo do PADRAO. Cada ajuste fica anotado em site.migracoes. */
+var MIGRACOES = [
+  { id: "2026-10-pdf-bru", rodar: function (s) {
+    if (!String(s.perfil.whatsapp || "").replace(/\D/g, "")) s.perfil.whatsapp = PADRAO.perfil.whatsapp;
+    if (s.perfil.titulo === "RPG Character Creation") s.perfil.titulo = PADRAO.perfil.titulo;
+    if (s.cenas.abertura.kicker === "RPG Character Creation") s.cenas.abertura.kicker = PADRAO.cenas.abertura.kicker;
+  } }
+];
+
 function lojaCarregar() {
   var salvo = null;
   try { salvo = JSON.parse(localStorage.getItem(LOJA_CHAVE) || "null"); } catch (e) { salvo = null; }
-  return mesclar(copiaProfunda(PADRAO), salvo || {});
+  var site = mesclar(copiaProfunda(PADRAO), salvo || {});
+  var feitas = (salvo && salvo.migracoes) || [];
+  var rodou = false;
+  MIGRACOES.forEach(function (m) {
+    if (feitas.indexOf(m.id) >= 0) return;
+    if (salvo) { try { m.rodar(site); rodou = true; } catch (e) { /* dado estranho: deixa como está */ } }
+    feitas.push(m.id);
+  });
+  site.migracoes = feitas;
+  if (rodou) { try { localStorage.setItem(LOJA_CHAVE, JSON.stringify(site)); } catch (e) { /* sem espaço: roda de novo na próxima */ } }
+  return site;
 }
 
 /* devolve true se salvou; lança erro com mensagem amigável se não coube */

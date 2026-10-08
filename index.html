@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Brunna Paternostro · RPG Character Creation</title>
-<meta name="description" content="Brunna Paternostro (@_.brupater): ilustração de personagens de RPG, portfólio, agenda e encomendas.">
+<title>Brunna Paternostro · Illustrator &amp; Graphic Design</title>
+<meta name="description" content="Brunna Paternostro (@_.brupater): ilustração e design gráfico. Projetos, portfólio, agenda e encomendas.">
 <meta name="theme-color" content="#EFE6E1">
 <link rel="icon" href="assets/avatar.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,43 +22,55 @@
 <script src="js/agenda.js" defer></script>
 <script src="js/site.js" defer></script>
 <script src="js/vitrine.js" defer></script>
+<script src="js/projetos.js" defer></script>
 </head>
-<body data-pagina="inicio">
+<body data-pagina="inicio" class="pg-clara">
 
 <div class="cortina" aria-hidden="true"></div>
 
 <main id="topo">
 
-<!-- ===== CENA 01 · vitrine (carrossel de destaques, fundo claro) ===== -->
+<!-- ===== topo: carrossel de destaques (fundo claro) ===== -->
 <section class="vitrine" id="abertura" data-topo aria-roledescription="carrossel" aria-label="Artes em destaque">
   <div class="wrap">
     <header class="vit-cab">
-      <p class="rotulo vit-kicker"><span class="timecode">CENA 01</span> <span id="ab-kicker"></span></p>
+      <p class="rotulo vit-kicker" id="ab-kicker"></p>
       <div class="vit-status" id="ab-status"></div>
     </header>
 
     <div class="vit-grade">
       <div class="vit-palco" id="vit-palco" aria-live="off"></div>
 
-      <aside class="vit-info" aria-live="polite">
-        <p class="rotulo vit-contador" id="vit-contador"></p>
-        <p class="vit-tag rotulo" id="vit-tag"></p>
-        <h1 class="vit-titulo t-cinema" id="vit-titulo"></h1>
-        <button type="button" class="vit-ampliar" id="vit-ampliar">ver em tela cheia &#8599;</button>
-        <hr class="vit-linha">
+      <aside class="vit-info">
+        <h1 class="so-leitor" id="ab-h1"></h1>
         <p class="vit-frase t-mao" id="ab-frase"></p>
         <p class="vit-legenda" id="ab-legenda"></p>
         <div class="vit-ctas">
-          <a class="btn cheio" href="encomendas.html">Crie seu personagem</a>
+          <a class="btn cheio" href="encomendas.html">Fazer encomenda</a>
           <a class="btn" href="portfolio.html">Ver portfólio</a>
           <a class="btn trilha" id="ab-trilha" href="#" target="_blank" rel="noopener" hidden>
             <span aria-hidden="true">&#9654;</span> <span id="ab-trilha-txt"></span>
           </a>
         </div>
+        <button type="button" class="vit-ampliar" id="vit-ampliar">ver em tela cheia &#8599;</button>
       </aside>
     </div>
 
     <div class="vit-miniaturas" id="vit-miniaturas" role="tablist" aria-label="Escolher arte"></div>
+  </div>
+</section>
+
+<!-- ===== projetos (coleções): só a capa aqui; o projeto inteiro abre em projeto.html ===== -->
+<section class="projetos" id="projetos" aria-labelledby="projetos-t">
+  <div class="wrap">
+    <header class="projetos-cab">
+      <div>
+        <h2 class="projetos-t t-cinema surge" id="projetos-t"></h2>
+        <p class="projetos-sub surge" id="projetos-sub"></p>
+      </div>
+      <div class="proj-filtros" id="proj-filtros" role="group" aria-label="Filtrar projetos"></div>
+    </header>
+    <div class="proj-grade" id="proj-grade"></div>
   </div>
 </section>
 
@@ -70,13 +82,13 @@
   </div>
 </section>
 
-<!-- ===== CENA 02 · ficha (pôster) ===== -->
+<!-- ===== ficha (pôster) ===== -->
 <section class="ficha papel" id="ficha" aria-labelledby="ficha-nome">
   <div class="wrap ficha-in">
     <div class="ficha-topo surge">
       <img class="ficha-retrato js-avatar" id="ficha-retrato" src="assets/avatar.webp" width="150" height="150" alt="Autorretrato da Brunna em ilustração">
       <div>
-        <p class="rotulo ficha-cena"><span class="timecode">CENA 02</span> ficha da personagem</p>
+        <p class="rotulo ficha-cena">ficha da personagem</p>
         <h2 class="ficha-nome t-poster" id="ficha-nome"></h2>
         <p class="ficha-lista" id="ficha-lista"></p>
       </div>

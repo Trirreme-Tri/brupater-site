@@ -11,6 +11,12 @@
  *   × fator do acabamento
  *   + preço do fundo
  * Depois: × quantidade → soma → − desconto de volume → + uso comercial.
+ *
+ * Out/2026 (pedido da Bru): duas categorias — "Crie sua Ilustração" (a de
+ * sempre) e "Crie sua Identidade Visual" (3 pacotes com preço fixo; preço 0 =
+ * "sob consulta"). Desconto de volume e uso comercial valem só pra ilustração.
+ * O botão principal manda o pedido pro WhatsApp; copiar o resumo fica pro
+ * Instagram (a DM não aceita texto pronto e pede login).
  */
 var Encomenda = (function () {
   var $ = function (s) { return document.querySelector(s); };
@@ -19,6 +25,11 @@ var Encomenda = (function () {
   var proximoId = 1;
   var pedido = { itens: [], comercial: false };
   var rascunho = { enq: null, acab: null, pers: 1, fundo: null, qtd: 1 };
+  var tipo = "ilu";          // "ilu" (ilustração) ou "idv" (identidade visual)
+  var pacoteSel = null;
+
+  function pacotes() { return ((P().identidade || {}).pacotes) || []; }
+  function ehIdv(item) { return item.tipo === "idv"; }
 
   function porId(lista, id) { return lista.filter(function (x) { return x.id === id; })[0]; }
 
@@ -29,7 +40,10 @@ var Encomenda = (function () {
     if (!porId(p.acabamentos, rascunho.acab)) rascunho.acab = (p.acabamentos[0] || {}).id;
     if (!porId(p.fundos, rascunho.fundo)) rascunho.fundo = (p.fundos[0] || {}).id;
     rascunho.pers = Math.min(Math.max(1, rascunho.pers), maxPers());
+    if (!porId(pacotes(), pacoteSel)) pacoteSel = (pacotes()[0] || {}).id;
+    if (!pacotes().length) tipo = "ilu";
     pedido.itens = pedido.itens.filter(function (i) {
+      if (ehIdv(i)) return !!porId(pacotes(), i.pacote);
       return porId(p.enquadramentos, i.enq) && porId(p.acabamentos, i.acab) && porId(p.fundos, i.fundo);
     });
   }
@@ -38,6 +52,7 @@ var Encomenda = (function () {
   /* ===== cálculo ===== */
   function precoUnitario(item) {
     var p = P();
+    if (ehIdv(item)) return Number((porId(pacotes(), item.pacote) || {}).preco) || 0;
     var enq = porId(p.enquadramentos, item.enq), acab = porId(p.acabamentos, item.acab), fundo = porId(p.fundos, item.fundo);
     if (!enq || !acab || !fundo) return 0;
     var extras = (item.pers - 1) * (Number(p.personagemExtraPct) || 0) / 100;
@@ -47,17 +62,24 @@ var Encomenda = (function () {
 
   function calcular() {
     var faixas = (P().descontosVolume || []).slice().sort(function (a, b) { return a.min - b.min; });
-    var qtdTotal = pedido.itens.reduce(function (t, i) { return t + i.qtd; }, 0);
-    var bruto = pedido.itens.reduce(function (t, i) { return t + subtotal(i); }, 0);
+    var ilu = pedido.itens.filter(function (i) { return !ehIdv(i); });
+    var idv = pedido.itens.filter(ehIdv);
+    var qtdTotal = ilu.reduce(function (t, i) { return t + i.qtd; }, 0);
+    var bruto = ilu.reduce(function (t, i) { return t + subtotal(i); }, 0);
+    var idvTotal = idv.reduce(function (t, i) { return t + subtotal(i); }, 0);
+    var aCombinar = idv.some(function (i) { return !precoUnitario(i); });
     var faixa = faixas.reduce(function (m, f) { return qtdTotal >= f.min ? f : m; }, { min: 0, pct: 0 });
     var desconto = bruto * (Number(faixa.pct) || 0) / 100;
     var comercial = pedido.comercial ? (bruto - desconto) * (Number(P().comercialPct) || 0) / 100 : 0;
     var proxima = faixas.filter(function (f) { return f.min > qtdTotal && f.pct > (faixa.pct || 0); })[0];
-    return { qtdTotal: qtdTotal, bruto: bruto, pct: Number(faixa.pct) || 0, desconto: desconto, comercial: comercial, total: bruto - desconto + comercial, proxima: proxima };
+    return { qtdTotal: qtdTotal, temIlu: ilu.length > 0, temIdv: idv.length > 0, idvTotal: idvTotal, aCombinar: aCombinar,
+      soCombinar: aCombinar && ilu.length === 0 && idvTotal === 0,
+      bruto: bruto, pct: Number(faixa.pct) || 0, desconto: desconto, comercial: comercial, total: bruto - desconto + comercial + idvTotal, proxima: proxima };
   }
 
   function descricao(item) {
     var p = P();
+    if (ehIdv(item)) return "Identidade Visual · " + porId(pacotes(), item.pacote).nome;
     var partes = [porId(p.enquadramentos, item.enq).nome, porId(p.acabamentos, item.acab).nome];
     if (item.pers > 1) partes.push(item.pers + " personagens");
     var fundo = porId(p.fundos, item.fundo);
@@ -70,12 +92,20 @@ var Encomenda = (function () {
   function resumo() {
     var c = calcular();
     var L = [aberta() ? "Oi, Bru! Montei um pedido no seu site ✨" : "Oi, Bru! Quero entrar na lista de espera com este pedido ✨", ""];
-    pedido.itens.forEach(function (i) { L.push("• " + i.qtd + "x " + descricao(i) + " — " + brl(subtotal(i))); });
+    pedido.itens.forEach(function (i) { L.push("• " + i.qtd + "x " + descricao(i) + " — " + valorTxt(i)); });
     L.push("");
     if (c.pct > 0) L.push("Desconto de volume: " + c.pct + "% (" + c.qtdTotal + " artes)");
-    if (pedido.comercial) L.push("Uso comercial: +" + P().comercialPct + "%");
-    L.push("Total: " + brl(c.total), "", "Te mando as referências do personagem por aqui!");
+    if (pedido.comercial && c.temIlu) L.push("Uso comercial: +" + P().comercialPct + "%");
+    L.push("Total estimado*: " + totalTxt(c));
+    if (P().notaTotal) L.push("*" + P().notaTotal);
+    L.push("", c.temIdv && !c.temIlu ? "Te conto mais sobre a marca por aqui!" : "Te mando as referências por aqui!");
     return L.join("\n");
+  }
+
+  function valorTxt(item) { var v = subtotal(item); return v ? brl(v) : "sob consulta"; }
+  function totalTxt(c) {
+    if (c.soCombinar) return "a combinar";
+    return brl(c.total) + (c.aCombinar ? " + identidade visual a combinar" : "");
   }
 
   /* ===== desenho ===== */
@@ -113,18 +143,44 @@ var Encomenda = (function () {
     $("#rascunho-preco").innerHTML = "<small>esta arte</small>" + esc(brl(subtotal(rascunho)));
   }
 
+  /* as duas abas: "Crie sua Ilustração" e "Crie sua Identidade Visual" */
+  function renderTipos() {
+    var p = P(), il = p.ilustracao || {}, id = p.identidade || {};
+    var abas = [{ k: "ilu", t: il.titulo || "Crie sua Ilustração", s: il.sub }];
+    if (pacotes().length) abas.push({ k: "idv", t: id.titulo || "Crie sua Identidade Visual", s: id.sub });
+    $("#enc-tipos").hidden = abas.length < 2;
+    $("#enc-tipos").innerHTML = abas.map(function (a) {
+      return '<button type="button" class="enc-tipo" data-tipo="' + a.k + '" aria-pressed="' + (a.k === tipo) + '"><b>' + esc(a.t) + "</b>" + (a.s ? "<small>" + esc(a.s) + "</small>" : "") + "</button>";
+    }).join("");
+    $("#monta-ilu").hidden = tipo !== "ilu";
+    $("#monta-idv").hidden = tipo !== "idv";
+  }
+
+  function renderPacotes() {
+    $("#op-pacotes").innerHTML = pacotes().map(function (pc, i) {
+      var itens = String(pc.itens || "").split("·").map(function (x) { return x.trim(); }).filter(Boolean);
+      return '<button type="button" class="pacote" data-pacote="' + esc(pc.id) + '" aria-pressed="' + (pc.id === pacoteSel) + '">' +
+        '<span class="pacote-topo"><span><span class="pacote-n">' + (i + 1) + " · " + esc(pc.nome) + '</span><br><span class="pacote-nome">' + esc(pc.sub || pc.nome) + "</span></span>" +
+        '<span class="pacote-preco">' + (Number(pc.preco) ? esc(brl(pc.preco)) : "sob consulta") + "</span></span>" +
+        (itens.length ? "<ul>" + itens.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : "") + "</button>";
+    }).join("");
+    var sel = porId(pacotes(), pacoteSel) || {};
+    $("#idv-preco").innerHTML = "<small>este pacote</small>" + (Number(sel.preco) ? esc(brl(sel.preco)) : "sob consulta");
+  }
+
   function renderPedido() {
     var c = calcular(), vazio = pedido.itens.length === 0;
     $("#pedido-vazio").hidden = !vazio;
-    $("#comercial-linha").hidden = vazio;
+    $("#comercial-linha").hidden = !c.temIlu;
     $("#pedido-itens").innerHTML = pedido.itens.map(function (i) {
-      return '<li class="pi" data-id="' + i.id + '"><span class="pi-desc">' + i.qtd + "x " + esc(descricao(i)) + '</span><span class="pi-valor">' + esc(brl(subtotal(i))) + "</span>" +
-        '<span class="pi-acoes"><span class="stepper"><button type="button" data-acao="menos" aria-label="Diminuir"' + (i.qtd <= 1 ? " disabled" : "") + ">&minus;</button><output>" + i.qtd +
-        '</output><button type="button" data-acao="mais" aria-label="Aumentar"' + (i.qtd >= 20 ? " disabled" : "") + '>+</button></span><button type="button" class="pi-rem" data-acao="remover">remover</button></span></li>';
+      var passo = ehIdv(i) ? "" : '<span class="stepper"><button type="button" data-acao="menos" aria-label="Diminuir"' + (i.qtd <= 1 ? " disabled" : "") + ">&minus;</button><output>" + i.qtd +
+        '</output><button type="button" data-acao="mais" aria-label="Aumentar"' + (i.qtd >= 20 ? " disabled" : "") + ">+</button></span>";
+      return '<li class="pi" data-id="' + i.id + '"><span class="pi-desc">' + i.qtd + "x " + esc(descricao(i)) + '</span><span class="pi-valor">' + esc(valorTxt(i)) + "</span>" +
+        '<span class="pi-acoes">' + passo + '<button type="button" class="pi-rem" data-acao="remover">remover</button></span></li>';
     }).join("");
 
     var aviso = "";
-    if (!vazio) {
+    if (c.temIlu) {
       if (c.pct > 0) aviso = c.pct + "% de desconto aplicado (" + c.qtdTotal + " artes).";
       if (c.proxima) aviso += (aviso ? " " : "") + "Com " + c.proxima.min + " artes no pedido o desconto vai pra " + c.proxima.pct + "%.";
     }
@@ -132,24 +188,36 @@ var Encomenda = (function () {
     $("#comercial-txt").textContent = "Pra revender, estampar produto ou usar em capa. Acrescenta " + (Number(P().comercialPct) || 0) + "% ao valor.";
 
     var linhas = [];
-    if (!vazio) {
+    if (c.temIlu) {
       linhas.push('<div class="row"><span>Subtotal (' + c.qtdTotal + (c.qtdTotal === 1 ? " arte" : " artes") + ")</span><span>" + esc(brl(c.bruto)) + "</span></div>");
       if (c.pct > 0) linhas.push('<div class="row"><span>Desconto de volume (' + c.pct + "%)</span><span>&minus; " + esc(brl(c.desconto)) + "</span></div>");
       if (pedido.comercial) linhas.push('<div class="row"><span>Uso comercial (+' + P().comercialPct + "%)</span><span>" + esc(brl(c.comercial)) + "</span></div>");
     }
-    linhas.push('<div class="row total"><span class="rotulo">total</span><strong>' + esc(brl(c.total)) + "</strong></div>");
+    if (c.temIdv) linhas.push('<div class="row"><span>Identidade visual</span><span>' + (c.idvTotal ? esc(brl(c.idvTotal)) : "") + (c.aCombinar ? (c.idvTotal ? " + " : "") + "a combinar" : "") + "</span></div>");
+    linhas.push('<div class="row total"><span class="rotulo">total estimado<sup>*</sup></span><strong>' + (c.soCombinar ? "A combinar" : esc(brl(c.total))) + "</strong></div>");
+    if (P().notaTotal) linhas.push('<p class="total-nota"><b>*</b> ' + esc(P().notaTotal) + "</p>");
     $("#recibo").innerHTML = linhas.join("");
 
+    /* botão principal: WhatsApp (com o resumo já escrito). Sem número no painel,
+       volta a ser a DM do Instagram como antes. */
     var whats = contatoTemWhats();
     var cta = $("#fechar");
     cta.href = contatoLink(resumo());
     cta.setAttribute("aria-disabled", String(vazio));
-    cta.textContent = aberta() ? (whats ? "Fechar no WhatsApp" : "Fechar na DM") : "Entrar na lista de espera";
-    $("#pedido-nota").textContent = whats
-      ? "O resumo já vai escrito na mensagem. 50% pra começar, 50% depois do esboço."
-      : "A DM do Instagram não aceita texto pronto: o resumo é copiado sozinho, é só colar na conversa.";
+    var txtCta = whats ? (aberta() ? "Enviar pedido no WhatsApp" : "Lista de espera no WhatsApp") : (aberta() ? "Fechar na DM" : "Entrar na lista de espera");
+    cta.innerHTML = (whats ? iconeSvg("whatsapp") : "") + "<span>" + esc(txtCta) + "</span>";
 
-    $("#barra-valor").textContent = brl(c.total);
+    var cop = $("#copiar");
+    if (!cop.dataset.ocupado) cop.innerHTML = whats ? iconeSvg("instagram") + "<span>Copiar resumo pro Instagram</span>" : "<span>Copiar resumo</span>";
+    $("#pedido-nota").textContent = whats
+      ? "O resumo já vai escrito na mensagem do WhatsApp. 50% pra começar, 50% depois do esboço."
+      : "A DM do Instagram não aceita texto pronto: o resumo é copiado sozinho, é só colar na conversa.";
+    var ig = $("#pedido-ig");
+    ig.hidden = !whats || !SITE.perfil.instagram;
+    if (!ig.hidden) ig.innerHTML = "Prefere o Instagram? Copie o resumo e cole na minha DM: " +
+      '<a href="https://ig.me/m/' + encodeURIComponent(SITE.perfil.instagram) + '" target="_blank" rel="noopener">@' + esc(SITE.perfil.instagram) + " &#8599;</a>";
+
+    $("#barra-valor").textContent = c.soCombinar ? "A combinar" : brl(c.total);
   }
 
   /* faixa no topo da calculadora: sempre mostra a situação da agenda */
@@ -178,6 +246,8 @@ var Encomenda = (function () {
 
   function render() {
     garantirRascunho();
+    renderTipos();
+    renderPacotes();
     renderOpcoes();
     renderRascunho();
     renderPedido();
@@ -204,6 +274,10 @@ var Encomenda = (function () {
     document.addEventListener("click", function (e) {
       var op = e.target.closest(".opcao[data-grupo]");
       if (op) { rascunho[op.dataset.grupo] = op.dataset.id; render(); return; }
+      var tp = e.target.closest(".enc-tipo[data-tipo]");
+      if (tp) { tipo = tp.dataset.tipo; render(); return; }
+      var pc = e.target.closest(".pacote[data-pacote]");
+      if (pc) { pacoteSel = pc.dataset.pacote; render(); return; }
       var ac = e.target.closest(".pi [data-acao]");
       if (ac) {
         var id = Number(ac.closest(".pi").dataset.id);
@@ -228,11 +302,27 @@ var Encomenda = (function () {
       /* no celular o pedido fica embaixo: rola até ele pra pessoa ver que entrou */
       if (window.innerWidth < 980) $("#pedido").scrollIntoView({ behavior: "smooth", block: "start" });
     });
+    $("#add-idv").addEventListener("click", function () {
+      if (!pacoteSel) return;
+      /* um pacote de identidade por pedido: trocar o pacote substitui o anterior */
+      pedido.itens = pedido.itens.filter(function (i) { return !ehIdv(i); });
+      pedido.itens.push({ id: proximoId++, tipo: "idv", pacote: pacoteSel, qtd: 1 });
+      render();
+      var b = this;
+      b.textContent = "Adicionado ✓"; b.classList.add("adicionado");
+      setTimeout(function () { b.textContent = "Adicionar ao pedido"; b.classList.remove("adicionado"); }, 1400);
+      if (window.innerWidth < 980) $("#pedido").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     $("#comercial").addEventListener("change", function (e) { pedido.comercial = e.target.checked; render(); });
     $("#copiar").addEventListener("click", function () {
       var b = this;
-      copiar(resumo()).then(function () { b.textContent = "Copiado!"; }, function () { b.textContent = "Não deu pra copiar"; })
-        .then(function () { setTimeout(function () { b.textContent = "Copiar resumo"; }, 1800); });
+      if (pedido.itens.length === 0) { avisoSite("Monte seu pedido primeiro ✨"); return; }
+      b.dataset.ocupado = "1";
+      copiar(resumo()).then(function () {
+        b.textContent = "Copiado!";
+        if (contatoTemWhats()) avisoSite("Resumo copiado! É só colar na minha DM do Instagram ✨");
+      }, function () { b.textContent = "Não deu pra copiar"; })
+        .then(function () { setTimeout(function () { delete b.dataset.ocupado; renderPedido(); }, 1800); });
     });
     $("#fechar").addEventListener("click", function (e) {
       if (pedido.itens.length === 0) { e.preventDefault(); return; }

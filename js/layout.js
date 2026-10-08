@@ -67,6 +67,17 @@
     '<button class="prox" type="button" aria-label="Próxima arte">&#8594;</button>';
   document.body.appendChild(lb);
 
+  /* WhatsApp flutuante no cantinho (pedido da Bru). O número e o texto vêm
+     do painel (Perfil → Contato); o js/site.js preenche e esconde se não tiver número. */
+  var whats = document.createElement("a");
+  whats.className = "whats-flut";
+  whats.id = "whats-flut";
+  whats.target = "_blank";
+  whats.rel = "noopener";
+  whats.hidden = true;
+  whats.innerHTML = '<span class="wf-txt"></span><span class="wf-ico"></span>';
+  document.body.appendChild(whats);
+
   var aviso = document.createElement("div");
   aviso.className = "aviso-site";
   aviso.id = "aviso-site";

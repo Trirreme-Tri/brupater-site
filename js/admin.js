@@ -122,6 +122,7 @@
     { id: "agenda", nome: "Agenda", icone: "agenda", render: abaAgenda },
     { id: "encomendas", nome: "Preços e encomendas", icone: "dado", render: abaEncomendas },
     { id: "galeria", nome: "Galeria", icone: "estrela", render: abaGaleria },
+    { id: "projetos", nome: "Projetos", icone: "artstation", render: abaProjetos },
     { id: "cenas", nome: "Cenas e imagens", icone: "youtube", render: abaCenas },
     { id: "perfil", nome: "Perfil e ficha", icone: "coracao", render: abaPerfil },
     { id: "links", nome: "Links", icone: "link", render: abaLinks },
@@ -221,7 +222,17 @@
         lista("precos.descontosVolume", function (o, i, c) {
           return linha(campo(c + ".min", "A partir de (artes)", { tipo: "number", min: 1 }), campo(c + ".pct", "Desconto (%)", { tipo: "number", min: 0 }));
         }, function () { return { min: 10, pct: 15 }; }, "Adicionar faixa de desconto")) +
-      secao("Uso comercial", "", campo("precos.comercialPct", "Acréscimo para uso comercial (%)", { tipo: "number", min: 0 })) +
+      secao("Uso comercial", "Vale só para as ilustrações.", campo("precos.comercialPct", "Acréscimo para uso comercial (%)", { tipo: "number", min: 0 })) +
+      secao("As duas categorias", "Os dois botões no alto da área de encomendas.",
+        linha(campo("precos.ilustracao.titulo", "Ilustração: nome"), campo("precos.ilustracao.sub", "Ilustração: frase curta")) +
+        linha(campo("precos.identidade.titulo", "Identidade visual: nome"), campo("precos.identidade.sub", "Identidade visual: frase curta"))) +
+      secao("Pacotes de identidade visual", "Preço 0 aparece como \"sob consulta\" e o valor é combinado na conversa. Sem nenhum pacote, a categoria some do site.",
+        lista("precos.identidade.pacotes", function (o, i, c) {
+          return linha(campo(c + ".nome", "Nome (ex.: Básico)"), campo(c + ".sub", "Subtítulo"), campo(c + ".preco", "Preço (R$)", { tipo: "number", passo: "0.01", min: 0 })) +
+            campo(c + ".itens", "O que inclui", { tipo: "textarea", linhas: 2, ajuda: "Separe os itens com · (ponto do meio)." });
+        }, function () { return { id: "pac" + Date.now(), nome: "Novo pacote", sub: "", preco: 0, itens: "" }; }, "Adicionar pacote")) +
+      secao("Nota do total", "Aparece com * logo abaixo do \"Total estimado\".",
+        campo("precos.notaTotal", "Texto da nota", { largo: true })) +
       secao("Regras de pagamento", "Os cartões numerados abaixo da calculadora.",
         lista("precos.regras", function (r, i, c) { return campo(c, "Regra " + (i + 1)); }, function () { return "Nova regra"; }, "Adicionar regra"));
   }
@@ -241,6 +252,38 @@
           campo(c + ".visivel", "Aparecer no site", { tipo: "check" }) +
           campo(c + ".destaque", "Destaque no carrossel do topo da página inicial", { tipo: "check" }) + "</div>";
       }, function () { return { img: "", titulo: "Nova arte", tag: tags[0] || "Personagens", visivel: true, destaque: false }; }, "Adicionar arte por link"));
+  }
+
+  /* ----- projetos (coleções) ----- */
+  function abaProjetos() {
+    var cats = ["Ilustração", "Identidade visual"];
+    rascunho.projetos.forEach(function (p) { if (p.categoria && cats.indexOf(p.categoria) < 0) cats.push(p.categoria); });
+    var opGaleria = '<option value="">+ Adicionar arte da galeria…</option>' + rascunho.galeria.filter(function (o) { return o.img && !/^data:/.test(o.img); }).map(function (o) {
+      return '<option value="' + esc(o.img) + '">' + esc(o.titulo || o.img) + "</option>";
+    }).join("");
+    return secao("Seção de projetos", "Na página inicial aparece só a capa de cada projeto. Ao clicar, abre a página do projeto com todas as imagens.",
+        linha(campo("secaoProjetos.titulo", "Título da seção"), campo("secaoProjetos.sub", "Frase curta", { largo: true }))) +
+      secao("Projetos", "A ordem aqui é a ordem da página inicial (os 2 primeiros aparecem maiores no computador). A categoria vira um filtro quando houver mais de uma.",
+        '<datalist id="cats-projetos">' + cats.map(function (c) { return '<option value="' + esc(c) + '">'; }).join("") + "</datalist>" +
+        lista("projetos", function (p, i, c) {
+          var url = "projeto.html?p=" + encodeURIComponent(p.id || "");
+          return '<div class="obra-admin' + (p.visivel === false ? " oculta" : "") + '">' +
+            linha(campo(c + ".titulo", "Nome do projeto"), campo(c + ".categoria", "Categoria", { lista: "cats-projetos" })) +
+            campoImg(c + ".capa", "Capa (aparece na página inicial)") +
+            campo(c + ".foco", "Parte da capa em destaque", { tipo: "select", opcoes: opcoesFoco(c + ".foco") }) +
+            campo(c + ".resumo", "Linha curta embaixo do nome na capa") +
+            campo(c + ".texto", "Texto do projeto", { tipo: "textarea", linhas: 4, ajuda: "Aparece no topo da página do projeto. Pule uma linha pra começar outro parágrafo." }) +
+            linha(campo(c + ".id", "Endereço", { ajuda: 'Só letras, números e hífen. Link: <a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(url) + "</a>" }),
+                  campo(c + ".visivel", "Aparecer no site", { tipo: "check" })) +
+            '<h3 class="sub-t">Imagens do projeto (' + (p.imagens || []).length + ")</h3>" +
+            '<div class="campo"><select data-add-galeria="' + c + '.imagens" aria-label="Adicionar arte da galeria">' + opGaleria + "</select></div>" +
+            lista(c + ".imagens", function (im, j, ci) {
+              return campoImg(ci + ".img", "Imagem " + (j + 1)) + campo(ci + ".legenda", "Legenda (opcional)");
+            }, function () { return { img: "", legenda: "" }; }, "Adicionar imagem por link ou do computador", "Nenhuma imagem ainda.") +
+            "</div>";
+        }, function () {
+          return { id: "projeto-" + Date.now().toString(36), titulo: "Novo projeto", categoria: "Identidade visual", visivel: true, capa: "", foco: "50% 40%", resumo: "", texto: "", imagens: [] };
+        }, "Adicionar projeto", "Nenhum projeto ainda."));
   }
 
   /* ----- 04 cenas ----- */
@@ -274,9 +317,11 @@
         linha(campo("perfil.titulo", "Título"), campo("perfil.handle", "Arroba exibido")) +
         campo("perfil.frase", "Frase de destaque", { ajuda: "Aparece na abertura, em letra de mão." }) +
         campo("perfil.assinatura", "Assinatura do rodapé")) +
-      secao("Contato das encomendas", "Se o WhatsApp ficar vazio, o pedido vai pela DM do Instagram (com o resumo copiado).",
+      secao("Contato e WhatsApp", "Com WhatsApp preenchido, o pedido vai direto pro WhatsApp com o resumo escrito e aparece o botão flutuante no cantinho da tela. Se ficar vazio, o pedido vai pela DM do Instagram (com o resumo copiado).",
         linha(campo("perfil.instagram", "Usuário do Instagram", { placeholder: "_.brupater" }),
-              campo("perfil.whatsapp", "WhatsApp com DDD", { placeholder: "5569999999999", ajuda: "Só números, com 55 + DDD." }))) +
+              campo("perfil.whatsapp", "WhatsApp com DDD", { placeholder: "5511999999999", ajuda: "Só números, com 55 + DDD." })) +
+        campo("perfil.whatsappFlutuante", "Mostrar o botão flutuante do WhatsApp", { tipo: "check" }) +
+        linha(campo("perfil.whatsappBotao", "Texto do botão flutuante"), campo("perfil.whatsappMensagem", "Mensagem que já vem escrita", { largo: true }))) +
       secao("Trilha sonora", "Um botão \"play\" na abertura, pra quem quiser ouvir uma música enquanto vê o portfólio. Sem link, o botão some.",
         linha(campo("perfil.trilha.texto", "Texto do botão"), campo("perfil.trilha.url", "Link da música", { tipo: "url", placeholder: "https://open.spotify.com/..." }))) +
       secao("Ficha da personagem (pôster)", "A seção no estilo do seu pôster Oásis.",
@@ -453,13 +498,17 @@
       var el = e.target;
       if (el.dataset.k && (el.tagName === "SELECT" || el.type === "checkbox" || el.type === "radio")) aoMudarCampo(el);
       /* campos de texto: ao sair do campo, redesenha pra atualizar miniaturas e títulos */
-      else if (el.dataset.k && (/\.img$|avatar$|retrato$|imagem$/.test(el.dataset.k) || /^agenda\.sessoes\.\d+\.(abre|vagas)$/.test(el.dataset.k))) render();
+      else if (el.dataset.k && (/\.img$|avatar$|retrato$|imagem$|capa$/.test(el.dataset.k) || /^agenda\.sessoes\.\d+\.(abre|vagas)$/.test(el.dataset.k))) render();
 
       if (el.dataset.img && el.files[0]) {
-        var grande = /^cenas\./.test(el.dataset.img);
+        var grande = /^cenas\.|^projetos\./.test(el.dataset.img);
         processarImagem(el.files[0], grande ? 1800 : 1200).then(function (dataUrl) {
           set(el.dataset.img, dataUrl); limparMiniatura(el.dataset.img); marcarSujo(); render(); toast("Imagem carregada. Lembre de salvar.");
         }).catch(function (err) { toast(err.message, true); });
+      }
+      if (el.dataset.addGaleria && el.value) {
+        get(el.dataset.addGaleria).push({ img: el.value, legenda: "" }); marcarSujo(); render(); toast("Arte adicionada ao projeto.");
+        return;
       }
       if (el.hasAttribute("data-galeria-upload") && el.files.length) {
         var arquivos = Array.prototype.slice.call(el.files);

@@ -95,6 +95,7 @@ var Site = (function () {
     if (!tem("#abertura")) return;
     var c = SITE.cenas.abertura, p = SITE.perfil;
     $("#ab-kicker").textContent = c.kicker || p.titulo;
+    $("#ab-h1").textContent = (p.nome || "") + (p.titulo ? " · " + p.titulo : "");
     $("#ab-frase").textContent = p.frase;
     $("#ab-legenda").textContent = c.legenda;
     var trilha = $("#ab-trilha"), url = urlSegura(p.trilha && p.trilha.url);
@@ -171,7 +172,7 @@ var Site = (function () {
       var c = k.c || {};
       return '<a class="chamada surge" href="' + k.href + '">' +
         '<span class="chamada-img" style="background-image:url(\'' + esc(img(c.img)) + '\');--foco:' + esc(c.foco || "50% 40%") + '"></span>' +
-        '<span class="chamada-txt"><span class="rotulo"><span class="timecode">CENA ' + k.n + "</span></span>" +
+        '<span class="chamada-txt">' +
         (k.etiqueta || "") +
         '<span class="chamada-t t-cinema">' + esc(c.titulo) + "</span>" +
         '<span class="chamada-sub">' + esc(c.sub) + "</span>" +
@@ -351,8 +352,22 @@ var Site = (function () {
     }).join("");
   }
 
+  /* botão flutuante do WhatsApp (criado no js/layout.js) — só aparece com número */
+  function renderWhats() {
+    var b = $("#whats-flut");
+    if (!b) return;
+    var p = SITE.perfil;
+    b.hidden = !contatoTemWhats() || p.whatsappFlutuante === false;
+    b.href = contatoLink(p.whatsappMensagem || "");
+    var txt = p.whatsappBotao || "Fale comigo no WhatsApp";
+    b.querySelector(".wf-txt").textContent = txt;
+    b.querySelector(".wf-ico").innerHTML = iconeSvg("whatsapp");
+    b.setAttribute("aria-label", txt);
+  }
+
   function renderTudo() {
     renderAvatar();
+    renderWhats();
     renderCabecalho();
     renderAbertura();
     renderLinks();
@@ -423,7 +438,17 @@ var Site = (function () {
       renderTudo();
       if (window.Encomenda) Encomenda.recarregar();
       if (window.Vitrine) Vitrine.montar();
+      if (window.Projetos) Projetos.render();
     });
+
+    /* o texto do botão do WhatsApp aparece no topo da página; ao rolar, fica
+       só o ícone, pra não cobrir o conteúdo */
+    var wf = $("#whats-flut"), pedindo = false;
+    if (wf) window.addEventListener("scroll", function () {
+      if (pedindo) return;
+      pedindo = true;
+      requestAnimationFrame(function () { wf.classList.toggle("compacto", window.scrollY > 240); pedindo = false; });
+    }, { passive: true });
   }
 
   function iniciar() {

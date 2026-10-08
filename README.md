@@ -8,10 +8,11 @@ com painel de edição. Desenvolvido pela [TRIRREME](https://trirreme.com).
 
 | Página | Arquivo | O que é |
 |---|---|---|
-| Início | `index.html` | Abertura, links, ficha da personagem, interlúdios e chamadas para as outras páginas |
+| Início | `index.html` | Carrossel de destaques (fundo claro), projetos em coleções, links, ficha da personagem, interlúdios e chamadas para as outras páginas |
+| Projeto | `projeto.html?p=<id>` | Um projeto inteiro (capa, texto e todas as imagens), como no Behance |
 | Portfólio | `portfolio.html` | Galeria com filtros e tela cheia |
 | Agenda | `agenda.html` | Situação atual, agendas por mês (vagas e ESGOTADO automático), calendário e fila |
-| Encomendas | `encomendas.html` | Calculadora de encomendas e perguntas frequentes |
+| Encomendas | `encomendas.html` | Duas categorias (Ilustração e Identidade Visual), total estimado, pedido pelo WhatsApp e perguntas frequentes |
 | Painel | `admin.html` | Edição de agenda, preços, galeria, cenas, perfil, links, perguntas, cores, fontes e backup |
 | Apresentação | `apresentacao.html` | Documento temporário para a cliente: links, acesso, estilo, fontes, cores e fluxos |
 
@@ -29,10 +30,12 @@ js/
   loja.js           onde o conteúdo fica salvo (hoje: localStorage) + utilidades (esc, brl)
   tema.js           aplica cores, fontes e efeitos; carrega SITE
   icones.js         ícones dos links
-  layout.js         navegação, rodapé e lightbox comuns às páginas públicas
+  layout.js         navegação, rodapé, lightbox e WhatsApp flutuante comuns às páginas públicas
   agenda.js         regras da agenda: estado de cada sessão (em breve, aberta, esgotado)
   cinema.js         barras de cinema, entrada ao rolar, tema, lightbox
   site.js           desenha as páginas públicas
+  vitrine.js        carrossel do topo da página inicial (loop infinito, passa pro lado)
+  projetos.js       projetos (coleções): grade de capas na inicial e a página projeto.html
   encomenda.js      calculadora de encomendas
   admin.js          painel
   apresentacao.js   partes dinâmicas da apresentação

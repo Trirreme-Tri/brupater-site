@@ -15,12 +15,16 @@ var PADRAO = {
     nome: "Brunna Paternostro",
     apelido: "Bru",
     handle: "_.brupater",
-    titulo: "RPG Character Creation",
+    titulo: "Illustrator & Graphic Design",
     frase: "Colors and lines bring your ideas to life.",
     saudacao: "Hellooooo, little stars!",
     avatar: "assets/avatar.webp",
     instagram: "_.brupater",
-    whatsapp: "",
+    whatsapp: "5511964881678",
+    /* botão flutuante no cantinho da tela (todas as páginas) */
+    whatsappFlutuante: true,
+    whatsappBotao: "Fale comigo no WhatsApp",
+    whatsappMensagem: "Oi, Bru! Vim pelo seu site ✨",
     assinatura: "Beijokinhas de estrela",
     trilha: { texto: "Dar play na imersão", url: "" }
   },
@@ -28,8 +32,8 @@ var PADRAO = {
   cenas: {
     /* topo da página inicial: as artes do carrossel vêm da galeria (destaque: true) */
     abertura: {
-      kicker: "RPG Character Creation",
-      legenda: "Personagens de RPG, OCs e heróis da sua mesa ganhando cor, traço e história."
+      kicker: "Illustrator & Graphic Design",
+      legenda: "Personagens, cenas e identidades visuais ganhando cor, traço e história."
     },
     interludio1: {
       img: "assets/obras/a-fuga.webp",
@@ -126,6 +130,23 @@ var PADRAO = {
       { min: 5, pct: 10 }
     ],
     comercialPct: 50,
+    /* as duas categorias da área de encomendas */
+    ilustracao: { titulo: "Crie sua Ilustração", sub: "Personagens, OCs e fichas" },
+    identidade: {
+      titulo: "Crie sua Identidade Visual",
+      sub: "Pra sua marca, loja ou projeto",
+      /* preco 0 = aparece "sob consulta" e o valor é combinado na conversa */
+      pacotes: [
+        { id: "basico", nome: "Básico", sub: "Identidade Essencial", preco: 0,
+          itens: "Logo · Variações do logo · Paleta de cores · Tipografia · Arquivos finais" },
+        { id: "completo", nome: "Completo", sub: "Identidade Visual", preco: 0,
+          itens: "Tudo do Básico · Símbolo · Pattern · Elementos gráficos · 3 a 5 mockups" },
+        { id: "premium", nome: "Premium", sub: "Identidade + Manual da Marca", preco: 0,
+          itens: "Tudo do Completo · Manual da marca diagramado: aplicações, cores, tipografia, redução, área de proteção e usos incorretos" }
+      ]
+    },
+    /* aparece com * logo abaixo do total */
+    notaTotal: "Os valores podem variar de acordo com a complexidade da arte.",
     regras: [
       "50% adiantado para começar",
       "50% depois do esboço aprovado",
@@ -133,6 +154,88 @@ var PADRAO = {
       "Sem reembolso ou cancelamento depois do pagamento"
     ]
   },
+
+  /* Projetos = coleções. Na página inicial aparece só a capa; ao clicar abre
+     projeto.html?p=<id> com o projeto inteiro (como no Behance/ArtStation).
+     categoria vira filtro ("Ilustração", "Identidade visual"...). */
+  secaoProjetos: {
+    titulo: "Projetos",
+    sub: "Coleções de ilustração e identidade visual. Toque na capa pra ver o projeto inteiro."
+  },
+  projetos: [
+    {
+      id: "personagens", titulo: "Personagens", categoria: "Ilustração", visivel: true,
+      capa: "assets/obras/tiefling-cartas.webp", foco: "50% 25%",
+      resumo: "Fichas e retratos de personagem.",
+      texto: "Personagens de RPG, OCs e heróis de mesa: cada um com pose, roupa e personalidade próprias.",
+      imagens: [
+        { img: "assets/obras/tiefling-cartas.webp", legenda: "" },
+        { img: "assets/obras/brasa.webp", legenda: "" },
+        { img: "assets/obras/elfa-das-aguas.webp", legenda: "" },
+        { img: "assets/obras/lamina-violeta.webp", legenda: "" },
+        { img: "assets/obras/guardiao-da-coruja.webp", legenda: "" },
+        { img: "assets/obras/gargantilha.webp", legenda: "" },
+        { img: "assets/obras/o-bardo.webp", legenda: "" },
+        { img: "assets/obras/cavaleiro-de-pelucia.webp", legenda: "" },
+        { img: "assets/obras/rosa-choque.webp", legenda: "" },
+        { img: "assets/obras/bandana.webp", legenda: "" },
+        { img: "assets/obras/hey.webp", legenda: "" }
+      ]
+    },
+    {
+      id: "cenas", titulo: "Cenas", categoria: "Ilustração", visivel: true,
+      capa: "assets/obras/a-fuga.webp", foco: "50% 45%",
+      resumo: "Cenas de aventura com luz e clima.",
+      texto: "Ilustrações de cena pensadas como um quadro de filme: luz, clima e movimento contando a história.",
+      imagens: [
+        { img: "assets/obras/a-fuga.webp", legenda: "" },
+        { img: "assets/obras/correnteza.webp", legenda: "" },
+        { img: "assets/obras/catedral.webp", legenda: "" },
+        { img: "assets/obras/sombra-dourada.webp", legenda: "" },
+        { img: "assets/obras/stand-up-and-fight.webp", legenda: "" }
+      ]
+    },
+    {
+      id: "posteres", titulo: "Pôsteres", categoria: "Ilustração", visivel: true,
+      capa: "assets/obras/oasis.webp", foco: "50% 30%",
+      resumo: "Ilustração + tipografia, como cartaz de cinema.",
+      texto: "Pôsteres e fichas que juntam ilustração, tipografia e composição gráfica, no estilo de cartaz de cinema.",
+      imagens: [
+        { img: "assets/obras/oasis.webp", legenda: "" },
+        { img: "assets/obras/character.webp", legenda: "" },
+        { img: "assets/obras/smile.webp", legenda: "" },
+        { img: "assets/obras/commissions-open.webp", legenda: "" }
+      ]
+    },
+    {
+      id: "caderno-de-campanha", titulo: "Caderno de campanha", categoria: "Ilustração", visivel: true,
+      capa: "assets/obras/caderno-de-campanha.webp", foco: "50% 50%",
+      resumo: "Esboços e estudos a lápis.",
+      texto: "As páginas do caderno onde tudo começa: esboços, estudos de personagem e cenas a lápis antes da cor.",
+      imagens: [
+        { img: "assets/obras/caderno-de-campanha.webp", legenda: "" },
+        { img: "assets/obras/caderno-alvar.webp", legenda: "" },
+        { img: "assets/obras/alvar-acorrentado.webp", legenda: "" },
+        { img: "assets/obras/caderno-portao.webp", legenda: "" },
+        { img: "assets/obras/queda.webp", legenda: "" },
+        { img: "assets/obras/rascunho.webp", legenda: "" },
+        { img: "assets/obras/processo.webp", legenda: "" }
+      ]
+    },
+    {
+      id: "retratos-e-estudos", titulo: "Retratos e estudos", categoria: "Ilustração", visivel: true,
+      capa: "assets/obras/estudo-de-luz.webp", foco: "50% 35%",
+      resumo: "Rosto, olhar e luz.",
+      texto: "Estudos de rosto, olhar e luz, onde eu testo cor e acabamento.",
+      imagens: [
+        { img: "assets/obras/estudo-de-luz.webp", legenda: "" },
+        { img: "assets/obras/iris.webp", legenda: "" },
+        { img: "assets/obras/olhar.webp", legenda: "" },
+        { img: "assets/obras/iris-azul.webp", legenda: "" },
+        { img: "assets/obras/dama-em-lineart.webp", legenda: "" }
+      ]
+    }
+  ],
 
   /* destaque: true = aparece no carrossel do topo da página inicial (na ordem da lista).
      mini = versão menor usada na grade; img = versão grande da tela cheia. */

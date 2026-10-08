@@ -4,23 +4,30 @@
  * Vitrine: o carrossel do topo da página inicial (pedido da Bru, inspirado
  * nos destaques da Steam). As artes vêm da galeria com "destaque: true".
  *
- * Transição cinematográfica e SÓ na troca: a arte nova entra num fade longo,
- * saindo levemente desfocada e assentando; depois fica parada. Nada se mexe
- * continuamente (regra aprendida: imagem se mexendo sem parar parece tremer).
- * Pausa sozinha com o mouse em cima, com o foco do teclado, com a aba
- * escondida e para quem pediu "reduzir movimento" no aparelho.
+ * Como funciona:
+ * - As artes passam pro lado sozinhas, num loop infinito (depois da última
+ *   vem a primeira, sempre no mesmo sentido).
+ * - O movimento acontece SÓ na troca: a nova entra deslizando com um leve
+ *   zoom que assenta; depois fica parada (imagem se mexendo sem parar parece
+ *   tremer).
+ * - Não pausa com toque nem com o mouse em cima: no celular o toque deixava
+ *   o carrossel parado. Só pausa pelo botão de pausa (acessibilidade) e
+ *   quando a aba do navegador fica escondida.
+ * - Quem pediu "reduzir movimento" no aparelho (ou "Movimento: desligado" no
+ *   painel) vê a troca em fade, sem deslizar. As artes continuam passando.
  */
 var Vitrine = (function () {
-  var INTERVALO = 7000;
+  var INTERVALO = 6000;   // tempo de cada arte na tela
+  var DURACAO = 1300;     // tempo da passagem (igual ao CSS)
   var $ = function (s) { return document.querySelector(s); };
   var raiz = document.documentElement;
-  var reduzido = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var mqReduzido = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
 
-  var lista = [], atual = 0, timer = null;
-  var pausaUsuario = false, pausaHover = false;
+  var lista = [], atual = 0, timer = null, limpeza = null;
+  var pausaUsuario = false;
   var inicio = 0, restante = INTERVALO;
 
-  function semAutoplay() { return reduzido || raiz.dataset.movimento === "desligado"; }
+  function modoFade() { return (mqReduzido && mqReduzido.matches) || raiz.dataset.movimento === "desligado"; }
 
   function destaques() {
     var visiveis = SITE.galeria.filter(function (o) { return o.visivel !== false && urlSegura(o.img, true); });
@@ -29,10 +36,11 @@ var Vitrine = (function () {
   }
   function mini(o) { return urlSegura(o.mini, true) || urlSegura(o.img, true); }
   function grande(o) { return urlSegura(o.img, true); }
+  function slide(i) { return document.querySelector('.vit-slide[data-i="' + i + '"]'); }
 
   /* só baixa a imagem grande quando ela é a atual ou a próxima */
   function carregar(i) {
-    var fig = document.querySelector('.vit-slide[data-i="' + i + '"]');
+    var fig = slide(i);
     if (!fig) return;
     var im = fig.querySelector("img");
     if (!im.getAttribute("src")) im.setAttribute("src", im.dataset.src);
@@ -43,35 +51,69 @@ var Vitrine = (function () {
     if (!palco) return;
     lista = destaques();
     if (atual >= lista.length) atual = 0;
+    palco.classList.toggle("vit-fade", modoFade());
     palco.innerHTML = lista.map(function (o, i) {
-      return '<figure class="vit-slide" data-i="' + i + '" aria-roledescription="slide" aria-label="' + (i + 1) + " de " + lista.length + ": " + esc(o.titulo) + '">' +
+      return '<figure class="vit-slide" data-i="' + i + '" aria-roledescription="slide" aria-label="' + (i + 1) + " de " + lista.length + '">' +
         '<div class="vit-fundo" style="background-image:url(\'' + esc(mini(o)) + '\')"></div>' +
         '<img data-src="' + esc(grande(o)) + '" alt="' + esc(o.titulo || "Arte da Brunna") + '"' +
         (o.w && o.h ? ' width="' + o.w + '" height="' + o.h + '"' : "") + ' decoding="async"></figure>';
     }).join("");
     $("#vit-miniaturas").innerHTML = lista.map(function (o, i) {
-      return '<button type="button" class="vit-mini" role="tab" data-i="' + i + '" aria-label="' + esc(o.titulo) + '" aria-selected="false" tabindex="-1">' +
+      return '<button type="button" class="vit-mini" role="tab" data-i="' + i + '" aria-label="Arte ' + (i + 1) + '" aria-selected="false" tabindex="-1">' +
         '<img src="' + esc(mini(o)) + '" alt="" loading="lazy"><i class="vit-prog" aria-hidden="true"></i></button>';
     }).join("") + (lista.length > 1
       ? '<button type="button" class="vit-pausa" id="vit-pausa" aria-pressed="false" aria-label="Pausar o carrossel"><span aria-hidden="true"></span></button>'
       : "");
-    if (semAutoplay()) pausaUsuario = true;
-    mostrar(atual, true);
+    mostrar(atual, 0);
   }
 
-  function mostrar(i, primeira) {
+  /* posiciona um slide (em % da largura) com ou sem animação */
+  function posicionar(el, x, animar) {
+    el.style.transition = animar ? "" : "none";
+    el.style.transform = "translate3d(" + x + "%,0,0)";
+  }
+
+  /* dir: 1 = vem da direita (padrão), -1 = vem da esquerda, 0 = sem animação */
+  function mostrar(i, dir) {
     if (!lista.length) return;
     var anterior = atual;
     atual = (i + lista.length) % lista.length;
+    if (atual === anterior && dir !== 0) return;
     carregar(atual);
     carregar((atual + 1) % lista.length);
+    clearTimeout(limpeza);
+
+    var fade = modoFade();
+    var entra = slide(atual), sai = dir !== 0 && anterior !== atual ? slide(anterior) : null;
 
     Array.prototype.forEach.call(document.querySelectorAll(".vit-slide"), function (f) {
-      var n = Number(f.dataset.i);
-      f.classList.toggle("ativa", n === atual);
-      f.classList.toggle("saindo", !primeira && n === anterior && n !== atual);
-      f.setAttribute("aria-hidden", String(n !== atual));
+      if (f !== entra && f !== sai) { f.classList.remove("ativa", "saindo", "pre"); posicionar(f, 100, false); }
+      f.setAttribute("aria-hidden", String(f !== entra));
     });
+
+    if (fade || dir === 0) {
+      posicionar(entra, 0, false);
+      entra.classList.remove("saindo", "pre");
+      entra.classList.add("ativa");
+      if (sai) { sai.classList.remove("ativa"); sai.classList.add("saindo"); }
+    } else {
+      /* 1) coloca a que entra fora da tela, do lado certo, já com o zoom */
+      posicionar(entra, 100 * dir, false);
+      entra.classList.remove("saindo");
+      entra.classList.add("ativa", "pre");
+      void entra.offsetWidth;
+      /* 2) anima as duas ao mesmo tempo */
+      entra.classList.remove("pre");
+      posicionar(entra, 0, true);
+      if (sai) {
+        sai.classList.remove("ativa");
+        sai.classList.add("saindo");
+        posicionar(sai, -100 * dir, true);
+      }
+    }
+    /* depois da passagem, a que saiu some de vez */
+    if (sai) limpeza = setTimeout(function () { sai.classList.remove("saindo"); posicionar(sai, 100, false); }, DURACAO + 100);
+
     Array.prototype.forEach.call(document.querySelectorAll(".vit-mini"), function (b) {
       var ativo = Number(b.dataset.i) === atual;
       b.setAttribute("aria-selected", String(ativo));
@@ -81,20 +123,25 @@ var Vitrine = (function () {
       p.style.animation = "none"; void p.offsetWidth; p.style.animation = "";
     });
 
-    var o = lista[atual];
-    $("#vit-contador").textContent = String(atual + 1).padStart(2, "0") + " / " + String(lista.length).padStart(2, "0");
-    $("#vit-tag").textContent = o.tag || "";
-    $("#vit-titulo").textContent = o.titulo || "";
-    var info = document.querySelector(".vit-info");
-    info.classList.remove("troca"); void info.offsetWidth; info.classList.add("troca");
+    /* no celular as miniaturas não cabem: a fileira acompanha a arte atual
+       (rola só a fileira, nunca a página) */
+    var fila = $("#vit-miniaturas"), mAtual = document.querySelector('.vit-mini[data-i="' + atual + '"]');
+    if (fila && mAtual && fila.scrollWidth > fila.clientWidth + 2) {
+      var rf = fila.getBoundingClientRect(), rm = mAtual.getBoundingClientRect();
+      var alvo = fila.scrollLeft + (rm.left - rf.left) - (fila.clientWidth - rm.width) / 2;
+      if (fila.scrollTo) fila.scrollTo({ left: alvo, behavior: dir === 0 ? "auto" : "smooth" }); else fila.scrollLeft = alvo;
+    }
 
     restante = INTERVALO;
     agendar();
   }
 
+  function proxima() { mostrar(atual + 1, 1); }
+
   function agendar() {
     clearTimeout(timer);
-    var parado = pausaUsuario || pausaHover || document.hidden || lista.length < 2;
+    timer = null;
+    var parado = pausaUsuario || document.hidden || lista.length < 2;
     var vit = $(".vitrine");
     if (vit) {
       vit.classList.toggle("parada", parado);
@@ -107,7 +154,7 @@ var Vitrine = (function () {
     }
     if (parado) return;
     inicio = Date.now();
-    timer = setTimeout(function () { mostrar(atual + 1); }, restante);
+    timer = setTimeout(proxima, restante);
   }
   function congelar() {
     if (timer) { clearTimeout(timer); timer = null; restante = Math.max(400, restante - (Date.now() - inicio)); }
@@ -116,16 +163,12 @@ var Vitrine = (function () {
   function ligar() {
     var vit = $(".vitrine");
     if (!vit) return;
-    var grade = vit.querySelector(".vit-grade");
-    grade.addEventListener("mouseenter", function () { pausaHover = true; congelar(); agendar(); });
-    grade.addEventListener("mouseleave", function () { pausaHover = false; agendar(); });
-    vit.addEventListener("focusin", function () { pausaHover = true; congelar(); agendar(); });
-    vit.addEventListener("focusout", function (e) { if (!vit.contains(e.relatedTarget)) { pausaHover = false; agendar(); } });
     document.addEventListener("visibilitychange", function () { if (document.hidden) congelar(); agendar(); });
+    if (mqReduzido && mqReduzido.addEventListener) mqReduzido.addEventListener("change", function () { $("#vit-palco").classList.toggle("vit-fade", modoFade()); });
 
     vit.addEventListener("click", function (e) {
       var m = e.target.closest(".vit-mini");
-      if (m) { mostrar(Number(m.dataset.i)); return; }
+      if (m) { var n = Number(m.dataset.i); if (n !== atual) mostrar(n, n > atual ? 1 : -1); return; }
       if (e.target.closest("#vit-pausa")) { pausaUsuario = !pausaUsuario; if (pausaUsuario) congelar(); agendar(); return; }
       if (e.target.closest("#vit-ampliar") || e.target.closest(".vit-slide.ativa")) {
         Cinema.lbAbrir(lista.map(function (o) { return { src: grande(o), titulo: o.titulo }; }), atual, $("#vit-ampliar"));
@@ -134,7 +177,8 @@ var Vitrine = (function () {
     $("#vit-miniaturas").addEventListener("keydown", function (e) {
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
       e.preventDefault();
-      mostrar(atual + (e.key === "ArrowRight" ? 1 : -1));
+      var d = e.key === "ArrowRight" ? 1 : -1;
+      mostrar(atual + d, d);
       var b = document.querySelector('.vit-mini[data-i="' + atual + '"]');
       if (b) b.focus();
     });
@@ -144,7 +188,7 @@ var Vitrine = (function () {
     $("#vit-palco").addEventListener("touchend", function (e) {
       if (x0 === null) return;
       var dx = e.changedTouches[0].clientX - x0; x0 = null;
-      if (Math.abs(dx) > 45) mostrar(atual + (dx < 0 ? 1 : -1));
+      if (Math.abs(dx) > 45) { var d = dx < 0 ? 1 : -1; mostrar(atual + d, d); }
     });
   }
 

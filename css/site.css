@@ -461,29 +461,21 @@ html[data-movimento="desligado"] .fila-barra i.agora { animation: none; }
 .cal-dia { aspect-ratio: auto; height: clamp(38px, 9vw, 52px); min-width: 0; }
 
 /* =====================================================================
-   OUT/2026 — pedidos da Bru: topo com carrossel em fundo claro, nome menor
-   no canto superior esquerdo e "mais cor clara do que preto".
-   As seções que eram escuras passam a usar o tom de papel; o truque é
-   redefinir as variáveis --cine-* dentro delas (assim todos os textos e
-   linhas que usavam a cor clara-sobre-escuro viram escuro-sobre-claro).
+   OUT/2026 — pedidos da Bru (PDF "Alterações Site").
+   A base clara vale SÓ na página inicial e na página de cada projeto
+   (body.pg-clara). As outras páginas continuam como estavam: ela pediu
+   "alterar apenas a página inicial e a área de pagamento".
    ===================================================================== */
-.cortina { background: var(--papel); }
-
-/* navegação sempre escura sobre claro */
-.nav { color: var(--ink); }
-.nav.solida { background: color-mix(in srgb, var(--papel) 90%, transparent); }
-.nav.menu-aberto { background: var(--papel); color: var(--ink); }
-.menu-movel { border-top-color: var(--papel-line); }
-.menu-movel a { border-bottom-color: var(--papel-line); }
 .marca span { font-size: 1.25rem; letter-spacing: .02em; }
 
-.creditos-ini, .proximas, .agenda, .cabecalho, .rodape {
-  --cine-ink: var(--papel-ink);
-  --cine-soft: var(--papel-soft);
-  --cine-line: var(--papel-line);
-}
+.pg-clara .cortina { background: var(--papel); }
+.pg-clara .nav { color: var(--papel-ink); }
+.pg-clara .nav.solida { background: color-mix(in srgb, var(--papel) 90%, transparent); color: var(--papel-ink); }
+.pg-clara .nav.menu-aberto { background: var(--papel); color: var(--papel-ink); }
+.pg-clara .menu-movel { border-top-color: var(--papel-line); }
+.pg-clara .menu-movel a { border-bottom-color: var(--papel-line); }
 
-/* ----- vitrine (carrossel) ----- */
+/* ----- vitrine (carrossel do topo) ----- */
 .vitrine { position: relative; background: var(--papel); color: var(--papel-ink); padding: 84px 0 34px; overflow: hidden; }
 .vit-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; min-height: 44px; }
 .vit-kicker { color: var(--papel-soft); }
@@ -491,42 +483,42 @@ html[data-movimento="desligado"] .fila-barra i.agora { animation: none; }
 .vit-status a { text-decoration: none; display: inline-block; }
 
 .vit-grade { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
-@media (min-width: 960px) { .vit-grade { grid-template-columns: minmax(0, 1fr) 320px; gap: 26px; } }
+@media (min-width: 960px) { .vit-grade { grid-template-columns: minmax(0, 1fr) 320px; gap: 26px; align-items: center; } }
 
-.vit-palco { position: relative; height: clamp(360px, 64vh, 720px); border-radius: 18px; overflow: hidden; isolation: isolate;
+/* a arte aparece SEMPRE inteira no palco: altura máxima calculada a partir
+   da altura do palco (% de altura não funciona dentro do grid) */
+.vit-palco { --vit-h: clamp(360px, 64vh, 720px); --vit-pad: clamp(14px, 3vw, 34px);
+  position: relative; height: var(--vit-h); border-radius: 18px; overflow: hidden; isolation: isolate; touch-action: pan-y;
   background: color-mix(in srgb, var(--papel) 82%, var(--poster)); box-shadow: 0 30px 60px -40px rgba(26, 18, 24, .5); }
-@media (max-width: 600px) { .vit-palco { height: 66vh; min-height: 340px; } }
-.vit-slide { position: absolute; inset: 0; margin: 0; display: grid; place-items: center; padding: clamp(14px, 3vw, 34px);
-  opacity: 0; z-index: 1; cursor: zoom-in; transition: opacity 1.4s cubic-bezier(.4, 0, .2, 1); }
-.vit-slide.ativa { opacity: 1; z-index: 2; }
-.vit-slide.saindo { z-index: 1; }
-/* fundo: a própria arte bem desfocada e clara, como luz de projeção */
+@media (max-width: 600px) { .vit-palco { --vit-h: max(340px, 66vh); } }
+
+/* as artes passam pro lado (como os destaques da Steam): a que entra vem da
+   direita enquanto a que sai vai pra esquerda. O movimento acontece SÓ na
+   troca; depois a arte fica parada. A posição de cada uma é dada pelo
+   js/vitrine.js (transform), aqui fica só o "como" se move. */
+.vit-slide { position: absolute; inset: 0; margin: 0; display: grid; place-items: center; padding: var(--vit-pad);
+  visibility: hidden; z-index: 1; cursor: zoom-in; transform: translate3d(100%, 0, 0);
+  transition: transform 1.3s cubic-bezier(.77, 0, .18, 1), opacity .9s ease; }
+.vit-slide.ativa, .vit-slide.saindo { visibility: visible; }
+.vit-slide.ativa { z-index: 2; }
 .vit-fundo { position: absolute; inset: -60px; background-size: cover; background-position: center; filter: blur(46px) saturate(1.15);
   opacity: .55; transform: scale(1.1); }
 .vit-slide::after { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--papel) 45%, transparent); }
-.vit-slide img { position: relative; z-index: 1; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;
-  border-radius: 6px; box-shadow: 0 24px 50px -24px rgba(26, 18, 24, .55);
-  transform: scale(1.045); filter: blur(10px); transition: transform 2.2s cubic-bezier(.2, .7, .1, 1), filter 1.6s ease; }
-.vit-slide.ativa img { transform: none; filter: none; }
-.vit-slide.saindo img { transform: scale(.985); filter: blur(4px); }
-html[data-movimento="suave"] .vit-slide img, html[data-movimento="desligado"] .vit-slide img { transform: none; filter: none; }
-html[data-movimento="desligado"] .vit-slide { transition: none; }
-@media (prefers-reduced-motion: reduce) { .vit-slide img { transform: none; filter: none; transition: none; } .vit-slide { transition: opacity .3s; } }
+.vit-slide img { position: relative; z-index: 1; max-width: 100%; max-height: calc(var(--vit-h) - 2 * var(--vit-pad)); width: auto; height: auto; object-fit: contain;
+  border-radius: 6px; box-shadow: 0 24px 50px -24px rgba(26, 18, 24, .55); transition: transform 1.8s cubic-bezier(.2, .7, .1, 1); }
+/* toque de cinema: a arte que entra chega com um leve zoom e assenta */
+.vit-slide.pre img { transform: scale(1.07); transition: none; }
+/* quem pediu menos movimento no aparelho (ou "Movimento: desligado" no
+   painel) vê a troca em fade, sem deslizar — mas as artes continuam passando */
+.vit-palco.vit-fade .vit-slide { transform: none !important; opacity: 0; transition: opacity .8s ease; }
+.vit-palco.vit-fade .vit-slide.ativa { opacity: 1; }
+.vit-palco.vit-fade .vit-slide img { transform: none; transition: none; }
 
-.vit-info { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-@media (min-width: 960px) { .vit-info { padding-top: 6px; } }
-.vit-contador { color: var(--rosa); font-variant-numeric: tabular-nums; }
-.vit-tag { color: var(--papel-soft); }
-.vit-titulo { font-size: clamp(2.4rem, 5vw, 3.6rem); line-height: .9; }
-.vit-info.troca .vit-tag, .vit-info.troca .vit-titulo, .vit-info.troca .vit-contador { animation: vit-texto .9s var(--ease-cine) both; }
-.vit-info.troca .vit-titulo { animation-delay: .12s; }
-@keyframes vit-texto { from { opacity: 0; transform: translateY(12px); } }
-html[data-movimento="desligado"] .vit-info.troca * { animation: none !important; }
+.vit-info { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .vit-ampliar { background: none; border: 0; padding: 6px 0; cursor: pointer; color: var(--rosa); font-weight: 800; font-size: .76rem; letter-spacing: .14em; text-transform: uppercase; min-height: 44px; }
-.vit-linha { width: 100%; border: 0; border-top: 1.5px solid var(--papel-line); margin: 6px 0; }
-.vit-frase { font-size: 1.45rem; color: var(--rosa); line-height: 1.15; transform: rotate(-1.5deg); transform-origin: left; }
-.vit-legenda { color: var(--papel-soft); font-size: .92rem; }
-.vit-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.vit-frase { font-size: clamp(1.6rem, 3vw, 2.1rem); color: var(--rosa); line-height: 1.12; transform: rotate(-1.5deg); transform-origin: left; }
+.vit-legenda { color: var(--papel-soft); font-size: .95rem; }
+.vit-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 .vit-ctas .btn:not(.cheio) { color: var(--papel-ink); }
 
 .vit-miniaturas { display: flex; gap: 10px; margin-top: 16px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: thin; align-items: center; }
@@ -536,58 +528,112 @@ html[data-movimento="desligado"] .vit-info.troca * { animation: none !important;
 .vit-mini:hover { opacity: .9; }
 .vit-mini[aria-selected="true"] { opacity: 1; border-color: var(--rosa); transform: translateY(-2px); }
 .vit-prog { position: absolute; left: 0; bottom: 0; height: 4px; width: 0; background: var(--rosa); }
-.vit-mini[aria-selected="true"] .vit-prog { animation: vit-prog var(--vit-tempo, 7000ms) linear forwards; }
+.vit-mini[aria-selected="true"] .vit-prog { animation: vit-prog var(--vit-tempo, 6000ms) linear forwards; }
 .vitrine.parada .vit-mini[aria-selected="true"] .vit-prog { animation-play-state: paused; }
 @keyframes vit-prog { to { width: 100%; } }
 .vit-pausa { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--papel-line); background: transparent; cursor: pointer; margin-left: 4px; display: grid; place-items: center; }
 .vit-pausa span { width: 12px; height: 14px; border-left: 4px solid var(--papel-ink); border-right: 4px solid var(--papel-ink); }
 .vit-pausa[aria-pressed="true"] span { width: 0; height: 0; border-left: 12px solid var(--papel-ink); border-right: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
 
-/* ----- créditos, próximas cenas: claros ----- */
-.creditos-ini { background: color-mix(in srgb, var(--papel) 88%, white); color: var(--papel-ink); }
-.link:hover .ico { color: #1A0710; }
-.proximas { background: color-mix(in srgb, var(--papel) 88%, white); color: var(--papel-ink); }
-.chamada { border-color: var(--papel-line); }
-.chamada .chamada-txt { color: var(--cine-ink-fixo, #F6EDE9); }
-.chamada .chamada-sub { color: #E7D9DE; }
+/* ----- projetos (coleções), na página inicial ----- */
+.projetos { background: color-mix(in srgb, var(--papel) 55%, white); color: var(--papel-ink); padding: 64px 0 80px; }
+.projetos-cab { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.projetos-t { font-size: clamp(2.6rem, 6.5vw, 4.2rem); line-height: .9; }
+.projetos-sub { color: var(--papel-soft); margin-top: 8px; max-width: 46ch; }
+.proj-filtros { display: flex; flex-wrap: wrap; gap: 8px; }
+.proj-filtro { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid var(--papel-line); background: transparent; color: inherit;
+  font: inherit; font-weight: 700; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; }
+.proj-filtro[aria-pressed="true"] { background: var(--papel-ink); color: var(--papel); border-color: var(--papel-ink); }
+.proj-grade { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+@media (min-width: 640px) { .proj-grade { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* no computador: os 2 primeiros projetos maiores, os outros em linhas de 3 */
+@media (min-width: 1000px) {
+  .proj-grade { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .proj-grade .proj { grid-column: span 2; }
+  .proj-grade .proj:nth-child(-n+2) { grid-column: span 3; aspect-ratio: 16 / 10; }
+}
+.proj { position: relative; display: block; aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; text-decoration: none; color: #FFF8F5; isolation: isolate;
+  background: var(--papel-line); box-shadow: 0 18px 36px -28px rgba(26, 18, 24, .6); }
+.proj img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--foco, 50% 40%); transition: transform .9s var(--ease-cine); }
+.proj::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(20, 10, 16, .82)); }
+.proj-txt { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 16px 18px; display: grid; gap: 4px; }
+.proj-cat { font-weight: 800; font-size: .66rem; letter-spacing: .18em; text-transform: uppercase; color: #FFD3E5; }
+.proj-nome { font-family: var(--f-cinema); text-transform: uppercase; font-size: clamp(1.6rem, 3vw, 2rem); line-height: .95; }
+.proj-qtd { font-size: .78rem; opacity: .85; }
+.proj:hover img, .proj:focus-visible img { transform: scale(1.04); }
+.proj[hidden] { display: none !important; }
+
+/* ----- créditos (links) da página inicial: claros ----- */
+.creditos-ini { --cine-ink: var(--papel-ink); --cine-soft: var(--papel-soft); --cine-line: var(--papel-line);
+  background: var(--papel); color: var(--papel-ink); }
+.creditos-ini .link:hover .ico { color: #1A0710; }
 
 /* ----- interlúdios: sem barras pretas; sombra só atrás do texto ----- */
 .interludio .barra-cine { display: none; }
 .interludio::after { background: linear-gradient(180deg, transparent 45%, rgba(26, 18, 24, .62)); }
 .interludio-frase { bottom: 40px; }
 
-/* ----- topo das páginas internas: claro, arte à direita ----- */
-.cabecalho { background: var(--papel); color: var(--papel-ink); min-height: 360px; }
-.cabecalho .barra-cine { display: none; }
-.cabecalho .cab-img { left: 30%; }
-.cabecalho::after { background: linear-gradient(90deg, var(--papel) 30%, color-mix(in srgb, var(--papel) 70%, transparent) 55%, transparent 85%); }
-@media (max-width: 700px) {
-  .cabecalho .cab-img { left: 0; opacity: .55; }
-  .cabecalho::after { background: linear-gradient(180deg, color-mix(in srgb, var(--papel) 40%, transparent), var(--papel) 92%); }
-}
-.cab-titulo { text-shadow: none; }
-.cab-txt { padding-top: 110px; padding-bottom: 34px; }
-body[data-pagina="encomendas"] .cabecalho::after { background: linear-gradient(90deg, var(--papel) 30%, color-mix(in srgb, var(--papel) 70%, transparent) 55%, transparent 85%); }
+/* ===================== página de um projeto ===================== */
+.pj-capa { position: relative; height: 70vh; height: 70svh; min-height: 380px; overflow: hidden; background: var(--papel); }
+.pj-capa-img { position: absolute; inset: 0; background-size: cover; background-position: var(--foco, 50% 40%); }
+.pj-capa::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, var(--papel)); }
+.pj-cab { position: relative; z-index: 2; max-width: 780px; margin: -90px auto 0; padding: 0 var(--gutter); text-align: center; color: var(--papel-ink); }
+.pj-cat { color: var(--rosa); }
+.pj-titulo { font-size: clamp(2.8rem, 9vw, 5.6rem); line-height: .88; margin: 10px 0 18px; }
+.pj-texto { color: var(--papel-soft); font-size: 1.02rem; line-height: 1.7; display: grid; gap: 12px; }
+.pj-meta { margin-top: 18px; color: var(--papel-soft); }
+.pj-imagens { max-width: 1120px; margin: 0 auto; padding: 44px var(--gutter) 30px; display: grid; gap: clamp(14px, 2.6vw, 30px); }
+.pj-img { display: block; width: 100%; margin: 0; padding: 0; border: 0; background: none; cursor: zoom-in; text-align: left; color: inherit; font: inherit; }
+.pj-img img { display: block; width: 100%; height: auto; border-radius: 6px; box-shadow: 0 24px 50px -34px rgba(26, 18, 24, .55); }
+.pj-img figcaption { margin-top: 8px; font-size: .85rem; color: var(--papel-soft); }
+.pj-fim { max-width: 1120px; margin: 0 auto; padding: 10px var(--gutter) 80px; display: grid; gap: 14px; }
+@media (min-width: 760px) { .pj-fim { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; } }
+.pj-voltar { display: flex; align-items: center; justify-content: center; min-height: 120px; border: 1.5px dashed var(--papel-line); border-radius: 8px;
+  text-decoration: none; font-weight: 800; font-size: .78rem; letter-spacing: .16em; text-transform: uppercase; color: var(--papel-ink); }
+.pj-voltar:hover { border-color: var(--rosa); color: var(--rosa); }
+.pj-vazio { min-height: 70vh; display: grid; place-items: center; text-align: center; padding: 120px var(--gutter) 60px; color: var(--papel-ink); }
+body[data-pagina="projeto"] { background: var(--papel); }
 
-/* ----- agenda: clara, com o brilho violeta da tabela ----- */
-.agenda { background:
-  radial-gradient(60% 50% at 85% 10%, color-mix(in srgb, var(--violeta) 22%, transparent), transparent 70%),
-  radial-gradient(50% 40% at 0% 100%, color-mix(in srgb, var(--rosa) 12%, transparent), transparent 70%), var(--papel); }
-.agenda-status, .agenda-cal, .agenda-eventos, .agenda-fila, .sessao { background: rgba(255, 255, 255, .62); }
-.fila-barra i { background: rgba(26, 18, 24, .1); }
-.cal-dia.marcado:hover, .cal-dia.sel { background: rgba(26, 18, 24, .07); }
-.carimbo { background: color-mix(in srgb, var(--papel) 80%, transparent); }
-.cal-nav button:hover { color: #1A0710; }
+/* ===================== WhatsApp flutuante ===================== */
+.whats-flut { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 70;
+  display: flex; align-items: center; gap: 10px; text-decoration: none; transition: bottom .35s var(--ease-cine), transform .3s var(--ease-cine); }
+.whats-flut[hidden] { display: none !important; }
+.wf-txt { background: #FFFFFF; color: #1A1218; font-weight: 700; font-size: .8rem; line-height: 1.2; padding: 9px 14px; border-radius: 999px;
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, .45); white-space: nowrap; }
+.wf-ico { width: 58px; height: 58px; border-radius: 50%; background: #25D366; color: #FFFFFF; display: grid; place-items: center;
+  box-shadow: 0 12px 26px -10px rgba(0, 0, 0, .5); }
+.wf-ico svg { width: 30px; height: 30px; stroke-width: 1.9; }
+.whats-flut:hover { transform: translateY(-2px); }
+.wf-txt { transition: opacity .35s, transform .35s var(--ease-cine); transform-origin: right center; }
+.whats-flut.compacto .wf-txt { opacity: 0; transform: translateX(8px) scale(.96); pointer-events: none; }
+.whats-flut.compacto:hover .wf-txt, .whats-flut.compacto:focus-visible .wf-txt { opacity: 1; transform: none; }
+.whats-flut:focus-visible { outline: none; }
+.whats-flut:focus-visible .wf-ico { outline: 3px solid var(--rosa); outline-offset: 3px; }
+@media (max-width: 640px) { .wf-txt { display: none; } .wf-ico { width: 54px; height: 54px; } }
+/* na página de encomendas, sobe quando a barra do total aparece embaixo */
+body:has(.barra-total.ativa) .whats-flut { bottom: 86px; }
 
-/* ----- rodapé claro ----- */
-.rodape { background: color-mix(in srgb, var(--papel) 80%, var(--poster)); color: var(--papel-soft); }
-
-/* a arte aparece SEMPRE inteira no palco (sem corte): altura máxima calculada
-   a partir da altura do palco, porque % de altura não funciona dentro do grid */
-.vit-palco { --vit-h: clamp(360px, 64vh, 720px); --vit-pad: clamp(14px, 3vw, 34px); height: var(--vit-h); }
-@media (max-width: 600px) { .vit-palco { --vit-h: max(340px, 66vh); } }
-.vit-slide { padding: var(--vit-pad); }
-.vit-slide img { max-height: calc(var(--vit-h) - 2 * var(--vit-pad)); max-width: 100%; }
-@media (max-width: 700px) {
-  body[data-pagina="encomendas"] .cabecalho::after { background: linear-gradient(180deg, color-mix(in srgb, var(--papel) 40%, transparent), var(--papel) 92%); }
-}
+/* ===================== área de pagamento ===================== */
+.enc-tipos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin: 18px 0 4px; }
+.enc-tipo { min-height: 64px; padding: 12px 14px; border-radius: 14px; border: 1.5px solid var(--papel-line); background: rgba(255, 255, 255, .5); color: var(--papel-ink);
+  font: inherit; cursor: pointer; text-align: left; display: grid; gap: 2px; transition: border-color .25s, background .25s; }
+.enc-tipo b { font-family: var(--f-cinema); font-weight: 400; text-transform: uppercase; font-size: clamp(1.15rem, 2.6vw, 1.6rem); line-height: 1; }
+.enc-tipo small { color: var(--papel-soft); font-size: .78rem; }
+.enc-tipo[aria-pressed="true"] { border-color: var(--rosa); background: #FFFFFF; box-shadow: 0 0 0 1px var(--rosa); }
+.pacotes { display: grid; gap: 12px; }
+.pacote { display: grid; gap: 6px; padding: 16px 18px; border-radius: 14px; border: 1.5px solid var(--papel-line); background: rgba(255, 255, 255, .55);
+  color: var(--papel-ink); font: inherit; text-align: left; cursor: pointer; transition: border-color .25s, background .25s; }
+.pacote[aria-pressed="true"] { border-color: var(--rosa); background: #FFFFFF; box-shadow: 0 0 0 1px var(--rosa); }
+.pacote-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.pacote-n { font-weight: 800; font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--rosa); }
+.pacote-nome { font-family: var(--f-cinema); text-transform: uppercase; font-size: 1.6rem; line-height: 1; }
+.pacote-preco { font-weight: 800; font-size: .9rem; }
+.pacote ul { margin: 2px 0 0; padding-left: 1.1em; color: var(--papel-soft); font-size: .88rem; display: grid; gap: 2px; }
+.recibo .total .rotulo sup { color: var(--rosa); font-size: 1em; top: -.2em; }
+.total-nota { margin: 6px 0 0; font-size: .74rem; color: var(--cine-soft); }
+.total-nota b { color: var(--rosa); }
+.pedido-ctas .btn svg { width: 18px; height: 18px; flex: 0 0 auto; }
+.pedido-ctas .btn { gap: 8px; }
+.btn-ig small { font-weight: 600; letter-spacing: .06em; text-transform: none; opacity: .8; }
+.pedido-ig { margin-top: 10px; font-size: .78rem; color: var(--cine-soft); }
+.pedido-ig a { color: inherit; }
