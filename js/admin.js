@@ -158,6 +158,14 @@
     Array.prototype.forEach.call(document.querySelectorAll(".js-avatar"), function (el) { el.src = urlSegura(rascunho.perfil.avatar, true) || "assets/avatar.webp"; });
   }
 
+  /* tabela de tamanhos de imagem (vem de TAMANHOS_IMAGEM, em js/dados.js) */
+  function tamanhosHtml() {
+    return '<div class="tamanhos">' + TAMANHOS_IMAGEM.map(function (t) {
+      return '<div class="tam"><b>' + esc(t.onde) + '</b><span class="tam-medida">' + esc(t.tamanho) + " · " + esc(t.formato) + "</span><small>" + esc(t.dica) + "</small></div>";
+    }).join("") + "</div>";
+  }
+  function tam(i) { var t = TAMANHOS_IMAGEM[i]; return "Tamanho ideal: <b>" + t.tamanho + "</b>, " + t.formato + ". " + t.dica; }
+
   /* ----- início: atalhos ----- */
   function abaInicio() {
     var a = rascunho.agenda, ag = estadoAgenda(a);
@@ -187,6 +195,7 @@
       '<div class="atalhos">' + atalhos.map(function (t) {
         return '<button type="button" class="atalho" data-ir="' + t[0] + '">' + iconeSvg(t[1]) + "<b>" + t[2] + "</b><small>" + t[3] + "</small></button>";
       }).join("") + "</div>" +
+      secao("Tamanho ideal das imagens", "Pra cada lugar do site. Com o tamanho certo, a arte aparece bem enquadrada e nítida.", tamanhosHtml()) +
       '<ol class="passos-ajuda"><li><b>Mude</b> o que quiser em qualquer aba.</li><li><b>Confira</b> na prévia (botão "Prévia" lá em cima).</li><li><b>Salve</b> na barra que aparece embaixo. Só aí o site muda pra todo mundo.</li></ol>';
   }
 
@@ -290,7 +299,8 @@
     rascunho.galeria.forEach(function (o) { if (o.tag && tags.indexOf(o.tag) < 0) tags.push(o.tag); });
     var visiveis = rascunho.galeria.filter(function (o) { return o.visivel !== false; }).length;
     var dest = rascunho.galeria.filter(function (o) { return o.visivel !== false && o.destaque; }).length;
-    return secao("Galeria do portfólio", visiveis + " de " + rascunho.galeria.length + " artes aparecendo no site · " + dest + " no carrossel do topo. A ordem aqui é a ordem do site (e do carrossel).",
+    return secao("Tamanho ideal das imagens", "", tamanhosHtml()) +
+      secao("Galeria do portfólio", visiveis + " de " + rascunho.galeria.length + " artes aparecendo no site · " + dest + " no carrossel do topo. A ordem aqui é a ordem do site (e do carrossel).",
       '<label class="btn cheio upload-varios"><input type="file" accept="image/*" multiple data-galeria-upload hidden>Enviar artes do computador</label>' +
       '<datalist id="tags-galeria">' + tags.map(function (t) { return '<option value="' + esc(t) + '">'; }).join("") + "</datalist>" +
       lista("galeria", function (o, i, c) {
@@ -298,7 +308,9 @@
           linha(campo(c + ".titulo", "Título"), campo(c + ".tag", "Categoria", { lista: "tags-galeria", ajuda: "Vira um filtro no site." })) +
           campo(c + ".visivel", "Aparecer no site", { tipo: "check" }) +
           campo(c + ".destaque", "Destaque no carrossel do topo da página inicial", { tipo: "check" }) +
-          (o.destaque ? campo(c + ".foco", "Parte em destaque no topo", { tipo: "select", opcoes: opcoesFoco(c + ".foco"), ajuda: "Quando a arte cobre a tela toda, é essa parte que aparece." }) : "") + "</div>";
+          (o.destaque ? '<p class="ajuda dica-tam">' + tam(0) + "</p>" +
+            campo(c + ".foco", "Parte em destaque no topo", { tipo: "select", opcoes: opcoesFoco(c + ".foco"), ajuda: "Quando a arte cobre a tela toda, é essa parte que aparece." }) +
+            campoImg(c + ".imgCelular", "Versão de celular (opcional)", tam(1)) : "") + "</div>";
       }, function () { return { img: "", titulo: "Nova arte", tag: tags[0] || "Personagens", visivel: true, destaque: false }; }, "Adicionar arte por link"));
   }
 
@@ -317,7 +329,7 @@
           var url = "projeto.html?p=" + encodeURIComponent(p.id || "");
           return '<div class="obra-admin' + (p.visivel === false ? " oculta" : "") + '">' +
             linha(campo(c + ".titulo", "Nome do projeto"), campo(c + ".categoria", "Categoria", { lista: "cats-projetos" })) +
-            campoImg(c + ".capa", "Capa (aparece na página inicial)") +
+            campoImg(c + ".capa", "Capa (aparece na página inicial)", tam(4)) +
             campo(c + ".foco", "Parte da capa em destaque", { tipo: "select", opcoes: opcoesFoco(c + ".foco") }) +
             campo(c + ".resumo", "Linha curta embaixo do nome na capa") +
             campo(c + ".texto", "Texto do projeto", { tipo: "textarea", linhas: 4, ajuda: "Aparece no topo da página do projeto. Pule uma linha pra começar outro parágrafo." }) +
@@ -344,12 +356,12 @@
         var nomes = { portfolio: "Portfólio", agenda: "Agenda", encomendas: "Encomendas" };
         var c = "cenas.paginas." + k;
         return secao("Topo da página " + nomes[k], "A faixa de cinema no alto da página " + nomes[k] + " e o cartão dela na página inicial.",
-          campoImg(c + ".img", "Imagem") +
+          campoImg(c + ".img", "Imagem", tam(2)) +
           campo(c + ".foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco(c + ".foco") }) +
           linha(campo(c + ".titulo", "Título"), campo(c + ".sub", "Frase curta", { largo: true })));
       }).join("") +
       secao("Interlúdio 1", "A cena em tela cheia depois da ficha, na página inicial.",
-        campoImg("cenas.interludio1.img", "Imagem") +
+        campoImg("cenas.interludio1.img", "Imagem", tam(3)) +
         campo("cenas.interludio1.foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco("cenas.interludio1.foco") }) +
         campo("cenas.interludio1.frase", "Frase grande") + campo("cenas.interludio1.credito", "Legenda pequena")) +
       secao("Páginas de aviso", "Aparecem quando alguém abre um endereço que não existe (404), quando dá erro, ou quando o site está fora do ar.",
@@ -357,10 +369,10 @@
           var c = "paginasAviso." + k[0];
           return '<h3 class="sub-t">' + k[1] + ' · <a href="' + k[2] + '" target="_blank" rel="noopener">ver &#8599;</a></h3>' +
             linha(campo(c + ".rotulo", "Linha pequena"), campo(c + ".titulo", "Título")) + campo(c + ".texto", "Texto", { tipo: "textarea", linhas: 2 }) +
-            linha(campo(c + ".botao", "Texto do botão")) + campoImg(c + ".img", "Imagem");
+            linha(campo(c + ".botao", "Texto do botão")) + campoImg(c + ".img", "Imagem", tam(6));
         }).join("")) +
       secao("Interlúdio 2", "A cena em tela cheia no fim da página inicial.",
-        campoImg("cenas.interludio2.img", "Imagem") +
+        campoImg("cenas.interludio2.img", "Imagem", tam(3)) +
         campo("cenas.interludio2.foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco("cenas.interludio2.foco") }) +
         campo("cenas.interludio2.frase", "Frase grande") + campo("cenas.interludio2.credito", "Legenda pequena"));
   }
@@ -368,7 +380,7 @@
   /* ----- 05 perfil ----- */
   function abaPerfil() {
     return secao("Perfil", "",
-        campoImg("perfil.avatar", "Foto de perfil (avatar)") +
+        campoImg("perfil.avatar", "Foto de perfil (avatar)", tam(7)) +
         linha(campo("perfil.nome", "Nome completo"), campo("perfil.apelido", "Apelido")) +
         linha(campo("perfil.titulo", "Título"), campo("perfil.handle", "Arroba exibido")) +
         campo("perfil.frase", "Frase de destaque", { ajuda: "Aparece na abertura, em letra de mão." }) +

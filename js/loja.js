@@ -49,7 +49,9 @@ var MIGRACOES = [
     if (s.cenas.abertura.kicker === "RPG Character Creation") s.cenas.abertura.kicker = PADRAO.cenas.abertura.kicker;
   } },
   /* out/2026: o topo passou a mostrar a arte inteira por padrão (estava cortando) */
-  { id: "2026-10-topo-inteira", rodar: function (s) { s.cenas.abertura.modo = "inteira"; } }
+  { id: "2026-10-topo-inteira", rodar: function (s) { s.cenas.abertura.modo = "inteira"; } },
+  /* ...e voltou a cobrir a tela toda, como o Wellington aprovou (out/2026) */
+  { id: "2026-10-topo-fundo", rodar: function (s) { s.cenas.abertura.modo = "fundo"; } }
 ];
 
 function lojaCarregar() {

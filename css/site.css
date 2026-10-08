@@ -511,18 +511,18 @@ html[data-movimento="desligado"] .fila-barra i.agora { animation: none; }
 
 
 /* ----- vitrine: o topo da página inicial ------------------------------
-   Tela inteira, sem moldura. As artes passam pro lado sozinhas.
-   Dois jeitos de mostrar (painel → Textos e imagens → Topo):
-     .modo-inteira (padrão) a arte aparece INTEIRA, centralizada no espaço
-                   livre ao lado dos textos, sobre ela mesma desfocada
-     .modo-fundo   a arte cobre a tela toda (corta um pouco)
-   Os textos ficam numa coluna à esquerda (embaixo, no celular). */
-.vitrine { --arte-esq: clamp(440px, 44vw, 680px); position: relative; height: 100vh; height: 100svh; min-height: 620px; max-height: 1100px;
-  overflow: hidden; isolation: isolate; background: var(--casa-bg); color: var(--casa-ink); }
+   As artes em destaque ocupam a tela inteira, sem moldura, e passam pro
+   lado sozinhas. Dois jeitos de mostrar (painel → Cenas → Topo):
+     .modo-fundo   a arte cobre a tela toda (com "ver arte inteira")
+     .modo-inteira a arte aparece inteira sobre ela mesma desfocada
+   Os textos ficam por cima, sobre um véu no tom do tema (claro ou escuro). */
+.vitrine { position: relative; height: 100vh; height: 100svh; min-height: 600px; max-height: 1100px; overflow: hidden; isolation: isolate;
+  background: var(--casa-bg); color: var(--casa-ink); }
 .vit-palco { position: absolute; inset: 0; z-index: 0; overflow: hidden; touch-action: pan-y; background: var(--casa-bg); }
 
-/* passagem pro lado: a que entra vem da direita enquanto a que sai vai pra
-   esquerda. Só na troca; depois fica parada. (posição: js/vitrine.js) */
+/* as artes passam pro lado: a que entra vem da direita enquanto a que sai vai
+   pra esquerda. O movimento acontece SÓ na troca; depois fica parada.
+   A posição de cada uma é dada pelo js/vitrine.js (transform). */
 .vit-slide { position: absolute; inset: 0; margin: 0; overflow: hidden; visibility: hidden; z-index: 1; cursor: zoom-in;
   transform: translate3d(100%, 0, 0); transition: transform 1.3s cubic-bezier(.77, 0, .18, 1), opacity .9s ease; }
 .vit-slide.ativa, .vit-slide.saindo { visibility: visible; }
@@ -530,56 +530,75 @@ html[data-movimento="desligado"] .fila-barra i.agora { animation: none; }
 .vit-slide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--foco, 50% 35%);
   transition: transform 1.8s cubic-bezier(.2, .7, .1, 1); }
 .vit-fundo { display: none; }
-.vit-slide.pre img { transform: scale(1.06); transition: none; }
+/* toque de cinema: a arte que entra chega com um leve zoom e assenta */
+.vit-slide.pre img { transform: scale(1.07); transition: none; }
 
-/* modo "inteira": a arte inteira, sem corte, centralizada no espaço livre */
+/* modo "inteira": a arte inteira, à direita no computador, sobre ela mesma desfocada */
 .modo-inteira .vit-fundo { display: block; position: absolute; inset: -60px; background-size: cover; background-position: center;
-  filter: blur(42px) saturate(1.1); transform: scale(1.12); opacity: .85; }
-.modo-inteira .vit-slide::after { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--casa-bg) 30%, transparent); }
-.modo-inteira .vit-slide img { z-index: 1; inset: 72px var(--gutter) 47% var(--gutter); width: auto; height: auto;
-  width: calc(100% - 2 * var(--gutter)); height: calc(53% - 72px); object-fit: contain; object-position: center;
-  filter: drop-shadow(0 26px 34px rgba(20, 10, 16, .38)); }
+  filter: blur(40px) saturate(1.1); transform: scale(1.1); opacity: .9; }
+.modo-inteira .vit-slide img { inset: auto; top: 140px; left: 50%; translate: -50% 0; width: auto; height: auto;
+  max-width: calc(100% - 2 * var(--gutter)); max-height: calc(52% - 140px); object-fit: contain; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .6); }
 @media (min-width: 900px) {
-  .modo-inteira .vit-slide img { top: 92px; bottom: 34px; left: var(--arte-esq); right: 4vw; width: calc(100% - var(--arte-esq) - 4vw); height: calc(100% - 126px); }
+  .modo-inteira .vit-slide img { left: auto; right: 6vw; translate: none; top: 150px; max-width: 50vw; max-height: calc(100% - 150px - 200px); }
 }
 
+/* quem pediu menos movimento no aparelho (ou "Movimento: desligado" no painel)
+   vê a troca em fade, sem deslizar — mas as artes continuam passando */
 .vit-palco.vit-fade .vit-slide { transform: none !important; opacity: 0; transition: opacity .8s ease; }
 .vit-palco.vit-fade .vit-slide.ativa { opacity: 1; }
 .vit-palco.vit-fade .vit-slide img { transform: none; transition: none; }
 
-/* véu: fino no alto (menu) e onde ficam os textos; o resto da arte fica limpo */
+/* véu: só uma faixa embaixo (onde fica o texto) e uma fina no alto (menu).
+   O resto da arte fica sem véu nenhum, com a cor original. */
 .vit-veu { position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--casa-bg) 70%, transparent) 0, transparent 120px),
-    linear-gradient(0deg, color-mix(in srgb, var(--casa-bg) 97%, transparent) 0, color-mix(in srgb, var(--casa-bg) 88%, transparent) 38%, transparent 56%); }
+    linear-gradient(180deg, color-mix(in srgb, var(--casa-bg) 80%, transparent) 0, color-mix(in srgb, var(--casa-bg) 35%, transparent) 110px, transparent 190px),
+    linear-gradient(0deg, color-mix(in srgb, var(--casa-bg) 97%, transparent) 0, color-mix(in srgb, var(--casa-bg) 85%, transparent) 30%, color-mix(in srgb, var(--casa-bg) 30%, transparent) 50%, transparent 62%); }
 @media (min-width: 900px) {
   .vit-veu { background:
-    linear-gradient(180deg, color-mix(in srgb, var(--casa-bg) 60%, transparent) 0, transparent 120px),
-    linear-gradient(90deg, color-mix(in srgb, var(--casa-bg) 94%, transparent) 0, color-mix(in srgb, var(--casa-bg) 80%, transparent) calc(var(--arte-esq) - 120px), transparent calc(var(--arte-esq) + 40px)); }
+    linear-gradient(180deg, color-mix(in srgb, var(--casa-bg) 70%, transparent) 0, transparent 130px),
+    radial-gradient(120% 70% at 0% 100%, color-mix(in srgb, var(--casa-bg) 92%, transparent) 0, color-mix(in srgb, var(--casa-bg) 70%, transparent) 32%, transparent 60%),
+    linear-gradient(0deg, color-mix(in srgb, var(--casa-bg) 55%, transparent) 0, transparent 22%); }
 }
 
-.vit-conteudo { position: relative; z-index: 2; height: 100%; display: flex; align-items: flex-end; padding-top: 80px; padding-bottom: 22px; pointer-events: none; }
-@media (min-width: 900px) { .vit-conteudo { align-items: center; padding-bottom: 30px; } }
-.vit-coluna { pointer-events: auto; width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
-@media (min-width: 900px) { .vit-coluna { width: calc(var(--arte-esq) - var(--gutter) - 40px); max-width: 540px; gap: 14px; } }
-.vit-cab { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; }
-.vit-kicker { color: var(--casa-soft); }
-.vit-status .etiqueta { font-size: clamp(.9rem, 2.2vw, 1.15rem); }
+.vit-conteudo { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: space-between;
+  padding-top: 84px; padding-bottom: clamp(18px, 4vh, 36px); pointer-events: none; }
+.vit-conteudo > * { pointer-events: auto; }
+.vit-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+/* a linha pequena do alto ganha uma "etiqueta" pra ser lida sobre qualquer arte */
+.vit-kicker { color: var(--casa-ink); background: color-mix(in srgb, var(--casa-bg) 72%, transparent); padding: 8px 14px; border-radius: 999px;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.vit-status .etiqueta { font-size: clamp(.95rem, 2.4vw, 1.25rem); }
 .vit-status a { text-decoration: none; display: inline-block; }
-.vit-frase { font-size: clamp(1.7rem, 4vw, 3.2rem); color: var(--rosa); line-height: 1.05; transform: rotate(-1.5deg); transform-origin: left; }
-.vit-legenda { color: var(--casa-ink); opacity: .85; font-size: 1rem; max-width: 42ch; }
-.vit-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
-.vit-ctas .btn:not(.cheio) { color: var(--casa-ink); }
-.vit-ampliar { display: inline-flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0 4px; min-height: 44px; cursor: pointer; color: var(--rosa);
-  font-weight: 800; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; }
-.vit-ampliar:hover { text-decoration: underline; }
-.vit-lado { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; max-width: 100%; margin-top: 6px; }
 
+.vit-base { display: grid; gap: 16px; align-items: end; }
+@media (min-width: 900px) { .vit-base { grid-template-columns: minmax(0, 520px) minmax(0, 1fr); gap: 30px; } }
+.vit-info { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.vit-frase { font-size: clamp(1.9rem, 4.4vw, 3.2rem); color: var(--rosa); line-height: 1.05; transform: rotate(-1.5deg); transform-origin: left; }
+.vit-legenda { color: var(--casa-ink); opacity: .85; font-size: 1rem; max-width: 42ch; }
+.vit-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.vit-ctas .btn:not(.cheio) { color: var(--casa-ink); background: color-mix(in srgb, var(--casa-bg) 55%, transparent); }
+.vit-ampliar { display: inline-flex; align-items: center; gap: 8px; background: color-mix(in srgb, var(--casa-bg) 70%, transparent);
+  border: 1.5px solid var(--casa-line); border-radius: 999px; padding: 0 16px; min-height: 44px; cursor: pointer; color: var(--casa-ink);
+  font-weight: 800; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.vit-ampliar:hover { border-color: var(--rosa); color: var(--rosa); }
+
+.vit-lado { display: flex; flex-direction: row-reverse; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
+@media (max-width: 899px) {
+  .vit-ampliar { width: 44px; padding: 0; justify-content: center; flex: 0 0 auto; }
+  .vit-ampliar .txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .vit-ctas .btn { flex: 1 1 auto; padding-left: 14px; padding-right: 14px; }
+  .vit-legenda { font-size: .9rem; }
+  .vit-kicker { max-width: 58%; font-size: .62rem; }
+  .vit-base { gap: 14px; }
+  .vit-lado { padding-right: 64px; } /* espaço pro botão do WhatsApp */
+}
+@media (min-width: 900px) { .vit-lado { flex-direction: column; align-items: flex-end; gap: 12px; } }
 .vit-miniaturas { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 6px; scrollbar-width: none; align-items: center; max-width: 100%; }
 .vit-miniaturas::-webkit-scrollbar { display: none; }
-.vit-mini { position: relative; flex: 0 0 auto; width: 56px; height: 56px; padding: 0; border-radius: 10px; overflow: hidden; cursor: pointer;
+.vit-mini { position: relative; flex: 0 0 auto; width: 64px; height: 64px; padding: 0; border-radius: 10px; overflow: hidden; cursor: pointer;
   border: 2px solid transparent; background: var(--casa-line); opacity: .6; transition: opacity .3s, border-color .3s, transform .3s var(--ease-cine); }
-@media (min-width: 900px) { .vit-mini { width: 54px; height: 54px; } }
+@media (min-width: 900px) { .vit-mini { width: 72px; height: 72px; } }
 .vit-mini img { width: 100%; height: 100%; object-fit: cover; }
 .vit-mini:hover { opacity: .95; }
 .vit-mini[aria-selected="true"] { opacity: 1; border-color: var(--rosa); transform: translateY(-2px); }
@@ -587,21 +606,13 @@ html[data-movimento="desligado"] .fila-barra i.agora { animation: none; }
 .vit-mini[aria-selected="true"] .vit-prog { animation: vit-prog var(--vit-tempo, 6000ms) linear forwards; }
 .vitrine.parada .vit-mini[aria-selected="true"] .vit-prog { animation-play-state: paused; }
 @keyframes vit-prog { to { width: 100%; } }
-.vit-pausa { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--casa-line); cursor: pointer; margin-left: 4px; display: grid; place-items: center; background: transparent; }
+.vit-pausa { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--casa-line); cursor: pointer; margin-left: 4px; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--casa-bg) 70%, transparent); }
 .vit-pausa span { width: 12px; height: 14px; border-left: 4px solid var(--casa-ink); border-right: 4px solid var(--casa-ink); }
 .vit-pausa[aria-pressed="true"] span { width: 0; height: 0; border-left: 12px solid var(--casa-ink); border-right: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
 
-@media (max-width: 899px) {
-  .vit-ctas { width: 100%; flex-wrap: nowrap; }
-  .vit-ctas .btn { flex: 1 1 0; padding-left: 10px; padding-right: 10px; font-size: .7rem; min-width: 0; }
-  .vit-ctas .btn.trilha { display: none; }
-  .vit-legenda { font-size: .88rem; }
-  .vit-lado { flex-direction: row; align-items: center; width: 100%; padding-right: 64px; } /* espaço pro WhatsApp */
-  .vit-miniaturas { flex: 1 1 auto; min-width: 0; }
-  .vit-ampliar .txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .vit-ampliar { flex: 0 0 auto; width: 44px; justify-content: center; border: 1.5px solid var(--casa-line); border-radius: 50%; }
-}
-@media (max-height: 700px) and (max-width: 899px) { .vit-legenda { display: none; } }
+/* versão de celular da arte (opcional, vertical): o <picture> troca sozinho */
+.vit-slide picture { display: contents; }
 
 /* ----- projetos (coleções), na página inicial ----- */
 .projetos { background: var(--casa-bg2); color: var(--casa-ink); padding: 64px 0 80px; }

@@ -110,3 +110,10 @@
 
 .ajuda-ap { font-size: .84rem; opacity: .8; margin-top: 10px; line-height: 1.5; }
 @media (min-width: 760px) { .cartoes-links .cartao:nth-child(3) { grid-column: 1 / -1; } }
+
+.tamanhos-ap { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.tam-ap { display: grid; gap: 4px; padding: 16px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--card); }
+.tam-ap b { font-size: .9rem; }
+.tam-ap span { font-family: var(--f-cinema); text-transform: uppercase; font-size: 1.8rem; line-height: 1; color: var(--rosa); }
+.tam-ap i { font-style: normal; font-weight: 800; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+.tam-ap small { color: var(--ink-soft); font-size: .8rem; line-height: 1.45; }

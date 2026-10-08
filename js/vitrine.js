@@ -39,13 +39,15 @@ var Vitrine = (function () {
   }
   function mini(o) { return urlSegura(o.mini, true) || urlSegura(o.img, true); }
   function grande(o) { return urlSegura(o.img, true); }
+  function celular(o) { return urlSegura(o.imgCelular, true); }
   function slide(i) { return document.querySelector('.vit-slide[data-i="' + i + '"]'); }
 
   /* só baixa a imagem grande quando ela é a atual ou a próxima */
   function carregar(i) {
     var fig = slide(i);
     if (!fig) return;
-    var im = fig.querySelector("img");
+    var im = fig.querySelector("img"), fonte = fig.querySelector("source[data-srcset]");
+    if (fonte && !fonte.getAttribute("srcset")) fonte.setAttribute("srcset", fonte.dataset.srcset);
     if (!im.getAttribute("src")) im.setAttribute("src", im.dataset.src);
   }
 
@@ -56,14 +58,16 @@ var Vitrine = (function () {
     if (atual >= lista.length) atual = 0;
     palco.classList.toggle("vit-fade", modoFade());
     /* "fundo" = a arte cobre a tela toda; "inteira" = aparece inteira sobre ela mesma desfocada */
-    var modo = (SITE.cenas.abertura || {}).modo === "fundo" ? "fundo" : "inteira";
+    var modo = (SITE.cenas.abertura || {}).modo === "inteira" ? "inteira" : "fundo";
     palco.classList.toggle("modo-inteira", modo === "inteira");
     palco.classList.toggle("modo-fundo", modo === "fundo");
     palco.innerHTML = lista.map(function (o, i) {
       return '<figure class="vit-slide" data-i="' + i + '" aria-roledescription="slide" aria-label="' + (i + 1) + " de " + lista.length + '">' +
         '<div class="vit-fundo" style="background-image:url(\'' + esc(mini(o)) + '\')"></div>' +
+        /* versão de celular (vertical) opcional: entra sozinha em telas estreitas */
+        (celular(o) ? '<picture><source media="(max-width: 899px)" data-srcset="' + esc(celular(o)) + '">' : "") +
         '<img data-src="' + esc(grande(o)) + '" alt="' + esc(o.titulo || "Arte da Brunna") + '" style="--foco:' + esc(o.foco || "50% 35%") + '"' +
-        (o.w && o.h ? ' width="' + o.w + '" height="' + o.h + '"' : "") + ' decoding="async"></figure>';
+        (o.w && o.h ? ' width="' + o.w + '" height="' + o.h + '"' : "") + ' decoding="async">' + (celular(o) ? "</picture>" : "") + "</figure>";
     }).join("");
     $("#vit-miniaturas").innerHTML = lista.map(function (o, i) {
       return '<button type="button" class="vit-mini" role="tab" data-i="' + i + '" aria-label="Arte ' + (i + 1) + '" aria-selected="false" tabindex="-1">' +

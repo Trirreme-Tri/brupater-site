@@ -63,5 +63,8 @@
   itens.push("Uso comercial: <b>+" + p.comercialPct + "%</b>");
   itens.push("As <b>agendas de outubro, novembro e dezembro</b>, as datas e a fila estão preenchidas com exemplos: troque pelas suas no painel");
   itens.push("O texto <b>\"Sobre você\"</b> e as respostas das perguntas foram escritos a partir dos seus posts: ajuste pra sua voz");
+  $("#tamanhos-ap").innerHTML = TAMANHOS_IMAGEM.map(function (t) {
+    return '<div class="tam-ap"><b>' + esc(t.onde) + '</b><span>' + esc(t.tamanho) + "</span><i>" + esc(t.formato) + "</i><small>" + esc(t.dica) + "</small></div>";
+  }).join("");
   $("#conferir").innerHTML = itens.map(function (t) { return "<li>" + t + "</li>"; }).join("");
 })();

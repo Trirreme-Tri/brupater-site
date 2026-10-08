@@ -33,9 +33,9 @@ var PADRAO = {
     /* topo da página inicial: as artes do carrossel vêm da galeria (destaque: true) */
     abertura: {
       kicker: "Illustrator & Graphic Design",
-      /* "inteira": a arte aparece inteira, sem corte, centralizada (padrão);
-         "fundo": a arte cobre a tela toda (corta um pouco) */
-      modo: "inteira",
+      /* "fundo": a arte cobre a tela toda (padrão; use imagens deitadas,
+         1920 x 1080). "inteira": a arte aparece inteira, sem corte, à direita */
+      modo: "fundo",
       legenda: "Personagens, cenas e identidades visuais ganhando cor, traço e história."
     },
     interludio1: {
@@ -342,3 +342,16 @@ var OPCOES_FONTES = {
   poster: ["Montserrat", "Archivo Black", "Anton", "Bebas Neue", "Oswald", "Poppins"],
   mao: ["Gochi Hand", "Caveat", "Permanent Marker", "Patrick Hand", "Kalam", "Indie Flower"]
 };
+
+/* Tamanhos recomendados de imagem (aparecem no painel e na apresentação).
+   Não é conteúdo editável: é a regra de cada lugar do site. */
+var TAMANHOS_IMAGEM = [
+  { onde: "Topo da página inicial (artes em destaque)", tamanho: "1920 × 1080 px", formato: "deitada (16:9)", dica: "A arte cobre a tela toda. Os textos ficam embaixo à esquerda: deixe o rosto/assunto no meio ou à direita. Mínimo 1600 × 900." },
+  { onde: "Topo da página inicial no celular (opcional)", tamanho: "1080 × 1920 px", formato: "em pé (9:16)", dica: "Uma versão vertical da mesma arte, só pro celular. Os textos ficam na metade de baixo: deixe o assunto na metade de cima. Sem ela, o celular mostra o meio da arte deitada." },
+  { onde: "Topo do Portfólio, da Agenda e das Encomendas", tamanho: "1920 × 1080 px", formato: "deitada (16:9)", dica: "O título fica à esquerda, sobre um degradê: deixe o assunto na metade da direita. A arte aparece inteira na altura." },
+  { onde: "Cenas em tela cheia (interlúdios)", tamanho: "1920 × 1080 px", formato: "deitada (16:9)", dica: "A frase fica embaixo, então evite detalhes importantes no rodapé da arte." },
+  { onde: "Capa de projeto", tamanho: "1600 × 1200 px", formato: "deitada (4:3)", dica: "Os dois primeiros projetos aparecem um pouco mais largos (16:10): deixe uma folguinha nas laterais." },
+  { onde: "Imagens dentro de um projeto e do portfólio", tamanho: "1800 px no lado maior", formato: "qualquer formato", dica: "Cada arte aparece no formato dela, sem corte." },
+  { onde: "Páginas de aviso (erro, fora do ar)", tamanho: "1800 px no lado maior", formato: "qualquer formato", dica: "A arte aparece inteira ao lado do texto." },
+  { onde: "Foto de perfil (avatar)", tamanho: "500 × 500 px", formato: "quadrada", dica: "Aparece redonda: deixe o rosto no centro." }
+];

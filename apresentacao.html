@@ -8,13 +8,13 @@
 <link rel="icon" href="assets/avatar.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="css/tokens.css?v=20261008-1517">
-<link rel="stylesheet" href="css/base.css?v=20261008-1517">
-<link rel="stylesheet" href="css/apresentacao.css?v=20261008-1517">
-<script src="js/dados.js?v=20261008-1517"></script>
-<script src="js/loja.js?v=20261008-1517"></script>
-<script src="js/tema.js?v=20261008-1517"></script>
-<script src="js/apresentacao.js?v=20261008-1517" defer></script>
+<link rel="stylesheet" href="css/tokens.css?v=20261008-1529">
+<link rel="stylesheet" href="css/base.css?v=20261008-1529">
+<link rel="stylesheet" href="css/apresentacao.css?v=20261008-1529">
+<script src="js/dados.js?v=20261008-1529"></script>
+<script src="js/loja.js?v=20261008-1529"></script>
+<script src="js/tema.js?v=20261008-1529"></script>
+<script src="js/apresentacao.js?v=20261008-1529" defer></script>
 </head>
 <body class="doc">
 
@@ -86,7 +86,7 @@
       <li><b>Interlúdios:</b> cortes em tela cheia com uma arte e uma frase grande, como cenas de filme.</li>
       <li><b>Claro ou escuro:</b> o site abre no tema claro e tem um botão de sol/lua no topo pra quem visita trocar pro escuro (o visual cinema, com as cenas em preto). A escolha fica guardada no navegador da pessoa. No painel você escolhe o tema inicial e se o botão aparece.</li>
       <li><b>Abertura de cinema:</b> na primeira visita aparece uma tela de carregamento com seu nome e a barrinha de progresso; quando termina, as faixas escuras se abrem como a tela de um cinema e o topo "assenta". Navegando entre as páginas, só a abertura rápida.</li>
-      <li><b>Topo:</b> suas artes em destaque passam pro lado sozinhas, sem fim, e aparecem <b>inteiras</b>, sem corte, centralizadas ao lado dos textos. Nada fica tremendo: o movimento é só na troca.</li>
+      <li><b>Topo:</b> suas artes em destaque cobrem a tela inteira e passam pro lado sozinhas, sem fim. O botão "ver arte inteira" abre a arte sem corte. Pra ficar perfeito, use artes deitadas (1920 × 1080) e, se quiser, uma versão em pé só pro celular.</li>
     </ul>
   </section>
 
@@ -177,8 +177,16 @@
   </section>
 
   <!-- 9. conferir -->
+  <!-- 9. tamanhos de imagem -->
+  <section class="bloco" aria-labelledby="b9t">
+    <p class="rotulo"><span class="num">09</span> tamanho das imagens</p>
+    <h2 class="t-cinema" id="b9t">Cada lugar, um formato</h2>
+    <p class="bloco-sub">Com o tamanho certo, a arte aparece bem enquadrada e nítida. O topo da página inicial e o topo das outras páginas pedem <b>imagens deitadas</b>: uma arte em pé ali sempre perde um pedaço. Essa mesma lista está no painel, na aba Início.</p>
+    <div class="tamanhos-ap" id="tamanhos-ap"></div>
+  </section>
+
   <section class="bloco destaque" aria-labelledby="b9">
-    <p class="rotulo"><span class="num">09</span> pra você conferir</p>
+    <p class="rotulo"><span class="num">10</span> pra você conferir</p>
     <h2 class="t-cinema" id="b9">Valores que eu coloquei como ponto de partida</h2>
     <p class="bloco-sub">Os preços de busto, meio corpo e corpo inteiro vieram da sua tabela. Os itens abaixo não estavam nela, então eu coloquei um valor inicial. Confira e ajuste no painel do jeito que você cobra:</p>
     <ul class="conferir" id="conferir"></ul>
