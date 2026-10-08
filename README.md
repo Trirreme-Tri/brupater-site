@@ -66,3 +66,14 @@ python3 -m http.server
 - O login do painel é verificado no próprio navegador (usuário e senha no código).
   Serve só para esta fase; o login definitivo deve ser feito pelo serviço do banco.
 - As imagens do portfólio foram recortadas de capturas do Instagram (baixa resolução).
+
+## Antes de cada push: carimbar a versão
+
+O GitHub Pages deixa o navegador guardar CSS e JS por um tempo. Se a página
+nova vier com scripts antigos, o site quebra (imagens não aparecem, botões
+somem). Por isso as páginas carregam `arquivo.js?v=AAAAMMDD-HHMM`. Antes de
+cada push que mexa em CSS ou JS:
+
+```
+python3 ferramentas/carimbar.py
+```
