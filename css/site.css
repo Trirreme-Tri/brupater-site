@@ -819,51 +819,134 @@ body[data-pagina="aviso"] { background: var(--casa-bg); color: var(--casa-ink); 
 .aviso-trirreme a { color: inherit; font-weight: 800; }
 
 /* ===================== mini player de música (js/musica.js) =====================
-   Botão fixo no canto ESQUERDO (o WhatsApp fica no direito). Abre um painel
-   pequeno com o player; minimizar só esconde (a música continua). */
+   Desenho de cinema: o botão é um disco (gira devagar só enquanto toca, com
+   equalizador ao lado); o painel abre como um letreiro, saindo do botão
+   por uma cortina (clip-path), com faixas finas de cinema em cima e
+   embaixo, letra de cinema no título e vinheta na tela do player.
+   Animações só na troca de estado; "menos movimento" desliga tudo. */
 .musica { position: fixed; left: max(16px, env(safe-area-inset-left)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 70;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 10px; transition: bottom .35s var(--ease-cine); }
+  display: flex; flex-direction: column; align-items: flex-start; gap: 12px; transition: bottom .35s var(--ease-cine); }
 body:has(.barra-total.ativa) .musica { bottom: 86px; }
-.mu-botao { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px 0 14px; border-radius: 999px; cursor: pointer;
-  border: 1.5px solid color-mix(in srgb, var(--rosa) 55%, transparent); background: color-mix(in srgb, var(--noite) 88%, transparent); color: var(--cine-ink);
-  font: inherit; font-weight: 800; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 12px 26px -12px rgba(0, 0, 0, .55); }
-.mu-botao:hover { border-color: var(--rosa); }
-.mu-botao:focus-visible { outline: 3px solid var(--rosa); outline-offset: 3px; }
-/* equalizador: parado quando não toca, dançando quando o player está carregado */
-.mu-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
-.mu-eq i { width: 3px; height: 40%; background: var(--rosa); border-radius: 2px; }
-.musica.tocando .mu-eq i { animation: mu-eq 1s ease-in-out infinite; }
-.musica.tocando .mu-eq i:nth-child(2) { animation-delay: .2s; }
-.musica.tocando .mu-eq i:nth-child(3) { animation-delay: .4s; }
-@keyframes mu-eq { 0%, 100% { height: 30%; } 50% { height: 100%; } }
-@media (prefers-reduced-motion: reduce) { .musica.tocando .mu-eq i { animation: none; height: 80%; } }
-.mu-painel { width: min(340px, calc(100vw - 32px)); border-radius: 16px; overflow: hidden; background: var(--noite); color: var(--cine-ink);
-  border: 1.5px solid color-mix(in srgb, var(--rosa) 40%, transparent); box-shadow: 0 24px 50px -20px rgba(0, 0, 0, .6); }
-.mu-painel[hidden] { display: none !important; }
-.mu-cab { display: flex; align-items: center; gap: 6px; padding: 8px 8px 8px 14px; }
-.mu-titulo { flex: 1; font-family: var(--f-cinema); text-transform: uppercase; font-size: 1.05rem; line-height: 1; }
-.mu-titulo small { font-family: var(--f-corpo); font-size: .62rem; letter-spacing: .14em; color: var(--cine-soft); margin-left: 6px; }
-.mu-ico { width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .08); color: inherit; cursor: pointer; font-size: 1.1rem; line-height: 1; }
-.mu-ico:hover { background: var(--rosa); color: #1A0710; }
-.mu-player { background: #000; }
+
+/* ----- botão: disco + nome + equalizador ----- */
+.mu-botao { position: relative; display: inline-flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 18px 6px 6px; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, .12); color: var(--cine-ink); font: inherit;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--noite) 92%, var(--vinho)), color-mix(in srgb, var(--noite) 96%, transparent));
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: 0 16px 34px -16px rgba(0, 0, 0, .7), inset 0 1px 0 rgba(255, 255, 255, .06);
+  transition: transform .4s var(--ease-cine), box-shadow .4s, border-color .4s; }
+.mu-botao:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--rosa) 50%, transparent);
+  box-shadow: 0 20px 40px -16px rgba(0, 0, 0, .75), 0 0 0 1px color-mix(in srgb, var(--rosa) 25%, transparent), 0 0 28px -6px color-mix(in srgb, var(--rosa) 55%, transparent); }
+.mu-botao:focus-visible { outline: 2px solid var(--rosa); outline-offset: 3px; }
+.musica.fixo .mu-botao { border-color: var(--rosa); box-shadow: 0 0 0 1px var(--rosa), 0 0 30px -6px color-mix(in srgb, var(--rosa) 70%, transparent), 0 16px 34px -16px rgba(0, 0, 0, .7); }
+.mu-disco { position: relative; width: 40px; height: 40px; border-radius: 50%; flex: 0 0 auto;
+  background:
+    radial-gradient(circle, var(--rosa) 0 17%, #120a10 18% 21%, transparent 22%),
+    repeating-radial-gradient(circle, #1b1218 0 2px, #0c070b 2px 4px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08), 0 4px 12px rgba(0, 0, 0, .5); }
+.mu-disco::after { content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(from 210deg, transparent 0 60%, rgba(255, 255, 255, .18) 70%, transparent 80%); }
+.musica.tocando .mu-disco { animation: mu-gira 7s linear infinite; }
+@keyframes mu-gira { to { transform: rotate(360deg); } }
+.mu-txt { font-family: var(--f-cinema); text-transform: uppercase; font-size: 1.05rem; line-height: 1; letter-spacing: .04em; white-space: nowrap; }
+.mu-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; width: 0; overflow: hidden; opacity: 0; transition: width .4s var(--ease-cine), opacity .4s; }
+.mu-eq i { width: 2px; height: 30%; background: var(--rosa); border-radius: 2px; }
+.musica.tocando .mu-eq { width: 14px; opacity: 1; }
+.musica.tocando .mu-eq i { animation: mu-eq 1.1s ease-in-out infinite; }
+.musica.tocando .mu-eq i:nth-child(2) { animation-delay: .15s; }
+.musica.tocando .mu-eq i:nth-child(3) { animation-delay: .35s; }
+.musica.tocando .mu-eq i:nth-child(4) { animation-delay: .55s; }
+@keyframes mu-eq { 0%, 100% { height: 25%; } 50% { height: 100%; } }
+
+/* ----- painel: abre como letreiro de cinema saindo do botão ----- */
+.mu-painel { position: relative; width: min(360px, calc(100vw - 32px)); border-radius: 18px; overflow: hidden; color: var(--cine-ink);
+  background:
+    radial-gradient(120% 70% at 0% 0%, color-mix(in srgb, var(--rosa) 22%, transparent), transparent 60%),
+    radial-gradient(90% 60% at 100% 100%, color-mix(in srgb, var(--violeta) 16%, transparent), transparent 60%),
+    color-mix(in srgb, var(--noite) 94%, transparent);
+  border: 1px solid rgba(255, 255, 255, .1);
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 255, 255, .06);
+  transform-origin: 30px 100%;
+  /* fechado: escondido atrás de uma "cortina" que desce até o botão */
+  clip-path: inset(100% 0 0 0 round 18px); opacity: 0; transform: translateY(14px) scale(.96); visibility: hidden; pointer-events: none;
+  transition: clip-path .5s cubic-bezier(.7, 0, .2, 1), opacity .35s ease, transform .5s cubic-bezier(.7, 0, .2, 1), visibility 0s .5s; }
+.musica.aberto .mu-painel { clip-path: inset(0 0 0 0 round 18px); opacity: 1; transform: none; visibility: visible; pointer-events: auto;
+  transition: clip-path .7s cubic-bezier(.2, .7, .1, 1), opacity .4s ease, transform .7s cubic-bezier(.2, .7, .1, 1), visibility 0s; }
+/* faixas finas de cinema em cima e embaixo */
+.mu-painel::before, .mu-painel::after { content: ""; position: absolute; left: 0; right: 0; height: 3px; z-index: 2;
+  background: linear-gradient(90deg, transparent, var(--rosa) 30%, var(--violeta) 70%, transparent); opacity: .7; }
+.mu-painel::before { top: 0; }
+.mu-painel::after { bottom: 0; }
+/* o conteúdo entra em sequência, como créditos */
+.mu-painel > * { opacity: 0; transform: translateY(8px); transition: opacity .3s, transform .3s; }
+.musica.aberto .mu-painel > * { opacity: 1; transform: none; transition: opacity .6s ease, transform .7s cubic-bezier(.2, .7, .1, 1); }
+.musica.aberto .mu-painel > :nth-child(1) { transition-delay: .18s; }
+.musica.aberto .mu-painel > :nth-child(2) { transition-delay: .3s; }
+.musica.aberto .mu-painel > :nth-child(3) { transition-delay: .42s; }
+
+.mu-cab { display: flex; align-items: center; gap: 6px; padding: 14px 10px 10px 16px; }
+.mu-cab-txt { flex: 1; display: grid; gap: 4px; min-width: 0; }
+.mu-kicker { font-weight: 800; font-size: .6rem; letter-spacing: .26em; text-transform: uppercase; color: var(--rosa); }
+.mu-titulo { font-family: var(--f-cinema); text-transform: uppercase; font-size: 1.55rem; line-height: .9; letter-spacing: .02em; }
+.mu-ico { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .12); background: rgba(255, 255, 255, .04); color: inherit; cursor: pointer;
+  display: grid; place-items: center; transition: background .25s, border-color .25s, color .25s; }
+.mu-ico svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.mu-ico:hover { background: var(--rosa); border-color: var(--rosa); color: #1A0710; }
+
+/* tela do player, com vinheta nas bordas */
+.mu-tela { position: relative; margin: 0 12px; border-radius: 12px; overflow: hidden; background: #050305; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
+.mu-tela::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, .55); }
+.mu-player { display: grid; place-items: center; }
 .mu-player iframe { width: 100%; height: 100%; border: 0; display: block; }
-.mu-nota { font-size: .68rem; color: var(--cine-soft); padding: 8px 14px 10px; }
+.mu-tocar { display: inline-flex; align-items: center; gap: 12px; padding: 8px 20px 8px 8px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--rosa) 50%, transparent);
+  background: rgba(255, 255, 255, .03); color: var(--cine-ink); cursor: pointer; font: inherit; font-weight: 800; font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
+  transition: background .3s, transform .3s var(--ease-cine); }
+.mu-tocar:hover { background: color-mix(in srgb, var(--rosa) 18%, transparent); transform: scale(1.03); }
+.mu-tocar-ico { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--rosa); color: #1A0710;
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--rosa) 60%, transparent); animation: mu-pulso 2.2s ease-out infinite; }
+.mu-tocar-ico svg { width: 18px; height: 18px; margin-left: 2px; }
+@keyframes mu-pulso { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--rosa) 55%, transparent); } 70%, 100% { box-shadow: 0 0 0 14px transparent; } }
+/* carregando: três pontinhos sobre a tela, até o player responder */
+.mu-carregando { position: absolute; inset: 0; display: none; place-content: center; grid-auto-flow: column; gap: 6px; align-items: center;
+  font-size: .62rem; font-weight: 800; letter-spacing: .24em; text-transform: uppercase; color: var(--cine-soft); background: #050305; }
+.mu-carregando i { width: 6px; height: 6px; border-radius: 50%; background: var(--rosa); animation: mu-ponto 1s ease-in-out infinite; }
+.mu-carregando i:nth-child(2) { animation-delay: .15s; }
+.mu-carregando i:nth-child(3) { animation-delay: .3s; margin-right: 6px; }
+@keyframes mu-ponto { 0%, 100% { opacity: .25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+.musica.carregando .mu-carregando { display: grid; }
+
+/* volume: trilho fino com preenchimento rosa e brilho no polegar */
+.mu-volume { display: flex; align-items: center; gap: 12px; padding: 12px 16px 16px; cursor: pointer; }
+.mu-vol-ico { width: 22px; height: 22px; color: var(--cine-ink); flex: 0 0 auto; }
+.mu-vol-ico svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.mu-vol-ico.baixo .v2, .mu-vol-ico.mudo .v1, .mu-vol-ico.mudo .v2 { opacity: .15; }
+.mu-volume input { -webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 22px; background: transparent; cursor: pointer; }
+.mu-volume input::-webkit-slider-runnable-track { height: 3px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--rosa) 0 var(--pct, 50%), rgba(255, 255, 255, .14) var(--pct, 50%)); }
+.mu-volume input::-moz-range-track { height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .14); }
+.mu-volume input::-moz-range-progress { height: 3px; border-radius: 3px; background: var(--rosa); }
+.mu-volume input::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5.5px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--rosa) 60%, transparent), 0 0 14px var(--rosa); transition: transform .2s; }
+.mu-volume input::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px color-mix(in srgb, var(--rosa) 60%, transparent), 0 0 14px var(--rosa); }
+.mu-volume input:hover::-webkit-slider-thumb { transform: scale(1.2); }
+.mu-volume input:focus-visible { outline: 2px solid var(--rosa); outline-offset: 4px; border-radius: 4px; }
+.mu-volume output { min-width: 4ch; font-size: .7rem; font-weight: 800; letter-spacing: .08em; color: var(--cine-soft); text-align: right; font-variant-numeric: tabular-nums; }
+.mu-nota { font-size: .7rem; line-height: 1.45; color: var(--cine-soft); padding: 12px 16px 16px; }
+
 @media (max-width: 640px) {
   .mu-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .mu-botao { width: 50px; height: 50px; padding: 0; justify-content: center; }
-  .musica.aberto .mu-txt { position: static; width: auto; height: auto; clip: auto; }
-  .musica.aberto .mu-botao { width: auto; padding: 0 16px; }
+  .mu-botao { padding: 5px; gap: 0; min-height: 0; }
+  .musica.tocando .mu-botao { padding-right: 12px; gap: 8px; }
 }
-/* não cobre o "ver arte inteira" e as miniaturas do topo no celular */
+/* o botão do canto não cobre os botões do topo: no computador os textos
+   sobem um pouco; no celular as miniaturas abrem espaço à esquerda */
+@media (min-width: 900px) { .com-musica .vit-conteudo { padding-bottom: 96px; } }
 @media (max-width: 899px) { .com-musica .vit-lado { padding-left: 62px; } }
-.mu-volume { display: flex; align-items: center; gap: 10px; padding: 10px 14px 12px; cursor: pointer; }
-.mu-volume input { flex: 1; accent-color: var(--rosa); height: 28px; min-width: 0; }
-.mu-volume output { min-width: 4ch; font-size: .72rem; font-weight: 800; color: var(--cine-soft); text-align: right; font-variant-numeric: tabular-nums; }
-.mu-vol-ico { font-size: 1rem; line-height: 1; }
-.mu-player { display: grid; place-items: center; }
-.mu-tocar { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 22px; border-radius: 999px; border: 0; cursor: pointer;
-  background: var(--rosa); color: #1A0710; font: inherit; font-weight: 800; font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; }
-.mu-tocar:hover { filter: brightness(1.08); }
-/* fixo (clicado): o botão fica marcado */
-.musica.fixo .mu-botao { border-color: var(--rosa); box-shadow: 0 0 0 3px color-mix(in srgb, var(--rosa) 30%, transparent), 0 12px 26px -12px rgba(0, 0, 0, .55); }
+/* menos movimento: abre e fecha sem cortina; disco e equalizador parados */
+@media (prefers-reduced-motion: reduce) {
+  .mu-painel, .musica.aberto .mu-painel, .mu-painel > *, .musica.aberto .mu-painel > * { transition: opacity .2s !important; transform: none !important; clip-path: none !important; }
+  .musica.tocando .mu-disco, .musica.tocando .mu-eq i, .mu-tocar-ico { animation: none; }
+}
+html[data-movimento="desligado"] .musica.tocando .mu-disco, html[data-movimento="desligado"] .musica.tocando .mu-eq i, html[data-movimento="desligado"] .mu-tocar-ico { animation: none; }

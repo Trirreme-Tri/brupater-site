@@ -115,34 +115,55 @@ var Musica = (function () {
   function trilha() { return (window.SITE && SITE.perfil && SITE.perfil.trilha) || {}; }
   function info() { var t = trilha(); return t.mostrar === false ? null : embed(t.url); }
 
+  var ICO = {
+    min: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg>',
+    x: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>',
+    play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',
+    vol: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" fill="currentColor" stroke="none"/><path class="v1" d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path class="v2" d="M18 7a7 7 0 0 1 0 10"/></svg>'
+  };
+  function botaoTocar() {
+    return '<button type="button" class="mu-tocar" data-mu="tocar"><span class="mu-tocar-ico">' + ICO.play + "</span><span>Tocar a trilha</span></button>";
+  }
+
   function montar() {
     if (raiz) raiz.remove();
     raiz = null; painel = null; aberto = false; carregado = false; fixo = false;
     var e = info();
     document.body.classList.toggle("com-musica", !!e);
     if (!e) return;
-    var t = trilha();
+    var t = trilha(), nome = t.rotulo || "Trilha sonora";
     raiz = document.createElement("div");
     raiz.className = "musica";
+    /* painel no estilo "cartão de créditos" de cinema: faixas finas em cima
+       e embaixo, nome em letra de cinema, a tela do player com vinheta */
     raiz.innerHTML =
-      '<div class="mu-painel" id="mu-painel" role="dialog" aria-label="Trilha sonora" hidden>' +
-        '<div class="mu-cab"><span class="mu-titulo">' + esc(t.rotulo || "Trilha sonora") + " <small>" + esc(e.servico) + "</small></span>" +
-          '<button type="button" class="mu-ico" data-mu="minimizar" aria-label="Minimizar (a música continua)" title="Minimizar (a música continua)">&#8211;</button>' +
-          '<button type="button" class="mu-ico" data-mu="fechar" aria-label="Parar e fechar" title="Parar e fechar">&times;</button></div>' +
-        '<div class="mu-player" style="height:' + e.altura + 'px"><button type="button" class="mu-tocar" data-mu="tocar"><span aria-hidden="true">&#9654;</span> Tocar a trilha</button></div>' +
+      '<div class="mu-painel" id="mu-painel" role="dialog" aria-label="' + esc(nome) + '" aria-hidden="true">' +
+        '<div class="mu-cab">' +
+          '<div class="mu-cab-txt"><span class="mu-kicker">&#9835; ' + esc(e.servico) + "</span>" +
+          '<span class="mu-titulo">' + esc(nome) + "</span></div>" +
+          '<button type="button" class="mu-ico" data-mu="minimizar" aria-label="Minimizar (a música continua)" title="Minimizar (a música continua)">' + ICO.min + "</button>" +
+          '<button type="button" class="mu-ico" data-mu="fechar" aria-label="Parar e fechar" title="Parar e fechar">' + ICO.x + "</button>" +
+        "</div>" +
+        '<div class="mu-tela"><div class="mu-player" style="height:' + e.altura + 'px">' + botaoTocar() + "</div>" +
+          '<p class="mu-carregando" aria-live="polite"><i></i><i></i><i></i> carregando a trilha</p></div>' +
         (e.servico === "Spotify"
           ? '<p class="mu-nota">No Spotify, quem não está logado ouve só uma prévia de cada música. O volume é o do seu aparelho.</p>'
-          : '<label class="mu-volume"><span class="mu-vol-ico" aria-hidden="true">&#128264;</span><input type="range" min="0" max="100" step="1" value="' + volumeInicial() + '" aria-label="Volume da música"><output>' + volumeInicial() + "%</output></label>") +
+          : '<label class="mu-volume"><span class="mu-vol-ico">' + ICO.vol + '</span><input type="range" min="0" max="100" step="1" value="' + volumeInicial() + '" aria-label="Volume da música" style="--pct:' + volumeInicial() + '%"><output>' + volumeInicial() + "%</output></label>") +
       "</div>" +
       '<button type="button" class="mu-botao" data-mu="alternar" aria-expanded="false" aria-controls="mu-painel">' +
-        '<span class="mu-eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="mu-txt">' + esc(t.rotulo || "Trilha sonora") + "</span></button>";
+        '<span class="mu-disco" aria-hidden="true"><i></i></span>' +
+        '<span class="mu-txt">' + esc(nome) + "</span>" +
+        '<span class="mu-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>';
     document.body.appendChild(raiz);
     painel = raiz.querySelector(".mu-painel");
     var faixa = raiz.querySelector(".mu-volume input");
     if (faixa) faixa.addEventListener("input", function () {
       volume = Number(faixa.value);
       faixa.nextElementSibling.textContent = volume + "%";
-      raiz.querySelector(".mu-vol-ico").innerHTML = volume === 0 ? "&#128263;" : volume < 50 ? "&#128264;" : "&#128266;";
+      faixa.style.setProperty("--pct", volume + "%");
+      var ic = raiz.querySelector(".mu-vol-ico");
+      ic.classList.toggle("mudo", volume === 0);
+      ic.classList.toggle("baixo", volume > 0 && volume < 50);
       rampa(volume, 450);
     });
     raiz.addEventListener("click", function (ev) {
@@ -161,12 +182,24 @@ var Musica = (function () {
     });
     /* mouse por cima abre (sem tocar); mouse fora fecha, se não estiver fixo */
     if (temMouse) {
-      raiz.addEventListener("mouseenter", function () { clearTimeout(timerSaida); if (!aberto) mostrar(); });
+      raiz.addEventListener("mouseenter", function () { clearTimeout(timerSaida); preconectar(); if (!aberto) mostrar(); });
       raiz.addEventListener("mouseleave", function () {
         clearTimeout(timerSaida);
         timerSaida = setTimeout(function () { if (!fixo) minimizar(); }, 250);
       });
     }
+  }
+
+  /* otimização: avisa o navegador pra já abrir conexão com o serviço de
+     música (o player carrega mais rápido quando a pessoa clicar) */
+  var preconectado = false;
+  function preconectar() {
+    if (preconectado) return;
+    preconectado = true;
+    var e = info(); if (!e) return;
+    var hosts = e.servico === "YouTube" ? ["https://www.youtube-nocookie.com", "https://i.ytimg.com", "https://www.google.com"]
+      : e.servico === "Spotify" ? ["https://open.spotify.com"] : ["https://w.soundcloud.com"];
+    hosts.forEach(function (h) { var l = document.createElement("link"); l.rel = "preconnect"; l.href = h; l.crossOrigin = ""; document.head.appendChild(l); });
   }
 
   function pintarFixo() {
@@ -179,7 +212,7 @@ var Musica = (function () {
   /* só mostra o painel (passar o mouse): não cria o player, não toca */
   function mostrar() {
     if (!raiz) return;
-    painel.hidden = false; aberto = true;
+    painel.setAttribute("aria-hidden", "false"); aberto = true;
     raiz.classList.add("aberto");
     raiz.querySelector(".mu-botao").setAttribute("aria-expanded", "true");
   }
@@ -187,6 +220,7 @@ var Musica = (function () {
   function abrir() {
     var e = info();
     if (!e || !raiz) return false;
+    preconectar();
     if (!carregado) {
       var bt = raiz.querySelector(".mu-tocar"); if (bt) bt.remove();
       var f = document.createElement("iframe");
@@ -195,12 +229,13 @@ var Musica = (function () {
       f.allow = "autoplay; encrypted-media; clipboard-write; picture-in-picture";
       f.setAttribute("loading", "eager");
       f.referrerPolicy = "strict-origin-when-cross-origin";
-      f.addEventListener("load", aoCarregar);
+      raiz.classList.add("carregando");
+      f.addEventListener("load", function () { raiz.classList.remove("carregando"); aoCarregar(); });
       raiz.querySelector(".mu-player").appendChild(f);
       carregado = true;
       raiz.classList.add("tocando");
     }
-    painel.hidden = false;
+    painel.setAttribute("aria-hidden", "false");
     aberto = true;
     raiz.classList.add("aberto");
     raiz.querySelector(".mu-botao").setAttribute("aria-expanded", "true");
@@ -208,7 +243,7 @@ var Musica = (function () {
   }
   function minimizar() {
     if (!raiz) return;
-    painel.hidden = true; aberto = false;
+    painel.setAttribute("aria-hidden", "true"); aberto = false;
     raiz.classList.remove("aberto");
     raiz.querySelector(".mu-botao").setAttribute("aria-expanded", "false");
   }
@@ -220,7 +255,7 @@ var Musica = (function () {
     var r0 = raiz;
     rampa(0, 700, function () {
       if (raiz !== r0) return;
-      raiz.querySelector(".mu-player").innerHTML = '<button type="button" class="mu-tocar" data-mu="tocar"><span aria-hidden="true">&#9654;</span> Tocar a trilha</button>';
+      raiz.querySelector(".mu-player").innerHTML = botaoTocar();
       carregado = false;
       raiz.classList.remove("tocando");
     });
