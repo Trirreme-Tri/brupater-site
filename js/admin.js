@@ -231,22 +231,22 @@
     var tags = [];
     rascunho.galeria.forEach(function (o) { if (o.tag && tags.indexOf(o.tag) < 0) tags.push(o.tag); });
     var visiveis = rascunho.galeria.filter(function (o) { return o.visivel !== false; }).length;
-    return secao("Galeria do portfólio", visiveis + " de " + rascunho.galeria.length + " artes aparecendo no site. A ordem aqui é a ordem do site.",
+    var dest = rascunho.galeria.filter(function (o) { return o.visivel !== false && o.destaque; }).length;
+    return secao("Galeria do portfólio", visiveis + " de " + rascunho.galeria.length + " artes aparecendo no site · " + dest + " no carrossel do topo. A ordem aqui é a ordem do site (e do carrossel).",
       '<label class="btn cheio upload-varios"><input type="file" accept="image/*" multiple data-galeria-upload hidden>Enviar artes do computador</label>' +
       '<datalist id="tags-galeria">' + tags.map(function (t) { return '<option value="' + esc(t) + '">'; }).join("") + "</datalist>" +
       lista("galeria", function (o, i, c) {
         return '<div class="obra-admin' + (o.visivel === false ? " oculta" : "") + '">' + campoImg(c + ".img", "Arte") +
           linha(campo(c + ".titulo", "Título"), campo(c + ".tag", "Categoria", { lista: "tags-galeria", ajuda: "Vira um filtro no site." })) +
-          campo(c + ".visivel", "Aparecer no site", { tipo: "check" }) + "</div>";
-      }, function () { return { img: "", titulo: "Nova arte", tag: tags[0] || "Personagens", visivel: true }; }, "Adicionar arte por link"));
+          campo(c + ".visivel", "Aparecer no site", { tipo: "check" }) +
+          campo(c + ".destaque", "Destaque no carrossel do topo da página inicial", { tipo: "check" }) + "</div>";
+      }, function () { return { img: "", titulo: "Nova arte", tag: tags[0] || "Personagens", visivel: true, destaque: false }; }, "Adicionar arte por link"));
   }
 
   /* ----- 04 cenas ----- */
   function abaCenas() {
-    return secao("Abertura (primeira tela)", "A imagem de fundo em tela cheia, com o seu nome por cima.",
-        campoImg("cenas.abertura.img", "Imagem da abertura", "Prefira imagens largas e escuras, como uma cena de filme.") +
-        campo("cenas.abertura.foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco("cenas.abertura.foco") }) +
-        campo("cenas.abertura.kicker", "Linha pequena acima do nome") +
+    return secao("Topo da página inicial (carrossel)", "As artes que passam no topo são as marcadas como \"Destaque\" na aba Galeria, na mesma ordem. Aqui ficam só os textos.",
+        campo("cenas.abertura.kicker", "Linha pequena no alto") +
         campo("cenas.abertura.legenda", "Texto curto abaixo da frase", { tipo: "textarea", linhas: 2 })) +
       ["portfolio", "agenda", "encomendas"].map(function (k) {
         var nomes = { portfolio: "Portfólio", agenda: "Agenda", encomendas: "Encomendas" };
@@ -352,7 +352,7 @@
         fonte("mao", "Fonte de mão (frases e anotações)", "Colors and lines bring your ideas to life.", "am-mao")) +
       secao("Efeitos de cinema", "",
         campo("aparencia.grao", "Grão de filme por cima do site", { tipo: "check" }) +
-        campo("aparencia.barras", "Barras pretas de cinema na abertura e nos interlúdios", { tipo: "check" }) +
+        
         linha(campo("aparencia.movimento", "Animações", { tipo: "select", opcoes: [{ v: "normal", t: "Normais" }, { v: "suave", t: "Suaves" }, { v: "desligado", t: "Desligadas" }] }),
               campo("aparencia.tema", "Tema de quem visita", { tipo: "select", opcoes: [{ v: "auto", t: "Igual ao celular/computador da pessoa" }, { v: "escuro", t: "Sempre escuro" }, { v: "claro", t: "Sempre claro" }], ajuda: "Em \"igual ao celular\", o site fica claro ou escuro conforme o aparelho de quem visita." })));
   }
@@ -388,6 +388,15 @@
     timerToast = setTimeout(function () { t.className = "aviso-flutuante"; }, erro ? 6000 : 2800);
   }
 
+  /* a galeria guarda duas versões (mini para a grade, img para tela cheia).
+     Se a Bru trocar a imagem, a mini antiga e o tamanho deixam de valer. */
+  function limparMiniatura(caminho) {
+    var m = /^galeria\.(\d+)\.img$/.exec(caminho);
+    if (!m) return;
+    var o = rascunho.galeria[Number(m[1])];
+    if (o) { o.mini = ""; delete o.w; delete o.h; }
+  }
+
   function aoMudarCampo(el) {
     var caminho = el.dataset.k, tipo = el.dataset.tipo, v;
     if (el.type === "radio" && !el.checked) return;
@@ -396,6 +405,7 @@
     else if (tipo === "fator") v = Math.round((1 + (Number(el.value) || 0) / 100) * 1000) / 1000;
     else v = el.value;
     set(caminho, v);
+    limparMiniatura(caminho);
     marcarSujo();
     if (tipo === "cor") { var hex = document.querySelector('[data-hex="' + caminho + '"]'); if (hex) hex.value = v; }
     if (caminho.indexOf("aparencia.") === 0) temaAplicar(rascunho);
@@ -448,7 +458,7 @@
       if (el.dataset.img && el.files[0]) {
         var grande = /^cenas\./.test(el.dataset.img);
         processarImagem(el.files[0], grande ? 1800 : 1200).then(function (dataUrl) {
-          set(el.dataset.img, dataUrl); marcarSujo(); render(); toast("Imagem carregada. Lembre de salvar.");
+          set(el.dataset.img, dataUrl); limparMiniatura(el.dataset.img); marcarSujo(); render(); toast("Imagem carregada. Lembre de salvar.");
         }).catch(function (err) { toast(err.message, true); });
       }
       if (el.hasAttribute("data-galeria-upload") && el.files.length) {
@@ -490,7 +500,7 @@
         ses.ocupadas = Math.max(0, Math.min(Number(ses.vagas) || 0, (Number(ses.ocupadas) || 0) + Number(b.dataset.d)));
         marcarSujo(); render(); return;
       }
-      if ((b = e.target.closest("[data-limpar-img]"))) { set(b.dataset.limparImg, ""); marcarSujo(); render(); return; }
+      if ((b = e.target.closest("[data-limpar-img]"))) { set(b.dataset.limparImg, ""); limparMiniatura(b.dataset.limparImg); marcarSujo(); render(); return; }
       if ((b = e.target.closest("[data-paleta]"))) {
         rascunho.aparencia.cores = copiaProfunda(PALETAS[b.dataset.paleta]); marcarSujo(); temaAplicar(rascunho); render();
         toast("Paleta aplicada no painel. Salve pra levar pro site."); return;

@@ -8,7 +8,10 @@
  * mudar quando o conteúdo passar a morar num banco (ex.: Supabase, como no
  * site da Anne): carregar() e salvar() viram fetch, o resto do site não muda.
  */
-var LOJA_CHAVE = "brupater:site:v1";
+/* v2: as imagens do portfólio foram trocadas (out/2026). Mudar a chave
+   descarta edições antigas salvas no navegador que apontavam para imagens
+   que não existem mais — sem isso, apareceriam imagens quebradas. */
+var LOJA_CHAVE = "brupater:site:v2";
 
 /* junta o que foi salvo por cima do padrão. Objetos são mesclados campo a
    campo (assim um campo novo no PADRAO aparece mesmo pra quem já salvou

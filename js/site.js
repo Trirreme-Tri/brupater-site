@@ -67,7 +67,8 @@ var Site = (function () {
     var a = img(SITE.perfil.avatar) || "assets/avatar.webp";
     Array.prototype.forEach.call(document.querySelectorAll(".js-avatar"), function (el) { el.src = a; });
     var nc = $(".js-nome-curto");
-    if (nc) nc.textContent = String(SITE.perfil.handle || "brupater").replace(/^[_.@]+/, "");
+    /* a Bru pediu o nome menor, no canto superior esquerdo */
+    if (nc) nc.textContent = SITE.perfil.nome || String(SITE.perfil.handle || "").replace(/^[_.@]+/, "");
   }
   function renderRodape() {
     if (!tem("#rod-nome")) return;
@@ -89,16 +90,11 @@ var Site = (function () {
   }
 
   /* ===== início ===== */
+  /* topo da página inicial: textos e etiqueta (as artes do carrossel ficam no js/vitrine.js) */
   function renderAbertura() {
     if (!tem("#abertura")) return;
     var c = SITE.cenas.abertura, p = SITE.perfil;
-    var fundo = $("#abertura-img");
-    fundo.style.backgroundImage = "url('" + img(c.img) + "')";
-    fundo.style.setProperty("--foco", c.foco || "50% 40%");
     $("#ab-kicker").textContent = c.kicker || p.titulo;
-    var partes = String(p.nome || "").trim().split(/\s+/);
-    var l1 = partes.shift() || "", l2 = partes.join(" ");
-    $("#ab-nome").innerHTML = '<span class="linha"><span>' + esc(l1) + "</span></span>" + (l2 ? '<span class="linha"><span>' + esc(l2) + "</span></span>" : "");
     $("#ab-frase").textContent = p.frase;
     $("#ab-legenda").textContent = c.legenda;
     var trilha = $("#ab-trilha"), url = urlSegura(p.trilha && p.trilha.url);
@@ -139,7 +135,7 @@ var Site = (function () {
     ex.hidden = !(s.extra && s.extra.valor);
     if (!ex.hidden) ex.innerHTML = linhaFicha([s.extra]);
     $("#ficha-palavra").textContent = s.palavra || "";
-    $("#ficha-arte").src = img(s.imagem) || "assets/hey.webp";
+    $("#ficha-arte").src = img(s.imagem) || "assets/obras/hey.webp";
     $("#ficha-texto").textContent = s.texto;
     /* o lema do pôster: a última frase ganha a cor de destaque, como no Oásis */
     var frases = String(s.lema || "").replace(/([.!?])\s+/g, "$1\n").split("\n");
@@ -197,7 +193,8 @@ var Site = (function () {
     $("#galeria").innerHTML = obras.map(function (o, i) {
       var sai = filtroAtual !== "Todos" && o.tag !== filtroAtual;
       return '<button type="button" class="obra surge' + (sai ? " sai" : "") + '" data-i="' + i + '" aria-label="Ver ' + esc(o.titulo || "arte") + ' em tela cheia">' +
-        '<figure style="margin:0"><img src="' + esc(img(o.img)) + '" alt="' + esc(o.titulo || "Arte da Brunna") + '" loading="lazy">' +
+        '<figure style="margin:0"><img src="' + esc(img(o.mini) || img(o.img)) + '" alt="' + esc(o.titulo || "Arte da Brunna") + '"' +
+        (o.w && o.h ? ' width="' + o.w + '" height="' + o.h + '"' : "") + ' loading="lazy" decoding="async">' +
         "<figcaption><small>" + esc(o.tag) + "</small><b>" + esc(o.titulo) + "</b></figcaption></figure></button>";
     }).join("");
     $("#galeria-ig").href = instagramUrl();
@@ -425,6 +422,7 @@ var Site = (function () {
       temaAplicar(SITE);
       renderTudo();
       if (window.Encomenda) Encomenda.recarregar();
+      if (window.Vitrine) Vitrine.montar();
     });
   }
 

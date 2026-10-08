@@ -1,10 +1,8 @@
 /* Página de apresentação (apresentacao.html) */
 
 .doc-capa { position: relative; min-height: 78vh; min-height: 78svh; display: flex; align-items: flex-end; overflow: hidden; background: #000; color: var(--cine-ink); }
-.doc-capa-img { position: absolute; inset: 0; background: url("../assets/cena-agua.webp") 50% 28% / cover; transform: scale(1.05); animation: kenburns-doc 30s ease-in-out infinite alternate; }
-@keyframes kenburns-doc { to { transform: scale(1.18); } }
-html[data-movimento="desligado"] .doc-capa-img { animation: none; }
-@media (prefers-reduced-motion: reduce) { .doc-capa-img { animation: none; } }
+/* imagem parada (sem zoom contínuo: imagem se mexendo sem parar parece tremer) */
+.doc-capa-img { position: absolute; inset: 0; background: url("../assets/obras/correnteza.webp") 50% 28% / cover; }
 .doc-capa::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .35), rgba(0, 0, 0, .1) 35%, rgba(7, 5, 10, .92) 88%, var(--bg)); }
 .doc-capa-txt { position: relative; z-index: 2; padding-bottom: 56px; padding-top: 120px; }
 .doc-pra { color: var(--rosa); font-size: 1.6rem; transform: rotate(-2deg); transform-origin: left; }
@@ -105,3 +103,7 @@ html[data-movimento="desligado"] .doc-capa-img { animation: none; }
 .paginas-links li { display: grid; gap: 2px; }
 .paginas-links b { font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; }
 .etiqueta.esgotado { background: var(--noite); color: var(--rosa); border-color: var(--rosa); box-shadow: 4px 4px 0 var(--rosa); }
+
+/* rodapé claro, como no site */
+.doc .rodape { --cine-ink: var(--papel-ink); --cine-soft: var(--papel-soft); --cine-line: var(--papel-line);
+  background: color-mix(in srgb, var(--papel) 80%, var(--poster)); color: var(--papel-soft); }

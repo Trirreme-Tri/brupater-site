@@ -459,3 +459,135 @@ html[data-movimento="desligado"] .fila-barra i.agora { animation: none; }
 @media (min-width: 980px) { .enc-grade { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); } }
 .cal-grade { grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .cal-dia { aspect-ratio: auto; height: clamp(38px, 9vw, 52px); min-width: 0; }
+
+/* =====================================================================
+   OUT/2026 — pedidos da Bru: topo com carrossel em fundo claro, nome menor
+   no canto superior esquerdo e "mais cor clara do que preto".
+   As seções que eram escuras passam a usar o tom de papel; o truque é
+   redefinir as variáveis --cine-* dentro delas (assim todos os textos e
+   linhas que usavam a cor clara-sobre-escuro viram escuro-sobre-claro).
+   ===================================================================== */
+.cortina { background: var(--papel); }
+
+/* navegação sempre escura sobre claro */
+.nav { color: var(--ink); }
+.nav.solida { background: color-mix(in srgb, var(--papel) 90%, transparent); }
+.nav.menu-aberto { background: var(--papel); color: var(--ink); }
+.menu-movel { border-top-color: var(--papel-line); }
+.menu-movel a { border-bottom-color: var(--papel-line); }
+.marca span { font-size: 1.25rem; letter-spacing: .02em; }
+
+.creditos-ini, .proximas, .agenda, .cabecalho, .rodape {
+  --cine-ink: var(--papel-ink);
+  --cine-soft: var(--papel-soft);
+  --cine-line: var(--papel-line);
+}
+
+/* ----- vitrine (carrossel) ----- */
+.vitrine { position: relative; background: var(--papel); color: var(--papel-ink); padding: 84px 0 34px; overflow: hidden; }
+.vit-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; min-height: 44px; }
+.vit-kicker { color: var(--papel-soft); }
+.vit-status .etiqueta { font-size: clamp(.95rem, 2.4vw, 1.25rem); }
+.vit-status a { text-decoration: none; display: inline-block; }
+
+.vit-grade { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+@media (min-width: 960px) { .vit-grade { grid-template-columns: minmax(0, 1fr) 320px; gap: 26px; } }
+
+.vit-palco { position: relative; height: clamp(360px, 64vh, 720px); border-radius: 18px; overflow: hidden; isolation: isolate;
+  background: color-mix(in srgb, var(--papel) 82%, var(--poster)); box-shadow: 0 30px 60px -40px rgba(26, 18, 24, .5); }
+@media (max-width: 600px) { .vit-palco { height: 66vh; min-height: 340px; } }
+.vit-slide { position: absolute; inset: 0; margin: 0; display: grid; place-items: center; padding: clamp(14px, 3vw, 34px);
+  opacity: 0; z-index: 1; cursor: zoom-in; transition: opacity 1.4s cubic-bezier(.4, 0, .2, 1); }
+.vit-slide.ativa { opacity: 1; z-index: 2; }
+.vit-slide.saindo { z-index: 1; }
+/* fundo: a própria arte bem desfocada e clara, como luz de projeção */
+.vit-fundo { position: absolute; inset: -60px; background-size: cover; background-position: center; filter: blur(46px) saturate(1.15);
+  opacity: .55; transform: scale(1.1); }
+.vit-slide::after { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--papel) 45%, transparent); }
+.vit-slide img { position: relative; z-index: 1; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;
+  border-radius: 6px; box-shadow: 0 24px 50px -24px rgba(26, 18, 24, .55);
+  transform: scale(1.045); filter: blur(10px); transition: transform 2.2s cubic-bezier(.2, .7, .1, 1), filter 1.6s ease; }
+.vit-slide.ativa img { transform: none; filter: none; }
+.vit-slide.saindo img { transform: scale(.985); filter: blur(4px); }
+html[data-movimento="suave"] .vit-slide img, html[data-movimento="desligado"] .vit-slide img { transform: none; filter: none; }
+html[data-movimento="desligado"] .vit-slide { transition: none; }
+@media (prefers-reduced-motion: reduce) { .vit-slide img { transform: none; filter: none; transition: none; } .vit-slide { transition: opacity .3s; } }
+
+.vit-info { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+@media (min-width: 960px) { .vit-info { padding-top: 6px; } }
+.vit-contador { color: var(--rosa); font-variant-numeric: tabular-nums; }
+.vit-tag { color: var(--papel-soft); }
+.vit-titulo { font-size: clamp(2.4rem, 5vw, 3.6rem); line-height: .9; }
+.vit-info.troca .vit-tag, .vit-info.troca .vit-titulo, .vit-info.troca .vit-contador { animation: vit-texto .9s var(--ease-cine) both; }
+.vit-info.troca .vit-titulo { animation-delay: .12s; }
+@keyframes vit-texto { from { opacity: 0; transform: translateY(12px); } }
+html[data-movimento="desligado"] .vit-info.troca * { animation: none !important; }
+.vit-ampliar { background: none; border: 0; padding: 6px 0; cursor: pointer; color: var(--rosa); font-weight: 800; font-size: .76rem; letter-spacing: .14em; text-transform: uppercase; min-height: 44px; }
+.vit-linha { width: 100%; border: 0; border-top: 1.5px solid var(--papel-line); margin: 6px 0; }
+.vit-frase { font-size: 1.45rem; color: var(--rosa); line-height: 1.15; transform: rotate(-1.5deg); transform-origin: left; }
+.vit-legenda { color: var(--papel-soft); font-size: .92rem; }
+.vit-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.vit-ctas .btn:not(.cheio) { color: var(--papel-ink); }
+
+.vit-miniaturas { display: flex; gap: 10px; margin-top: 16px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: thin; align-items: center; }
+.vit-mini { position: relative; flex: 0 0 auto; width: 84px; height: 84px; padding: 0; border-radius: 12px; overflow: hidden; cursor: pointer;
+  border: 2px solid transparent; background: var(--papel-line); opacity: .62; transition: opacity .3s, border-color .3s, transform .3s var(--ease-cine); }
+.vit-mini img { width: 100%; height: 100%; object-fit: cover; }
+.vit-mini:hover { opacity: .9; }
+.vit-mini[aria-selected="true"] { opacity: 1; border-color: var(--rosa); transform: translateY(-2px); }
+.vit-prog { position: absolute; left: 0; bottom: 0; height: 4px; width: 0; background: var(--rosa); }
+.vit-mini[aria-selected="true"] .vit-prog { animation: vit-prog var(--vit-tempo, 7000ms) linear forwards; }
+.vitrine.parada .vit-mini[aria-selected="true"] .vit-prog { animation-play-state: paused; }
+@keyframes vit-prog { to { width: 100%; } }
+.vit-pausa { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--papel-line); background: transparent; cursor: pointer; margin-left: 4px; display: grid; place-items: center; }
+.vit-pausa span { width: 12px; height: 14px; border-left: 4px solid var(--papel-ink); border-right: 4px solid var(--papel-ink); }
+.vit-pausa[aria-pressed="true"] span { width: 0; height: 0; border-left: 12px solid var(--papel-ink); border-right: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
+
+/* ----- créditos, próximas cenas: claros ----- */
+.creditos-ini { background: color-mix(in srgb, var(--papel) 88%, white); color: var(--papel-ink); }
+.link:hover .ico { color: #1A0710; }
+.proximas { background: color-mix(in srgb, var(--papel) 88%, white); color: var(--papel-ink); }
+.chamada { border-color: var(--papel-line); }
+.chamada .chamada-txt { color: var(--cine-ink-fixo, #F6EDE9); }
+.chamada .chamada-sub { color: #E7D9DE; }
+
+/* ----- interlúdios: sem barras pretas; sombra só atrás do texto ----- */
+.interludio .barra-cine { display: none; }
+.interludio::after { background: linear-gradient(180deg, transparent 45%, rgba(26, 18, 24, .62)); }
+.interludio-frase { bottom: 40px; }
+
+/* ----- topo das páginas internas: claro, arte à direita ----- */
+.cabecalho { background: var(--papel); color: var(--papel-ink); min-height: 360px; }
+.cabecalho .barra-cine { display: none; }
+.cabecalho .cab-img { left: 30%; }
+.cabecalho::after { background: linear-gradient(90deg, var(--papel) 30%, color-mix(in srgb, var(--papel) 70%, transparent) 55%, transparent 85%); }
+@media (max-width: 700px) {
+  .cabecalho .cab-img { left: 0; opacity: .55; }
+  .cabecalho::after { background: linear-gradient(180deg, color-mix(in srgb, var(--papel) 40%, transparent), var(--papel) 92%); }
+}
+.cab-titulo { text-shadow: none; }
+.cab-txt { padding-top: 110px; padding-bottom: 34px; }
+body[data-pagina="encomendas"] .cabecalho::after { background: linear-gradient(90deg, var(--papel) 30%, color-mix(in srgb, var(--papel) 70%, transparent) 55%, transparent 85%); }
+
+/* ----- agenda: clara, com o brilho violeta da tabela ----- */
+.agenda { background:
+  radial-gradient(60% 50% at 85% 10%, color-mix(in srgb, var(--violeta) 22%, transparent), transparent 70%),
+  radial-gradient(50% 40% at 0% 100%, color-mix(in srgb, var(--rosa) 12%, transparent), transparent 70%), var(--papel); }
+.agenda-status, .agenda-cal, .agenda-eventos, .agenda-fila, .sessao { background: rgba(255, 255, 255, .62); }
+.fila-barra i { background: rgba(26, 18, 24, .1); }
+.cal-dia.marcado:hover, .cal-dia.sel { background: rgba(26, 18, 24, .07); }
+.carimbo { background: color-mix(in srgb, var(--papel) 80%, transparent); }
+.cal-nav button:hover { color: #1A0710; }
+
+/* ----- rodapé claro ----- */
+.rodape { background: color-mix(in srgb, var(--papel) 80%, var(--poster)); color: var(--papel-soft); }
+
+/* a arte aparece SEMPRE inteira no palco (sem corte): altura máxima calculada
+   a partir da altura do palco, porque % de altura não funciona dentro do grid */
+.vit-palco { --vit-h: clamp(360px, 64vh, 720px); --vit-pad: clamp(14px, 3vw, 34px); height: var(--vit-h); }
+@media (max-width: 600px) { .vit-palco { --vit-h: max(340px, 66vh); } }
+.vit-slide { padding: var(--vit-pad); }
+.vit-slide img { max-height: calc(var(--vit-h) - 2 * var(--vit-pad)); max-width: 100%; }
+@media (max-width: 700px) {
+  body[data-pagina="encomendas"] .cabecalho::after { background: linear-gradient(180deg, color-mix(in srgb, var(--papel) 40%, transparent), var(--papel) 92%); }
+}

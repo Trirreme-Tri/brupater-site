@@ -26,25 +26,24 @@ var PADRAO = {
   },
 
   cenas: {
+    /* topo da página inicial: as artes do carrossel vêm da galeria (destaque: true) */
     abertura: {
-      img: "assets/cena-cavaleira.webp",
-      foco: "50% 40%",
       kicker: "RPG Character Creation",
       legenda: "Personagens de RPG, OCs e heróis da sua mesa ganhando cor, traço e história."
     },
     interludio1: {
-      img: "assets/cena-agua.webp",
+      img: "assets/obras/a-fuga.webp",
       foco: "50% 30%",
       frase: "Colors and lines bring your ideas to life.",
       credito: "interlúdio · estudo de cor"
     },
     paginas: {
-      portfolio: { img: "assets/oasis.webp", foco: "50% 30%", titulo: "Portfólio", sub: "Personagens, pôsteres, cenas e estudos." },
-      agenda: { img: "assets/tabela-comissoes.webp", foco: "50% 20%", titulo: "Agenda", sub: "Quando abre, quantas vagas e como anda a fila." },
-      encomendas: { img: "assets/commissions-open.webp", foco: "50% 30%", titulo: "Encomendas", sub: "Crie seu personagem e veja o preço na hora." }
+      portfolio: { img: "assets/obras/catedral.webp", foco: "50% 35%", titulo: "Portfólio", sub: "Personagens, pôsteres, cenas e estudos." },
+      agenda: { img: "assets/obras/caderno-alvar.webp", foco: "50% 50%", titulo: "Agenda", sub: "Quando abre, quantas vagas e como anda a fila." },
+      encomendas: { img: "assets/obras/commissions-open.webp", foco: "50% 30%", titulo: "Encomendas", sub: "Crie seu personagem e veja o preço na hora." }
     },
     interludio2: {
-      img: "assets/caderno-1.webp",
+      img: "assets/obras/caderno-de-campanha.webp",
       foco: "50% 50%",
       frase: "Toda campanha começa num rascunho.",
       credito: "interlúdio · caderno de campanha"
@@ -53,7 +52,7 @@ var PADRAO = {
 
   sobre: {
     palavra: "SAVAGE",
-    imagem: "assets/hey.webp",
+    imagem: "assets/obras/hey.webp",
     retrato: "assets/avatar.webp",
     texto: "Sou a Bru, artista brasileira que desenha personagens de RPG, OCs e fichas que parecem pôster de filme. Meu traço mistura cartoon e concept, com muita cor, luz neon e um pezinho no gótico.",
     ficha: [
@@ -135,32 +134,41 @@ var PADRAO = {
     ]
   },
 
+  /* destaque: true = aparece no carrossel do topo da página inicial (na ordem da lista).
+     mini = versão menor usada na grade; img = versão grande da tela cheia. */
   galeria: [
-    { img: "assets/commissions-open.webp", titulo: "Commissions Open", tag: "Pôsteres", visivel: true },
-    { img: "assets/galeria/g-tiefling-cartas.webp", titulo: "Tiefling das cartas", tag: "Personagens", visivel: true },
-    { img: "assets/oasis.webp", titulo: "Oásis", tag: "Pôsteres", visivel: true },
-    { img: "assets/galeria/g-espada-roxa.webp", titulo: "Lâmina violeta", tag: "Personagens", visivel: true },
-    { img: "assets/cena-cavaleira.webp", titulo: "A fuga", tag: "Cenas", visivel: true },
-    { img: "assets/galeria/g-janela-gotica.webp", titulo: "Catedral", tag: "Cenas", visivel: true },
-    { img: "assets/galeria/g-character.webp", titulo: "Character", tag: "Pôsteres", visivel: true },
-    { img: "assets/galeria/g-elfa-agua.webp", titulo: "Elfa das águas", tag: "Personagens", visivel: true },
-    { img: "assets/galeria/g-menino-coruja.webp", titulo: "O guardião da coruja", tag: "Personagens", visivel: true },
-    { img: "assets/galeria/g-cavaleiros.webp", titulo: "Stand up and fight", tag: "Cenas", visivel: true },
-    { img: "assets/galeria/g-gargantilha.webp", titulo: "Gargantilha", tag: "Personagens", visivel: true },
-    { img: "assets/galeria/g-casal.webp", titulo: "Promessa", tag: "Cenas", visivel: true },
-    { img: "assets/galeria/g-cavaleiro-espada.webp", titulo: "Cavaleiro de pelúcia", tag: "Personagens", visivel: true },
-    { img: "assets/galeria/g-armadura-fogo.webp", titulo: "Brasa", tag: "Personagens", visivel: true },
-    { img: "assets/galeria/g-smile.webp", titulo: "Smile", tag: "Pôsteres", visivel: true },
-    { img: "assets/galeria/g-guerreiro.webp", titulo: "Sombra dourada", tag: "Cenas", visivel: true },
-    { img: "assets/galeria/g-bandana.webp", titulo: "Bandana", tag: "Personagens", visivel: true },
-    { img: "assets/galeria/g-cabelo-rosa.webp", titulo: "Rosa choque", tag: "Personagens", visivel: true },
-    { img: "assets/galeria/g-olho-azul.webp", titulo: "Íris", tag: "Estudos", visivel: true },
-    { img: "assets/galeria/g-olhar-rosa.webp", titulo: "Olhar", tag: "Estudos", visivel: true },
-    { img: "assets/galeria/g-ruivo.webp", titulo: "O bardo", tag: "Personagens", visivel: true },
-    { img: "assets/galeria/g-rosto.webp", titulo: "Estudo de luz", tag: "Estudos", visivel: true },
-    { img: "assets/galeria/g-queda.webp", titulo: "Queda", tag: "Estudos", visivel: true },
-    { img: "assets/caderno-2.webp", titulo: "Caderno de campanha", tag: "Estudos", visivel: true },
-    { img: "assets/galeria/g-little-sis.webp", titulo: "Welcome, little sis", tag: "Personagens", visivel: true }
+    { img: "assets/obras/correnteza.webp", mini: "assets/obras/correnteza-g.webp", w: 1350, h: 1800, titulo: "Correnteza", tag: "Cenas", destaque: true, visivel: true },
+    { img: "assets/obras/a-fuga.webp", mini: "assets/obras/a-fuga-g.webp", w: 1440, h: 1439, titulo: "A fuga", tag: "Cenas", destaque: true, visivel: true },
+    { img: "assets/obras/catedral.webp", mini: "assets/obras/catedral-g.webp", w: 1350, h: 1800, titulo: "Catedral", tag: "Cenas", destaque: true, visivel: true },
+    { img: "assets/obras/tiefling-cartas.webp", mini: "assets/obras/tiefling-cartas-g.webp", w: 1350, h: 1800, titulo: "Tiefling das cartas", tag: "Personagens", destaque: true, visivel: true },
+    { img: "assets/obras/commissions-open.webp", mini: "assets/obras/commissions-open-g.webp", w: 1440, h: 1800, titulo: "Commissions Open", tag: "Pôsteres", destaque: true, visivel: true },
+    { img: "assets/obras/sombra-dourada.webp", mini: "assets/obras/sombra-dourada-g.webp", w: 1440, h: 1439, titulo: "Sombra dourada", tag: "Cenas", destaque: true, visivel: true },
+    { img: "assets/obras/brasa.webp", mini: "assets/obras/brasa-g.webp", w: 1080, h: 1080, titulo: "Brasa", tag: "Personagens", destaque: true, visivel: true },
+    { img: "assets/obras/oasis.webp", mini: "assets/obras/oasis-g.webp", w: 1350, h: 1688, titulo: "Oásis", tag: "Pôsteres", destaque: false, visivel: true },
+    { img: "assets/obras/elfa-das-aguas.webp", mini: "assets/obras/elfa-das-aguas-g.webp", w: 1080, h: 1080, titulo: "Elfa das águas", tag: "Personagens", destaque: false, visivel: true },
+    { img: "assets/obras/stand-up-and-fight.webp", mini: "assets/obras/stand-up-and-fight-g.webp", w: 1440, h: 1440, titulo: "Stand up and fight", tag: "Cenas", destaque: false, visivel: true },
+    { img: "assets/obras/lamina-violeta.webp", mini: "assets/obras/lamina-violeta-g.webp", w: 1080, h: 1080, titulo: "Lâmina violeta", tag: "Personagens", destaque: false, visivel: true },
+    { img: "assets/obras/character.webp", mini: "assets/obras/character-g.webp", w: 1440, h: 1800, titulo: "Character", tag: "Pôsteres", destaque: false, visivel: true },
+    { img: "assets/obras/guardiao-da-coruja.webp", mini: "assets/obras/guardiao-da-coruja-g.webp", w: 1350, h: 1688, titulo: "O guardião da coruja", tag: "Personagens", destaque: false, visivel: true },
+    { img: "assets/obras/gargantilha.webp", mini: "assets/obras/gargantilha-g.webp", w: 1440, h: 1800, titulo: "Gargantilha", tag: "Personagens", destaque: false, visivel: true },
+    { img: "assets/obras/o-bardo.webp", mini: "assets/obras/o-bardo-g.webp", w: 1080, h: 1080, titulo: "O bardo", tag: "Personagens", destaque: false, visivel: true },
+    { img: "assets/obras/cavaleiro-de-pelucia.webp", mini: "assets/obras/cavaleiro-de-pelucia-g.webp", w: 1440, h: 1800, titulo: "Cavaleiro de pelúcia", tag: "Personagens", destaque: false, visivel: true },
+    { img: "assets/obras/smile.webp", mini: "assets/obras/smile-g.webp", w: 1440, h: 1800, titulo: "Smile", tag: "Pôsteres", destaque: false, visivel: true },
+    { img: "assets/obras/rosa-choque.webp", mini: "assets/obras/rosa-choque-g.webp", w: 1350, h: 1688, titulo: "Rosa choque", tag: "Personagens", destaque: false, visivel: true },
+    { img: "assets/obras/bandana.webp", mini: "assets/obras/bandana-g.webp", w: 1080, h: 1080, titulo: "Bandana", tag: "Personagens", destaque: false, visivel: true },
+    { img: "assets/obras/hey.webp", mini: "assets/obras/hey-g.webp", w: 1080, h: 1080, titulo: "Hey!", tag: "Personagens", destaque: false, visivel: true },
+    { img: "assets/obras/iris.webp", mini: "assets/obras/iris-g.webp", w: 1350, h: 1688, titulo: "Íris", tag: "Estudos", destaque: false, visivel: true },
+    { img: "assets/obras/estudo-de-luz.webp", mini: "assets/obras/estudo-de-luz-g.webp", w: 1350, h: 1688, titulo: "Estudo de luz", tag: "Estudos", destaque: false, visivel: true },
+    { img: "assets/obras/olhar.webp", mini: "assets/obras/olhar-g.webp", w: 1350, h: 1688, titulo: "Olhar", tag: "Estudos", destaque: false, visivel: true },
+    { img: "assets/obras/iris-azul.webp", mini: "assets/obras/iris-azul-g.webp", w: 1350, h: 1688, titulo: "Íris azul", tag: "Estudos", destaque: false, visivel: true },
+    { img: "assets/obras/dama-em-lineart.webp", mini: "assets/obras/dama-em-lineart-g.webp", w: 1351, h: 1800, titulo: "Dama em lineart", tag: "Estudos", destaque: false, visivel: true },
+    { img: "assets/obras/caderno-de-campanha.webp", mini: "assets/obras/caderno-de-campanha-g.webp", w: 1440, h: 1007, titulo: "Caderno de campanha", tag: "Estudos", destaque: false, visivel: true },
+    { img: "assets/obras/caderno-alvar.webp", mini: "assets/obras/caderno-alvar-g.webp", w: 1800, h: 1260, titulo: "Caderno: Alvar", tag: "Estudos", destaque: false, visivel: true },
+    { img: "assets/obras/alvar-acorrentado.webp", mini: "assets/obras/alvar-acorrentado-g.webp", w: 1800, h: 1264, titulo: "Alvar acorrentado", tag: "Estudos", destaque: false, visivel: true },
+    { img: "assets/obras/caderno-portao.webp", mini: "assets/obras/caderno-portao-g.webp", w: 1440, h: 1011, titulo: "Caderno: o portão", tag: "Estudos", destaque: false, visivel: true },
+    { img: "assets/obras/queda.webp", mini: "assets/obras/queda-g.webp", w: 1800, h: 1264, titulo: "Queda", tag: "Estudos", destaque: false, visivel: true },
+    { img: "assets/obras/processo.webp", mini: "assets/obras/processo-g.webp", w: 1350, h: 1800, titulo: "Processo", tag: "Estudos", destaque: false, visivel: true },
+    { img: "assets/obras/rascunho.webp", mini: "assets/obras/rascunho-g.webp", w: 1350, h: 1800, titulo: "Rascunho no papel", tag: "Estudos", destaque: false, visivel: true }
   ],
 
   links: [
@@ -198,7 +206,7 @@ var PADRAO = {
     grao: true,
     barras: true,
     movimento: "normal", // "normal" | "suave" | "desligado"
-    tema: "auto"         // "auto" | "escuro" | "claro"
+    tema: "claro"        // "auto" | "escuro" | "claro" — a Bru pediu o site sempre claro
   }
 };
 

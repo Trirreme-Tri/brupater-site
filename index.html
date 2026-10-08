@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Brunna Paternostro · RPG Character Creation</title>
 <meta name="description" content="Brunna Paternostro (@_.brupater): ilustração de personagens de RPG, portfólio, agenda e encomendas.">
-<meta name="theme-color" content="#0E0A0F">
+<meta name="theme-color" content="#EFE6E1">
 <link rel="icon" href="assets/avatar.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,6 +21,7 @@
 <script src="js/cinema.js" defer></script>
 <script src="js/agenda.js" defer></script>
 <script src="js/site.js" defer></script>
+<script src="js/vitrine.js" defer></script>
 </head>
 <body data-pagina="inicio">
 
@@ -28,29 +29,37 @@
 
 <main id="topo">
 
-<!-- ===== CENA 01 · abertura ===== -->
-<section class="abertura" id="abertura" data-topo aria-label="Abertura">
-  <div class="abertura-img" id="abertura-img" role="img" aria-label="Ilustração da Brunna: uma guerreira cavalgando para fora de um portão de pedra"></div>
-  <div class="vinheta"></div>
-  <div class="barra-cine topo" aria-hidden="true"></div>
-  <div class="barra-cine base" aria-hidden="true"></div>
+<!-- ===== CENA 01 · vitrine (carrossel de destaques, fundo claro) ===== -->
+<section class="vitrine" id="abertura" data-topo aria-roledescription="carrossel" aria-label="Artes em destaque">
+  <div class="wrap">
+    <header class="vit-cab">
+      <p class="rotulo vit-kicker"><span class="timecode">CENA 01</span> <span id="ab-kicker"></span></p>
+      <div class="vit-status" id="ab-status"></div>
+    </header>
 
-  <div class="abertura-txt wrap">
-    <p class="rotulo abertura-kicker"><span class="timecode">CENA 01</span> <span id="ab-kicker"></span></p>
-    <h1 class="abertura-titulo t-cinema" id="ab-nome"></h1>
-    <p class="abertura-frase t-mao" id="ab-frase"></p>
-    <p class="abertura-legenda" id="ab-legenda"></p>
-    <div class="abertura-ctas">
-      <a class="btn cheio" href="encomendas.html">Crie seu personagem</a>
-      <a class="btn" href="portfolio.html">Ver portfólio</a>
-      <a class="btn trilha" id="ab-trilha" href="#" target="_blank" rel="noopener" hidden>
-        <span aria-hidden="true">&#9654;</span> <span id="ab-trilha-txt"></span>
-      </a>
+    <div class="vit-grade">
+      <div class="vit-palco" id="vit-palco" aria-live="off"></div>
+
+      <aside class="vit-info" aria-live="polite">
+        <p class="rotulo vit-contador" id="vit-contador"></p>
+        <p class="vit-tag rotulo" id="vit-tag"></p>
+        <h1 class="vit-titulo t-cinema" id="vit-titulo"></h1>
+        <button type="button" class="vit-ampliar" id="vit-ampliar">ver em tela cheia &#8599;</button>
+        <hr class="vit-linha">
+        <p class="vit-frase t-mao" id="ab-frase"></p>
+        <p class="vit-legenda" id="ab-legenda"></p>
+        <div class="vit-ctas">
+          <a class="btn cheio" href="encomendas.html">Crie seu personagem</a>
+          <a class="btn" href="portfolio.html">Ver portfólio</a>
+          <a class="btn trilha" id="ab-trilha" href="#" target="_blank" rel="noopener" hidden>
+            <span aria-hidden="true">&#9654;</span> <span id="ab-trilha-txt"></span>
+          </a>
+        </div>
+      </aside>
     </div>
-  </div>
 
-  <div class="abertura-status" id="ab-status"></div>
-  <a class="role" href="#creditos"><span>role para dar play</span><i aria-hidden="true"></i></a>
+    <div class="vit-miniaturas" id="vit-miniaturas" role="tablist" aria-label="Escolher arte"></div>
+  </div>
 </section>
 
 <!-- ===== créditos iniciais: links ===== -->
@@ -76,7 +85,7 @@
 
     <div class="ficha-palco">
       <p class="ficha-palavra t-poster" id="ficha-palavra" aria-hidden="true"></p>
-      <img class="ficha-arte" id="ficha-arte" src="assets/hey.webp" width="1016" height="1016" alt="Ilustração da Brunna: a tiefling de cabelo rosa acenando" loading="lazy">
+      <img class="ficha-arte" id="ficha-arte" src="assets/obras/hey.webp" width="1080" height="1080" alt="Ilustração da Brunna: a tiefling de cabelo rosa acenando" loading="lazy">
     </div>
 
     <div class="ficha-base">

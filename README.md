@@ -36,7 +36,7 @@ js/
   encomenda.js      calculadora de encomendas
   admin.js          painel
   apresentacao.js   partes dinâmicas da apresentação
-assets/             imagens (.webp); portfólio em assets/galeria/
+assets/             imagens (.webp); portfólio em assets/obras/ (duas versões: -g.webp para a grade, .webp grande)
 ```
 
 **Agenda:** cada sessão tem data de abertura e número de vagas. O estado é
