@@ -98,6 +98,7 @@ function cortinaPreparar() {
   var jaViu = false;
   try { jaViu = sessionStorage.getItem("brupater:intro") === "1"; } catch (e) {}
   if (jaViu) c.className += " rapida";
+  document.documentElement.classList.add("esperando-cena");
   var nome = document.getElementById("cort-nome"), sub = document.getElementById("cort-sub"), av = document.getElementById("cort-avatar");
   if (nome) nome.textContent = p.nome || "";
   if (sub) sub.textContent = p.titulo || "";

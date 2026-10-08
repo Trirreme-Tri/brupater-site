@@ -85,8 +85,30 @@ var Site = (function () {
     var fundo = cab.querySelector(".cab-img");
     fundo.style.backgroundImage = "url('" + img(c.img) + "')";
     fundo.style.setProperty("--foco", c.foco || "50% 40%");
+    medirArte(cab, img(c.img));
     cab.querySelector(".cab-titulo").textContent = c.titulo || "";
     cab.querySelector(".cab-sub").textContent = c.sub || "";
+  }
+
+  /* A arte do topo fica encostada à direita na altura toda. Pra borda esquerda
+     dela se dissolver no degradê (sem corte reto), o CSS precisa saber onde a
+     arte começa: calculamos isso pelo tamanho real da imagem (--arte-ini). */
+  var medirTimer;
+  function medirArte(cab, url) {
+    if (!url) return;
+    var im = new Image();
+    im.onload = function () {
+      function medir() {
+        var box = cab.querySelector(".cab-img");
+        if (!box || !im.naturalHeight) return;
+        var larg = box.clientHeight * im.naturalWidth / im.naturalHeight;
+        var ini = Math.max(0, (box.clientWidth - larg) / box.clientWidth * 100);
+        box.style.setProperty("--arte-ini", ini.toFixed(1) + "%");
+      }
+      medir();
+      window.addEventListener("resize", function () { clearTimeout(medirTimer); medirTimer = setTimeout(medir, 150); });
+    };
+    im.src = url;
   }
 
   /* ===== início ===== */

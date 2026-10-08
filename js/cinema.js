@@ -47,10 +47,15 @@ var Cinema = (function () {
      Progresso de verdade: imagens da tela + fontes. Quando termina (ou passa
      do tempo máximo), as faixas se abrem. Primeira visita: versão completa,
      com um tempo mínimo pra dar pra ver; depois, só a abertura rápida. */
+  /* avisa o CSS que a "cena" começou (letreiro do topo, arte assentando) */
+  function cenaAberta() {
+    raiz.classList.remove("esperando-cena");
+    raiz.classList.add("cena-aberta");
+  }
   function cortina() {
     var c = document.getElementById("cortina");
-    if (!c) return;
-    if (c.classList.contains("pular")) { c.remove(); return; }
+    if (!c) { cenaAberta(); return; }
+    if (c.classList.contains("pular")) { c.remove(); cenaAberta(); return; }
     var rapida = c.classList.contains("rapida");
     if (semMovimento()) c.classList.add("simples");
     var barra = document.getElementById("cort-prog"), pct = document.getElementById("cort-pct");
@@ -78,6 +83,7 @@ var Cinema = (function () {
       try { sessionStorage.setItem("brupater:intro", "1"); } catch (e) {}
       document.body.classList.add(c.classList.contains("simples") ? "simples-revelando" : "revelando");
       c.classList.add("abrindo");
+      cenaAberta();
       setTimeout(function () { c.remove(); document.body.classList.remove("revelando", "simples-revelando"); }, rapida ? 1000 : 1700);
     }
 

@@ -674,27 +674,66 @@ html[data-movimento="desligado"] .fila-barra i.agora { animation: none; }
 body[data-pagina="projeto"] { background: var(--casa-bg); }
 
 /* ===================== topo das páginas internas =====================
-   Portfólio, agenda e encomendas: degradê do tom do fundo (claro ou escuro)
-   vindo da esquerda, como no modelo anterior, e a arte SEM zoom: aparece na
-   altura toda, encostada à direita, sobre uma cópia dela desfocada. */
-.cabecalho { height: 62vh; height: 62svh; min-height: 440px; max-height: 760px; background: var(--casa-bg); color: var(--casa-ink); }
-.cabecalho .barra-cine { display: none; }
-.cabecalho .cab-img { left: 28%; background-size: 0 0; animation: none; isolation: isolate; }
+   Portfólio, agenda e encomendas, como no modelo anterior: o tom do fundo
+   (claro ou escuro) vem da esquerda e SOMBREIA a arte num degradê longo e
+   suave; a arte aparece na altura toda, sem zoom.
+   Efeitos de cinema (só uma vez, ao abrir; depois tudo fica parado):
+   - faixas pretas de cinema que se recolhem
+   - a arte "assenta": sai de um leve zoom e de uma luz baixa
+   - o título sobe por trás de uma máscara, como letreiro
+   - vinheta: as bordas da arte escurecem, como lente de cinema */
+.cabecalho { height: 64vh; height: 64svh; min-height: 460px; max-height: 780px; background: var(--casa-bg); color: var(--casa-ink); }
+.cabecalho .cab-img { --arte-ini: 30%; left: 22%; background-size: 0 0; animation: none; isolation: isolate; overflow: hidden;
+  /* a caixa inteira (inclusive o fundo desfocado) nasce do nada à esquerda */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 30%); mask-image: linear-gradient(90deg, transparent 0, #000 30%); }
 .cabecalho .cab-img::before, .cabecalho .cab-img::after { content: ""; position: absolute; inset: 0; background-image: inherit; background-repeat: no-repeat; }
-.cabecalho .cab-img::before { inset: -50px; background-size: cover; background-position: center; filter: blur(40px) saturate(1.1); opacity: .7; }
-.cabecalho .cab-img::after { background-size: auto 100%; background-position: right center; }
+/* fundo: a própria arte bem desfocada, preenchendo o espaço */
+.cabecalho .cab-img::before { inset: -60px; background-size: cover; background-position: center; filter: blur(42px) saturate(1.15) brightness(.9); opacity: .75; }
+/* a arte nítida, com a borda esquerda se dissolvendo no degradê (sem corte reto) */
+.cabecalho .cab-img::after { background-size: auto 100%; background-position: right center;
+  -webkit-mask-image: linear-gradient(90deg, transparent var(--arte-ini), rgba(0, 0, 0, .6) calc(var(--arte-ini) + 12%), #000 calc(var(--arte-ini) + 26%));
+  mask-image: linear-gradient(90deg, transparent var(--arte-ini), rgba(0, 0, 0, .6) calc(var(--arte-ini) + 12%), #000 calc(var(--arte-ini) + 26%)); }
+/* os efeitos começam quando a cortina abre (html.cena-aberta, js/cinema.js) */
+.cena-aberta .cabecalho .cab-img::after { animation: cab-assenta 2.6s cubic-bezier(.2, .7, .1, 1) both; }
+@keyframes cab-assenta { from { transform: scale(1.07); filter: brightness(.55) saturate(.8); } to { transform: none; filter: none; } }
+/* sombreamento: degradê longo do tom do fundo + vinheta de lente + menu legível */
 .cabecalho::after { background:
-  linear-gradient(180deg, color-mix(in srgb, var(--casa-bg) 85%, transparent) 0, transparent 120px),
-  linear-gradient(90deg, var(--casa-bg) 28%, color-mix(in srgb, var(--casa-bg) 72%, transparent) 46%, transparent 72%); }
-.cab-titulo { text-shadow: none; }
+  radial-gradient(130% 120% at 82% 45%, transparent 48%, color-mix(in srgb, #000 38%, transparent) 100%),
+  linear-gradient(180deg, color-mix(in srgb, var(--casa-bg) 85%, transparent) 0, transparent 130px),
+  linear-gradient(0deg, color-mix(in srgb, var(--casa-bg) 70%, transparent) 0, transparent 30%),
+  linear-gradient(90deg, var(--casa-bg) 22%, color-mix(in srgb, var(--casa-bg) 88%, transparent) 34%, color-mix(in srgb, var(--casa-bg) 55%, transparent) 50%, color-mix(in srgb, var(--casa-bg) 18%, transparent) 66%, transparent 80%); }
+/* (as faixas de cinema são as da cortina, que abrem a página toda) */
+.cabecalho .barra-cine { display: none; }
+/* letreiro: o título sobe por trás de uma máscara; a frase vem depois */
+.cab-titulo { text-shadow: none; clip-path: inset(-10% -5% -10% -5%); }
+.cena-aberta .cab-titulo { animation: cab-letreiro 1.4s .35s cubic-bezier(.2, .7, .1, 1) both; }
+@keyframes cab-letreiro { from { opacity: 0; transform: translateY(32%); letter-spacing: .06em; filter: blur(6px); } to { opacity: 1; transform: none; letter-spacing: normal; filter: none; } }
+.cena-aberta .cab-txt .rotulo, .cena-aberta .cab-sub { animation: cab-surge 1s .9s ease both; }
+/* enquanto a cortina não abre, o letreiro espera escondido (trava: aparece sozinho em 7s) */
+.esperando-cena .cab-titulo, .esperando-cena .cab-txt .rotulo, .esperando-cena .cab-sub { opacity: 0; animation: cena-seguranca .01s 7s forwards; }
+@keyframes cena-seguranca { to { opacity: 1; } }
+@keyframes cab-surge { from { opacity: 0; transform: translateY(10px); } }
 .cab-sub { color: var(--casa-soft); }
-.cab-txt { padding-top: 100px; padding-bottom: 40px; }
+.cab-txt { padding-top: 100px; padding-bottom: 44px; }
 @media (max-width: 760px) {
-  .cabecalho { height: auto; min-height: 480px; }
-  .cabecalho .cab-img { left: 0; bottom: 34%; }
-  .cabecalho .cab-img::after { background-size: contain; background-position: center top 74px; }
-  .cabecalho::after { background: linear-gradient(180deg, color-mix(in srgb, var(--casa-bg) 55%, transparent) 0, transparent 20%, transparent 50%, var(--casa-bg) 68%); }
+  .cabecalho { height: auto; min-height: 500px; }
+  .cabecalho .cab-img { left: 0; bottom: 30%; -webkit-mask-image: none; mask-image: none; }
+  .cabecalho .cab-img::after { background-size: contain; background-position: center top 72px;
+    -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 96%); mask-image: linear-gradient(180deg, #000 62%, transparent 96%); }
+  .cabecalho::after { background:
+    radial-gradient(120% 80% at 50% 30%, transparent 50%, color-mix(in srgb, #000 30%, transparent) 100%),
+    linear-gradient(180deg, color-mix(in srgb, var(--casa-bg) 60%, transparent) 0, transparent 18%, transparent 46%, color-mix(in srgb, var(--casa-bg) 85%, transparent) 62%, var(--casa-bg) 72%); }
 }
+/* quem pediu menos movimento (ou "Animações: desligadas" no painel): tudo já parado */
+html[data-movimento="desligado"] .cabecalho .cab-img::after, html[data-movimento="desligado"] .cab-titulo,
+html[data-movimento="desligado"] .cab-txt .rotulo, html[data-movimento="desligado"] .cab-sub { animation: none !important; opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .cabecalho .cab-img::after, .cab-titulo, .cab-txt .rotulo, .cab-sub { animation: none !important; opacity: 1; }
+}
+
+/* topo da página inicial: mesma vinheta de lente por cima da arte */
+.vit-veu::after { content: ""; position: absolute; inset: 0; background: radial-gradient(130% 110% at 60% 40%, transparent 55%, color-mix(in srgb, #000 30%, transparent) 100%); }
+
 /* barra do topo (menu): cores do painel, separadas por modo claro/escuro */
 .nav { color: var(--nav-ink); }
 .nav.solida { background: color-mix(in srgb, var(--nav-bg) 90%, transparent); color: var(--nav-ink); }
