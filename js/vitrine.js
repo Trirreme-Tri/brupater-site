@@ -5,6 +5,9 @@
  * nos destaques da Steam). As artes vêm da galeria com "destaque: true".
  *
  * Como funciona:
+ * - As artes ocupam a tela inteira, sem moldura (painel → Cenas → Topo:
+ *   "fundo" cobre a tela, "inteira" mostra a arte inteira). O botão
+ *   "ver arte inteira" abre a arte em tela cheia, sem corte.
  * - As artes passam pro lado sozinhas, num loop infinito (depois da última
  *   vem a primeira, sempre no mesmo sentido).
  * - O movimento acontece SÓ na troca: a nova entra deslizando com um leve
@@ -52,10 +55,14 @@ var Vitrine = (function () {
     lista = destaques();
     if (atual >= lista.length) atual = 0;
     palco.classList.toggle("vit-fade", modoFade());
+    /* "fundo" = a arte cobre a tela toda; "inteira" = aparece inteira sobre ela mesma desfocada */
+    var modo = (SITE.cenas.abertura || {}).modo === "inteira" ? "inteira" : "fundo";
+    palco.classList.toggle("modo-inteira", modo === "inteira");
+    palco.classList.toggle("modo-fundo", modo === "fundo");
     palco.innerHTML = lista.map(function (o, i) {
       return '<figure class="vit-slide" data-i="' + i + '" aria-roledescription="slide" aria-label="' + (i + 1) + " de " + lista.length + '">' +
         '<div class="vit-fundo" style="background-image:url(\'' + esc(mini(o)) + '\')"></div>' +
-        '<img data-src="' + esc(grande(o)) + '" alt="' + esc(o.titulo || "Arte da Brunna") + '"' +
+        '<img data-src="' + esc(grande(o)) + '" alt="' + esc(o.titulo || "Arte da Brunna") + '" style="--foco:' + esc(o.foco || "50% 35%") + '"' +
         (o.w && o.h ? ' width="' + o.w + '" height="' + o.h + '"' : "") + ' decoding="async"></figure>';
     }).join("");
     $("#vit-miniaturas").innerHTML = lista.map(function (o, i) {

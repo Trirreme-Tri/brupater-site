@@ -113,7 +113,8 @@
   function opcoesFoco(caminho) {
     var atual = get(caminho);
     var lista = FOCOS.slice();
-    if (!lista.some(function (f) { return f.v === atual; })) lista.unshift({ v: atual, t: "Personalizado (" + atual + ")" });
+    if (!atual) lista.unshift({ v: "", t: "Padrão" });
+    else if (!lista.some(function (f) { return f.v === atual; })) lista.unshift({ v: atual, t: "Personalizado (" + atual + ")" });
     return lista;
   }
 
@@ -250,7 +251,8 @@
         return '<div class="obra-admin' + (o.visivel === false ? " oculta" : "") + '">' + campoImg(c + ".img", "Arte") +
           linha(campo(c + ".titulo", "Título"), campo(c + ".tag", "Categoria", { lista: "tags-galeria", ajuda: "Vira um filtro no site." })) +
           campo(c + ".visivel", "Aparecer no site", { tipo: "check" }) +
-          campo(c + ".destaque", "Destaque no carrossel do topo da página inicial", { tipo: "check" }) + "</div>";
+          campo(c + ".destaque", "Destaque no carrossel do topo da página inicial", { tipo: "check" }) +
+          (o.destaque ? campo(c + ".foco", "Parte em destaque no topo", { tipo: "select", opcoes: opcoesFoco(c + ".foco"), ajuda: "Quando a arte cobre a tela toda, é essa parte que aparece." }) : "") + "</div>";
       }, function () { return { img: "", titulo: "Nova arte", tag: tags[0] || "Personagens", visivel: true, destaque: false }; }, "Adicionar arte por link"));
   }
 
@@ -289,6 +291,7 @@
   /* ----- 04 cenas ----- */
   function abaCenas() {
     return secao("Topo da página inicial (carrossel)", "As artes que passam no topo são as marcadas como \"Destaque\" na aba Galeria, na mesma ordem. Aqui ficam só os textos.",
+        campo("cenas.abertura.modo", "Como as artes aparecem", { tipo: "select", opcoes: [{ v: "fundo", t: "Cobrindo a tela toda (com botão \"ver arte inteira\")" }, { v: "inteira", t: "Arte inteira, sem corte, sobre ela mesma desfocada" }], ajuda: "Cobrindo a tela, cada arte mostra a parte escolhida em \"Parte em destaque no topo\" (aba Galeria)." }) +
         campo("cenas.abertura.kicker", "Linha pequena no alto") +
         campo("cenas.abertura.legenda", "Texto curto abaixo da frase", { tipo: "textarea", linhas: 2 })) +
       ["portfolio", "agenda", "encomendas"].map(function (k) {
@@ -399,7 +402,8 @@
         campo("aparencia.grao", "Grão de filme por cima do site", { tipo: "check" }) +
         
         linha(campo("aparencia.movimento", "Animações", { tipo: "select", opcoes: [{ v: "normal", t: "Normais" }, { v: "suave", t: "Suaves" }, { v: "desligado", t: "Desligadas" }] }),
-              campo("aparencia.tema", "Tema de quem visita", { tipo: "select", opcoes: [{ v: "auto", t: "Igual ao celular/computador da pessoa" }, { v: "escuro", t: "Sempre escuro" }, { v: "claro", t: "Sempre claro" }], ajuda: "Em \"igual ao celular\", o site fica claro ou escuro conforme o aparelho de quem visita." })));
+              campo("aparencia.tema", "Tema inicial", { tipo: "select", opcoes: [{ v: "claro", t: "Claro" }, { v: "escuro", t: "Escuro" }, { v: "auto", t: "Igual ao celular/computador da pessoa" }], ajuda: "Como o site abre na primeira visita." })) +
+        campo("aparencia.botaoTema", "Mostrar o botão sol/lua no topo (quem visita escolhe claro ou escuro)", { tipo: "check" }));
   }
 
   /* ----- 09 backup ----- */

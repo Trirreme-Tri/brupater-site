@@ -33,6 +33,9 @@ var PADRAO = {
     /* topo da página inicial: as artes do carrossel vêm da galeria (destaque: true) */
     abertura: {
       kicker: "Illustrator & Graphic Design",
+      /* "fundo": a arte cobre a tela toda (com botão "ver arte inteira");
+         "inteira": a arte aparece inteira, sem corte, sobre ela mesma desfocada */
+      modo: "fundo",
       legenda: "Personagens, cenas e identidades visuais ganhando cor, traço e história."
     },
     interludio1: {
@@ -238,15 +241,16 @@ var PADRAO = {
   ],
 
   /* destaque: true = aparece no carrossel do topo da página inicial (na ordem da lista).
+     foco = a parte da arte que fica visível no topo quando ela cobre a tela.
      mini = versão menor usada na grade; img = versão grande da tela cheia. */
   galeria: [
-    { img: "assets/obras/correnteza.webp", mini: "assets/obras/correnteza-g.webp", w: 1350, h: 1800, titulo: "Correnteza", tag: "Cenas", destaque: true, visivel: true },
-    { img: "assets/obras/a-fuga.webp", mini: "assets/obras/a-fuga-g.webp", w: 1440, h: 1439, titulo: "A fuga", tag: "Cenas", destaque: true, visivel: true },
-    { img: "assets/obras/catedral.webp", mini: "assets/obras/catedral-g.webp", w: 1350, h: 1800, titulo: "Catedral", tag: "Cenas", destaque: true, visivel: true },
-    { img: "assets/obras/tiefling-cartas.webp", mini: "assets/obras/tiefling-cartas-g.webp", w: 1350, h: 1800, titulo: "Tiefling das cartas", tag: "Personagens", destaque: true, visivel: true },
-    { img: "assets/obras/commissions-open.webp", mini: "assets/obras/commissions-open-g.webp", w: 1440, h: 1800, titulo: "Commissions Open", tag: "Pôsteres", destaque: true, visivel: true },
-    { img: "assets/obras/sombra-dourada.webp", mini: "assets/obras/sombra-dourada-g.webp", w: 1440, h: 1439, titulo: "Sombra dourada", tag: "Cenas", destaque: true, visivel: true },
-    { img: "assets/obras/brasa.webp", mini: "assets/obras/brasa-g.webp", w: 1080, h: 1080, titulo: "Brasa", tag: "Personagens", destaque: true, visivel: true },
+    { img: "assets/obras/correnteza.webp", mini: "assets/obras/correnteza-g.webp", w: 1350, h: 1800, titulo: "Correnteza", tag: "Cenas", destaque: true, visivel: true, foco: "50% 30%" },
+    { img: "assets/obras/a-fuga.webp", mini: "assets/obras/a-fuga-g.webp", w: 1440, h: 1439, titulo: "A fuga", tag: "Cenas", destaque: true, visivel: true, foco: "45% 45%" },
+    { img: "assets/obras/catedral.webp", mini: "assets/obras/catedral-g.webp", w: 1350, h: 1800, titulo: "Catedral", tag: "Cenas", destaque: true, visivel: true, foco: "50% 22%" },
+    { img: "assets/obras/tiefling-cartas.webp", mini: "assets/obras/tiefling-cartas-g.webp", w: 1350, h: 1800, titulo: "Tiefling das cartas", tag: "Personagens", destaque: true, visivel: true, foco: "50% 28%" },
+    { img: "assets/obras/commissions-open.webp", mini: "assets/obras/commissions-open-g.webp", w: 1440, h: 1800, titulo: "Commissions Open", tag: "Pôsteres", destaque: true, visivel: true, foco: "50% 32%" },
+    { img: "assets/obras/sombra-dourada.webp", mini: "assets/obras/sombra-dourada-g.webp", w: 1440, h: 1439, titulo: "Sombra dourada", tag: "Cenas", destaque: true, visivel: true, foco: "40% 22%" },
+    { img: "assets/obras/brasa.webp", mini: "assets/obras/brasa-g.webp", w: 1080, h: 1080, titulo: "Brasa", tag: "Personagens", destaque: true, visivel: true, foco: "60% 32%" },
     { img: "assets/obras/oasis.webp", mini: "assets/obras/oasis-g.webp", w: 1350, h: 1688, titulo: "Oásis", tag: "Pôsteres", destaque: false, visivel: true },
     { img: "assets/obras/elfa-das-aguas.webp", mini: "assets/obras/elfa-das-aguas-g.webp", w: 1080, h: 1080, titulo: "Elfa das águas", tag: "Personagens", destaque: false, visivel: true },
     { img: "assets/obras/stand-up-and-fight.webp", mini: "assets/obras/stand-up-and-fight-g.webp", w: 1440, h: 1440, titulo: "Stand up and fight", tag: "Cenas", destaque: false, visivel: true },
@@ -309,7 +313,8 @@ var PADRAO = {
     grao: true,
     barras: true,
     movimento: "normal", // "normal" | "suave" | "desligado"
-    tema: "claro"        // "auto" | "escuro" | "claro" — a Bru pediu o site sempre claro
+    tema: "claro",       // tema inicial: "claro" | "escuro" | "auto" (segue o aparelho)
+    botaoTema: true      // botão sol/lua no topo pra quem visita trocar entre claro e escuro
   }
 };
 

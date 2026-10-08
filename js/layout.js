@@ -23,6 +23,7 @@
         return '<a href="' + i.href + '"' + (i.id === pagina ? ' aria-current="page"' : "") + ">" + i.nome + "</a>";
       }).join("") + "</nav>" +
       '<div class="nav-acoes">' +
+        '<button class="tema-btn" type="button" id="tema-btn" aria-label="Trocar tema claro ou escuro"></button>' +
         '<a class="btn cheio nav-cta" href="encomendas.html"' + (pagina === "encomendas" ? ' aria-current="page"' : "") + ">Encomendar</a>" +
         '<button class="menu-btn" type="button" id="menu-btn" aria-expanded="false" aria-controls="menu-movel" aria-label="Abrir menu"><span></span><span></span></button>' +
       "</div>" +

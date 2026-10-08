@@ -32,31 +32,33 @@
 
 <!-- ===== topo: carrossel de destaques (fundo claro) ===== -->
 <section class="vitrine" id="abertura" data-topo aria-roledescription="carrossel" aria-label="Artes em destaque">
-  <div class="wrap">
+  <div class="vit-palco" id="vit-palco" aria-live="off"></div>
+  <div class="vit-veu" aria-hidden="true"></div>
+
+  <div class="wrap vit-conteudo">
     <header class="vit-cab">
       <p class="rotulo vit-kicker" id="ab-kicker"></p>
       <div class="vit-status" id="ab-status"></div>
     </header>
 
-    <div class="vit-grade">
-      <div class="vit-palco" id="vit-palco" aria-live="off"></div>
-
-      <aside class="vit-info">
+    <div class="vit-base">
+      <div class="vit-info">
         <h1 class="so-leitor" id="ab-h1"></h1>
         <p class="vit-frase t-mao" id="ab-frase"></p>
         <p class="vit-legenda" id="ab-legenda"></p>
         <div class="vit-ctas">
           <a class="btn cheio" href="encomendas.html">Fazer encomenda</a>
-          <a class="btn" href="portfolio.html">Ver portfólio</a>
+          <a class="btn" href="#projetos">Ver projetos</a>
           <a class="btn trilha" id="ab-trilha" href="#" target="_blank" rel="noopener" hidden>
             <span aria-hidden="true">&#9654;</span> <span id="ab-trilha-txt"></span>
           </a>
         </div>
-        <button type="button" class="vit-ampliar" id="vit-ampliar">ver em tela cheia &#8599;</button>
-      </aside>
+      </div>
+      <div class="vit-lado">
+        <button type="button" class="vit-ampliar" id="vit-ampliar"><span aria-hidden="true">&#10530;</span> <span class="txt">ver arte inteira</span></button>
+        <div class="vit-miniaturas" id="vit-miniaturas" role="tablist" aria-label="Escolher arte"></div>
+      </div>
     </div>
-
-    <div class="vit-miniaturas" id="vit-miniaturas" role="tablist" aria-label="Escolher arte"></div>
   </div>
 </section>
 

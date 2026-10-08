@@ -439,6 +439,7 @@ var Site = (function () {
       if (window.Encomenda) Encomenda.recarregar();
       if (window.Vitrine) Vitrine.montar();
       if (window.Projetos) Projetos.render();
+      Cinema.pintarBotaoTema();
     });
 
     /* o texto do botão do WhatsApp aparece no topo da página; ao rolar, fica

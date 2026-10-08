@@ -5,6 +5,8 @@
  * cinema, movimento, tema claro/escuro). Roda no <head>, antes da página
  * aparecer, pra não piscar a cor padrão antes da escolhida.
  */
+var TEMA_CHAVE = "brupater:modo";
+
 function temaAplicar(site) {
   var ap = site.aparencia;
   var raiz = document.documentElement;
@@ -24,11 +26,13 @@ function temaAplicar(site) {
   raiz.dataset.barras = ap.barras ? "on" : "off";
   raiz.dataset.movimento = ap.movimento;
 
-  /* "auto" segue o modo claro/escuro do celular ou computador de quem visita.
-     Não tem botão de trocar no site; apaga escolhas antigas feitas no botão
-     que existia antes, pra ninguém ficar preso num tema. */
+  /* Tema inicial vem do painel ("claro", "escuro" ou "auto" = segue o aparelho).
+     Quem visita pode trocar no botão sol/lua do topo; essa escolha vale só
+     pra ela (fica no navegador dela). Sem o botão, vale sempre o do painel. */
   try { localStorage.removeItem("brupater:tema"); } catch (e) {}
-  var tema = ap.tema === "auto" ? "" : (ap.tema === "claro" ? "light" : "dark");
+  var escolha = null;
+  if (ap.botaoTema !== false) { try { escolha = localStorage.getItem(TEMA_CHAVE); } catch (e) {} }
+  var tema = escolha === "light" || escolha === "dark" ? escolha : (ap.tema === "auto" ? "" : (ap.tema === "escuro" ? "dark" : "light"));
   if (tema) raiz.setAttribute("data-theme", tema); else raiz.removeAttribute("data-theme");
 
   temaCarregarFontes(ap.fontes);

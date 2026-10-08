@@ -33,6 +33,13 @@
   --sombra: rgba(26, 18, 24, .16);
   --ring: var(--rosa);
 
+  /* página inicial e página de projeto: seguem o tema (claro = papel, escuro = cinema) */
+  --casa-bg: var(--papel);
+  --casa-bg2: color-mix(in srgb, var(--papel) 55%, white);
+  --casa-ink: var(--papel-ink);
+  --casa-soft: var(--papel-soft);
+  --casa-line: var(--papel-line);
+
   --f-cinema: "Oranienbaum", "Playfair Display", Georgia, serif;
   --f-poster: "Montserrat", system-ui, sans-serif;
   --f-mao: "Gochi Hand", "Comic Sans MS", cursive;
@@ -56,6 +63,11 @@
     --card: rgba(255, 255, 255, .045);
     --card-forte: color-mix(in srgb, var(--noite) 88%, white);
     --sombra: rgba(0, 0, 0, .5);
+    --casa-bg: var(--noite);
+    --casa-bg2: color-mix(in srgb, var(--noite) 86%, var(--vinho));
+    --casa-ink: var(--cine-ink);
+    --casa-soft: var(--cine-soft);
+    --casa-line: var(--cine-line);
     color-scheme: dark;
   }
 }
@@ -69,6 +81,11 @@
   --card: rgba(255, 255, 255, .045);
   --card-forte: color-mix(in srgb, var(--noite) 88%, white);
   --sombra: rgba(0, 0, 0, .5);
+  --casa-bg: var(--noite);
+  --casa-bg2: color-mix(in srgb, var(--noite) 86%, var(--vinho));
+  --casa-ink: var(--cine-ink);
+  --casa-soft: var(--cine-soft);
+  --casa-line: var(--cine-line);
   color-scheme: dark;
 }
 
