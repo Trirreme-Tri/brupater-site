@@ -125,7 +125,13 @@ var Musica = (function () {
     return '<button type="button" class="mu-tocar" data-mu="tocar"><span class="mu-tocar-ico">' + ICO.play + "</span><span>Tocar a trilha</span></button>";
   }
 
+  /* dentro do quadro da moldura (site.html) o player é o de fora */
+  function naMoldura() {
+    try { return window.parent !== window && !!window.parent.MOLDURA; } catch (e) { return false; }
+  }
+
   function montar() {
+    if (naMoldura()) return;
     if (raiz) raiz.remove();
     raiz = null; painel = null; aberto = false; carregado = false; fixo = false;
     var e = info();

@@ -10,6 +10,7 @@ com painel de edição. Desenvolvido pela [TRIRREME](https://trirreme.com).
 |---|---|---|
 | Início | `index.html` | Carrossel de destaques (fundo claro), projetos em coleções, links, ficha da personagem, interlúdios e chamadas para as outras páginas |
 | Avisos | `404.html`, `erro.html`, `manutencao.html` | Página não existe (o GitHub Pages usa o 404 sozinho), erro e site fora do ar |
+| Moldura da música | `site.html` (`js/moldura.js`) | Quando há trilha sonora, as páginas abrem dentro desta moldura: o mini player fica aqui fora e continua tocando ao trocar de página. A barra de endereço acompanha a página. Sem trilha, ou na prévia do painel, a moldura não é usada. `?sem-moldura=1` abre a página direto. |
 | Projeto | `projeto.html?p=<id>` | Um projeto inteiro (capa, texto e todas as imagens), como no Behance |
 | Portfólio | `portfolio.html` | Galeria com filtros e tela cheia |
 | Agenda | `agenda.html` | Situação atual, agendas por mês (vagas e ESGOTADO automático), calendário e fila |

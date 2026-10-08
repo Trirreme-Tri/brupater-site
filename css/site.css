@@ -827,6 +827,7 @@ body[data-pagina="aviso"] { background: var(--casa-bg); color: var(--casa-ink); 
 .musica { position: fixed; left: max(16px, env(safe-area-inset-left)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 70;
   display: flex; flex-direction: column; align-items: flex-start; gap: 12px; transition: bottom .35s var(--ease-cine); }
 body:has(.barra-total.ativa) .musica { bottom: 86px; }
+.barra-ativa .musica { bottom: 86px; }
 
 /* ----- botão: disco + nome + equalizador ----- */
 .mu-botao { position: relative; display: inline-flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 18px 6px 6px; border-radius: 999px; cursor: pointer;
@@ -950,3 +951,8 @@ body:has(.barra-total.ativa) .musica { bottom: 86px; }
   .musica.tocando .mu-disco, .musica.tocando .mu-eq i, .mu-tocar-ico { animation: none; }
 }
 html[data-movimento="desligado"] .musica.tocando .mu-disco, html[data-movimento="desligado"] .musica.tocando .mu-eq i, html[data-movimento="desligado"] .mu-tocar-ico { animation: none; }
+
+/* ===================== moldura (site.html) ===================== */
+body.moldura { margin: 0; background: var(--noite); overflow: hidden; }
+body.moldura::after { display: none; }
+#moldura { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: var(--noite); }

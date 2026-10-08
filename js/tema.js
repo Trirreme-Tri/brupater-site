@@ -107,3 +107,18 @@ function cortinaPreparar() {
 
 /* marca quando a página terminou de montar (usado pela tela de carregamento) */
 document.addEventListener("DOMContentLoaded", function () { window.PAGINA_PRONTA = true; });
+
+/* Música contínua entre páginas. Cada página carrega do zero, então um
+   player dentro dela pararia ao trocar de página. Com a trilha ligada, a
+   página é aberta dentro da "moldura" (site.html): o player fica na
+   moldura e só o conteúdo (num quadro) troca. Fica de fora: a prévia do
+   painel, quem já está dentro da moldura e quem desligou a trilha. */
+function molduraEntrar() {
+  try {
+    if (window.top !== window || window.PREVIA || /[?&]sem-moldura=1/.test(location.search)) return;
+    var t = (window.SITE && SITE.perfil && SITE.perfil.trilha) || {};
+    if (!t.url || t.mostrar === false) return;
+    var pagina = location.pathname.split("/").pop() || "index.html";
+    location.replace("site.html?p=" + encodeURIComponent(pagina + location.search + location.hash));
+  } catch (e) { /* se der qualquer erro, o site abre normal, só sem música contínua */ }
+}
