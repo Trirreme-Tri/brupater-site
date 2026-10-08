@@ -12,6 +12,10 @@
     var u = base + p[1];
     return '<li><b>' + p[0] + '</b><a class="url" href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(u.replace(/^https?:\/\//, "")) + "</a></li>";
   }).join("");
+  $("#paginas-aviso").innerHTML = [["Página não existe (404)", "404.html"], ["Algo deu errado", "erro.html"], ["Site fora do ar", "manutencao.html"]].map(function (p) {
+    var u = base + p[1];
+    return '<li><b>' + p[0] + '</b><a class="url" href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(u.replace(/^https?:\/\//, "")) + "</a></li>";
+  }).join("");
   $("#url-painel").textContent = (base + "admin.html").replace(/^https?:\/\//, "");
   $("#url-painel").href = base + "admin.html";
 

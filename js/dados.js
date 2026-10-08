@@ -33,9 +33,9 @@ var PADRAO = {
     /* topo da página inicial: as artes do carrossel vêm da galeria (destaque: true) */
     abertura: {
       kicker: "Illustrator & Graphic Design",
-      /* "fundo": a arte cobre a tela toda (com botão "ver arte inteira");
-         "inteira": a arte aparece inteira, sem corte, sobre ela mesma desfocada */
-      modo: "fundo",
+      /* "inteira": a arte aparece inteira, sem corte, centralizada (padrão);
+         "fundo": a arte cobre a tela toda (corta um pouco) */
+      modo: "inteira",
       legenda: "Personagens, cenas e identidades visuais ganhando cor, traço e história."
     },
     interludio1: {
@@ -148,6 +148,8 @@ var PADRAO = {
           itens: "Tudo do Completo · Manual da marca diagramado: aplicações, cores, tipografia, redução, área de proteção e usos incorretos" }
       ]
     },
+    /* a tabela de comissões (imagem) embaixo da calculadora */
+    tabela: { mostrar: true, img: "assets/tabela-comissoes.webp", w: 1350, h: 1688, legenda: "a tabela original, do jeitinho que ela aparece no Instagram ↗" },
     /* aparece com * logo abaixo do total */
     notaTotal: "Os valores podem variar de acordo com a complexidade da arte.",
     regras: [
@@ -156,6 +158,13 @@ var PADRAO = {
       "Pix (Brasil) ou PayPal (exterior)",
       "Sem reembolso ou cancelamento depois do pagamento"
     ]
+  },
+
+  /* Páginas de aviso: 404 (não existe), erro (algo deu errado) e manutenção (fora do ar) */
+  paginasAviso: {
+    naoEncontrada: { rotulo: "Erro 404 · cena perdida", titulo: "Ops, essa cena não existe", texto: "A página que você procurou não existe ou mudou de lugar. Mas tem muita arte te esperando no início.", botao: "Voltar ao início", img: "assets/obras/a-fuga.webp" },
+    erro: { rotulo: "Corta!", titulo: "Algo saiu do roteiro", texto: "Alguma coisa deu errado ao abrir esta página. Tenta de novo daqui a pouquinho; se continuar, me chama no WhatsApp.", botao: "Tentar de novo", img: "assets/obras/queda.webp" },
+    manutencao: { rotulo: "Bastidores", titulo: "Voltamos já", texto: "O site está passando por uns ajustes e volta em breve. Enquanto isso, me encontra no Instagram ou no WhatsApp.", botao: "Ir pro Instagram", img: "assets/obras/caderno-de-campanha.webp" }
   },
 
   /* Projetos = coleções. Na página inicial aparece só a capa; ao clicar abre
@@ -305,6 +314,14 @@ var PADRAO = {
       papel: "#EFE6E1",
       noite: "#0E0A0F"
     },
+    /* cores de cada modo (o botão sol/lua troca entre eles). As cores acima
+       (rosa, violeta...) são da marca e valem nos dois modos. */
+    modos: {
+      claro: { fundo: "#EFE6E1", secao: "#F6F1EE", texto: "#1A1218", textoSuave: "#5D4A53", barra: "#EFE6E1", barraTexto: "#1A1218", rodape: "#07050A", rodapeTexto: "#F6EDE9" },
+      escuro: { fundo: "#0E0A0F", secao: "#1E0D16", texto: "#F6EDE9", textoSuave: "#BCA9B0", barra: "#0E0A0F", barraTexto: "#F6EDE9", rodape: "#07050A", rodapeTexto: "#F6EDE9" }
+    },
+    /* tela de carregamento com abertura de cinema */
+    carregamento: true,
     fontes: {
       cinema: "Oranienbaum",
       poster: "Montserrat",

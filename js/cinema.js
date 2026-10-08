@@ -43,6 +43,63 @@ var Cinema = (function () {
     });
   }
 
+  /* ===== tela de carregamento → abertura de cinema =====
+     Progresso de verdade: imagens da tela + fontes. Quando termina (ou passa
+     do tempo máximo), as faixas se abrem. Primeira visita: versão completa,
+     com um tempo mínimo pra dar pra ver; depois, só a abertura rápida. */
+  function cortina() {
+    var c = document.getElementById("cortina");
+    if (!c) return;
+    if (c.classList.contains("pular")) { c.remove(); return; }
+    var rapida = c.classList.contains("rapida");
+    if (semMovimento()) c.classList.add("simples");
+    var barra = document.getElementById("cort-prog"), pct = document.getElementById("cort-pct");
+    var t0 = performance.now(), MIN = rapida ? 0 : 1300, MAX = rapida ? 2500 : 6000;
+    var total = 1, prontos = 0, mostrado = 0, alvo = 0, fim = false;
+
+    function pintar() {
+      mostrado += (alvo - mostrado) * 0.12;
+      if (alvo - mostrado < 0.004) mostrado = alvo;
+      if (barra) barra.style.transform = "scaleX(" + mostrado.toFixed(3) + ")";
+      if (pct) pct.textContent = Math.round(mostrado * 100) + "%";
+      if (!fim || mostrado < 1) requestAnimationFrame(pintar);
+    }
+    function um() { prontos++; alvo = Math.min(1, prontos / total); checar(); }
+    function checar() {
+      if (prontos >= total) terminar();
+    }
+    function terminar() {
+      if (fim) return;
+      fim = true; alvo = 1;
+      var espera = Math.max(0, MIN - (performance.now() - t0)) + (rapida ? 0 : 350);
+      setTimeout(abrir, espera);
+    }
+    function abrir() {
+      try { sessionStorage.setItem("brupater:intro", "1"); } catch (e) {}
+      document.body.classList.add(c.classList.contains("simples") ? "simples-revelando" : "revelando");
+      c.classList.add("abrindo");
+      setTimeout(function () { c.remove(); document.body.classList.remove("revelando", "simples-revelando"); }, rapida ? 1000 : 1700);
+    }
+
+    requestAnimationFrame(pintar);
+    setTimeout(terminar, MAX);
+    function contar() {
+      /* imagens que já estão na tela (as "lazy" ficam pra depois) */
+      var imgs = Array.prototype.filter.call(document.images, function (i) {
+        return i.getAttribute("src") && i.loading !== "lazy" && !c.contains(i);
+      });
+      total = imgs.length + 1;
+      imgs.forEach(function (i) {
+        if (i.complete) um();
+        else { i.addEventListener("load", um, { once: true }); i.addEventListener("error", um, { once: true }); }
+      });
+      (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(um, um);
+    }
+    /* conta depois que todos os scripts desenharam a página (DOMContentLoaded) */
+    if (window.PAGINA_PRONTA) setTimeout(contar, 0);
+    else document.addEventListener("DOMContentLoaded", contar);
+  }
+
   /* ===== entrada ao rolar ===== */
   var observador = null;
   function observar(escopo) {
@@ -132,6 +189,7 @@ var Cinema = (function () {
   function iniciar() {
     ligarLightbox();
     ligarTema();
+    cortina();
     window.addEventListener("scroll", aoRolar, { passive: true });
     window.addEventListener("resize", aoRolar);
     aoRolar();

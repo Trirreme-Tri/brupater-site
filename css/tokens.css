@@ -39,6 +39,10 @@
   --casa-ink: var(--papel-ink);
   --casa-soft: var(--papel-soft);
   --casa-line: var(--papel-line);
+  --nav-bg: var(--papel);
+  --nav-ink: var(--papel-ink);
+  --rodape-bg: #07050A;
+  --rodape-ink: #F6EDE9;
 
   --f-cinema: "Oranienbaum", "Playfair Display", Georgia, serif;
   --f-poster: "Montserrat", system-ui, sans-serif;
@@ -68,6 +72,8 @@
     --casa-ink: var(--cine-ink);
     --casa-soft: var(--cine-soft);
     --casa-line: var(--cine-line);
+    --nav-bg: var(--noite);
+    --nav-ink: var(--cine-ink);
     color-scheme: dark;
   }
 }
@@ -86,6 +92,8 @@
   --casa-ink: var(--cine-ink);
   --casa-soft: var(--cine-soft);
   --casa-line: var(--cine-line);
+  --nav-bg: var(--noite);
+  --nav-ink: var(--cine-ink);
   color-scheme: dark;
 }
 

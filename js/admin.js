@@ -26,7 +26,16 @@
   var $ = function (s) { return document.querySelector(s); };
   var rascunho = copiaProfunda(SITE);
   var sujo = false;
-  var abaAtual = "agenda";
+  var abaAtual = "inicio";
+  var modoCores = "claro"; // qual modo a aba de cores está editando
+
+  /* o painel aplica cores da marca e fontes em si mesmo (pra Bru ver), mas
+     NÃO as cores por modo: assim o painel nunca fica ilegível */
+  function aplicarNoPainel() {
+    temaAplicar(rascunho);
+    var st = document.getElementById("tema-modos");
+    if (st) st.textContent = "";
+  }
 
   /* ===================== caminho → valor ===================== */
   function get(caminho) {
@@ -86,7 +95,8 @@
       (ehArquivo
         ? '<p class="ajuda">Imagem enviada do computador. <button type="button" class="link-btn" data-limpar-img="' + caminho + '">trocar por link</button></p>'
         : '<input type="text" id="' + id + '" data-k="' + caminho + '" value="' + esc(v) + '" placeholder="assets/arte.webp ou https://...">') +
-      '<label class="btn mini-btn"><input type="file" accept="image/*" data-img="' + caminho + '" hidden>Enviar do computador</label>' +
+      '<span class="img-btns"><button type="button" class="btn mini-btn cheio" data-escolher="' + caminho + '">Escolher das minhas artes</button>' +
+      '<label class="btn mini-btn"><input type="file" accept="image/*" data-img="' + caminho + '" hidden>Enviar do computador</label></span>' +
       (ajuda ? '<small class="ajuda">' + ajuda + "</small>" : "") + "</div></div>";
   }
 
@@ -120,16 +130,17 @@
 
   /* ===================== abas ===================== */
   var ABAS = [
-    { id: "agenda", nome: "Agenda", icone: "agenda", render: abaAgenda },
-    { id: "encomendas", nome: "Preços e encomendas", icone: "dado", render: abaEncomendas },
-    { id: "galeria", nome: "Galeria", icone: "estrela", render: abaGaleria },
-    { id: "projetos", nome: "Projetos", icone: "artstation", render: abaProjetos },
-    { id: "cenas", nome: "Cenas e imagens", icone: "youtube", render: abaCenas },
-    { id: "perfil", nome: "Perfil e ficha", icone: "coracao", render: abaPerfil },
-    { id: "links", nome: "Links", icone: "link", render: abaLinks },
-    { id: "perguntas", nome: "Perguntas", icone: "email", render: abaPerguntas },
-    { id: "aparencia", nome: "Cores, fontes e estilo", icone: "musica", render: abaAparencia },
-    { id: "backup", nome: "Backup", icone: "loja", render: abaBackup }
+    { id: "inicio", nome: "Início", icone: "estrela", render: abaInicio, desc: "Atalhos pro que você mais usa. Tudo que mudar aparece na prévia ao lado; quando gostar, clique em Salvar.", previa: "index.html" },
+    { id: "agenda", nome: "Agenda e vagas", icone: "agenda", render: abaAgenda, desc: "Abrir e fechar encomendas, marcar vagas preenchidas, datas e a fila.", previa: "agenda.html" },
+    { id: "encomendas", nome: "Preços e pacotes", icone: "dado", render: abaEncomendas, desc: "Os preços da calculadora, os pacotes de identidade visual e a tabela.", previa: "encomendas.html" },
+    { id: "galeria", nome: "Minhas artes", icone: "estrela", render: abaGaleria, desc: "Todas as artes do portfólio. Marque \"Destaque\" pra arte passar no topo da página inicial.", previa: "portfolio.html" },
+    { id: "projetos", nome: "Projetos", icone: "artstation", render: abaProjetos, desc: "Suas coleções (ilustração e identidade visual): capa, texto e imagens.", previa: "index.html" },
+    { id: "cenas", nome: "Textos e imagens", icone: "youtube", render: abaCenas, desc: "O topo de cada página, as cenas em tela cheia e as páginas de aviso (erro e fora do ar).", previa: "index.html" },
+    { id: "perfil", nome: "Sobre mim e contato", icone: "coracao", render: abaPerfil, desc: "Seu nome, foto, frase, WhatsApp, Instagram e a ficha da personagem.", previa: "index.html" },
+    { id: "links", nome: "Links", icone: "link", render: abaLinks, desc: "Os botões de links da página inicial.", previa: "index.html" },
+    { id: "perguntas", nome: "Perguntas", icone: "email", render: abaPerguntas, desc: "As perguntas e respostas da página de encomendas.", previa: "encomendas.html" },
+    { id: "aparencia", nome: "Cores e visual", icone: "musica", render: abaAparencia, desc: "Cores do modo claro e do escuro, fontes, tela de carregamento e efeitos.", previa: null },
+    { id: "backup", nome: "Backup", icone: "loja", render: abaBackup, desc: "Baixar uma cópia de tudo e restaurar.", previa: null }
   ];
 
   function renderAbas() {
@@ -142,9 +153,41 @@
   function render() {
     var a = ABAS.filter(function (x) { return x.id === abaAtual; })[0];
     var y = window.scrollY;
-    $("#aba").innerHTML = '<h2 class="aba-titulo t-cinema">' + a.nome + "</h2>" + a.render();
+    $("#aba").innerHTML = '<h2 class="aba-titulo t-cinema">' + a.nome + "</h2>" + (a.desc ? '<p class="aba-desc">' + a.desc + "</p>" : "") + a.render();
     window.scrollTo(0, y);
     Array.prototype.forEach.call(document.querySelectorAll(".js-avatar"), function (el) { el.src = urlSegura(rascunho.perfil.avatar, true) || "assets/avatar.webp"; });
+  }
+
+  /* ----- início: atalhos ----- */
+  function abaInicio() {
+    var a = rascunho.agenda, ag = estadoAgenda(a);
+    var idx = ag.atual ? a.sessoes.indexOf(ag.atual.sessao) : -1;
+    if (idx < 0 && ag.proxima) idx = a.sessoes.indexOf(ag.proxima.sessao);
+    var ses = idx >= 0 ? a.sessoes[idx] : null, est = ses ? estadoSessao(ses) : null;
+    var frase = ag.estado === "aberta" ? "Suas encomendas estão <b>abertas</b>." : ag.estado === "esgotado" ? "Suas vagas estão <b>esgotadas</b>." : "Suas encomendas estão <b>fechadas</b>.";
+    if (ag.estado !== "aberta" && ag.proxima) frase += " A <b>" + esc(ag.proxima.sessao.nome) + "</b> abre em " + esc(dataExtenso(ag.proxima.abre)) + ".";
+    var atalhos = [
+      ["galeria", "estrela", "Trocar as artes do topo", "Marque quais artes passam no carrossel"],
+      ["projetos", "artstation", "Projetos", "Criar ou editar uma coleção"],
+      ["encomendas", "dado", "Mudar preços", "Ilustração e identidade visual"],
+      ["aparencia", "musica", "Mudar as cores", "Modo claro e modo escuro"],
+      ["cenas", "youtube", "Textos e fotos das páginas", "Topo, cenas e avisos"],
+      ["perfil", "coracao", "WhatsApp e Instagram", "Seus contatos e sua foto"]
+    ];
+    return '<div class="ola"><img src="' + esc(urlSegura(rascunho.perfil.avatar, true) || "assets/avatar.webp") + '" alt=""><div><p class="t-mao">Oi, ' + esc(rascunho.perfil.apelido || "Bru") + '! ✨</p><p>O que você quer mudar hoje?</p></div></div>' +
+      '<div class="cartao-agenda estado-' + ag.estado + '">' +
+        '<div class="ca-topo"><span class="situacao-chip ch-' + ag.estado + '">' + NOMES_ESTADO[ag.estado] + "</span><p>" + frase + "</p></div>" +
+        (ses ? '<div class="ca-vagas"><span>' + esc(ses.nome) + ": vagas preenchidas</span>" +
+          '<span class="vagas-ctrl"><button type="button" class="ico-btn" data-vaga="' + idx + '" data-d="-1" aria-label="Uma vaga a menos"' + (est.ocupadas <= 0 ? " disabled" : "") + ">&minus;</button>" +
+          "<b>" + est.ocupadas + " / " + est.vagas + "</b>" +
+          '<button type="button" class="ico-btn" data-vaga="' + idx + '" data-d="1" aria-label="Uma vaga a mais"' + (est.ocupadas >= est.vagas ? " disabled" : "") + ">+</button></span></div>" : "") +
+        campo("agenda.pausa", "Pausar tudo agora (férias, imprevisto)", { tipo: "check" }) +
+        '<button type="button" class="link-btn" data-ir="agenda">Ver todas as agendas &#8594;</button>' +
+      "</div>" +
+      '<div class="atalhos">' + atalhos.map(function (t) {
+        return '<button type="button" class="atalho" data-ir="' + t[0] + '">' + iconeSvg(t[1]) + "<b>" + t[2] + "</b><small>" + t[3] + "</small></button>";
+      }).join("") + "</div>" +
+      '<ol class="passos-ajuda"><li><b>Mude</b> o que quiser em qualquer aba.</li><li><b>Confira</b> na prévia (botão "Prévia" lá em cima).</li><li><b>Salve</b> na barra que aparece embaixo. Só aí o site muda pra todo mundo.</li></ol>';
   }
 
   /* ----- 01 agenda ----- */
@@ -232,6 +275,9 @@
           return linha(campo(c + ".nome", "Nome (ex.: Básico)"), campo(c + ".sub", "Subtítulo"), campo(c + ".preco", "Preço (R$)", { tipo: "number", passo: "0.01", min: 0 })) +
             campo(c + ".itens", "O que inclui", { tipo: "textarea", linhas: 2, ajuda: "Separe os itens com · (ponto do meio)." });
         }, function () { return { id: "pac" + Date.now(), nome: "Novo pacote", sub: "", preco: 0, itens: "" }; }, "Adicionar pacote")) +
+      secao("Tabela de comissões", "A imagem da sua tabela que aparece embaixo da calculadora.",
+        campo("precos.tabela.mostrar", "Mostrar a tabela", { tipo: "check" }) +
+        campoImg("precos.tabela.img", "Imagem da tabela") + campo("precos.tabela.legenda", "Frase embaixo da tabela")) +
       secao("Nota do total", "Aparece com * logo abaixo do \"Total estimado\".",
         campo("precos.notaTotal", "Texto da nota", { largo: true })) +
       secao("Regras de pagamento", "Os cartões numerados abaixo da calculadora.",
@@ -291,7 +337,7 @@
   /* ----- 04 cenas ----- */
   function abaCenas() {
     return secao("Topo da página inicial (carrossel)", "As artes que passam no topo são as marcadas como \"Destaque\" na aba Galeria, na mesma ordem. Aqui ficam só os textos.",
-        campo("cenas.abertura.modo", "Como as artes aparecem", { tipo: "select", opcoes: [{ v: "fundo", t: "Cobrindo a tela toda (com botão \"ver arte inteira\")" }, { v: "inteira", t: "Arte inteira, sem corte, sobre ela mesma desfocada" }], ajuda: "Cobrindo a tela, cada arte mostra a parte escolhida em \"Parte em destaque no topo\" (aba Galeria)." }) +
+        campo("cenas.abertura.modo", "Como as artes aparecem", { tipo: "select", opcoes: [{ v: "inteira", t: "Arte inteira, sem corte, centralizada (recomendado)" }, { v: "fundo", t: "Cobrindo a tela toda (corta um pouco da arte)" }], ajuda: "Cobrindo a tela, cada arte mostra a parte escolhida em \"Parte em destaque no topo\" (aba Minhas artes)." }) +
         campo("cenas.abertura.kicker", "Linha pequena no alto") +
         campo("cenas.abertura.legenda", "Texto curto abaixo da frase", { tipo: "textarea", linhas: 2 })) +
       ["portfolio", "agenda", "encomendas"].map(function (k) {
@@ -306,6 +352,13 @@
         campoImg("cenas.interludio1.img", "Imagem") +
         campo("cenas.interludio1.foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco("cenas.interludio1.foco") }) +
         campo("cenas.interludio1.frase", "Frase grande") + campo("cenas.interludio1.credito", "Legenda pequena")) +
+      secao("Páginas de aviso", "Aparecem quando alguém abre um endereço que não existe (404), quando dá erro, ou quando o site está fora do ar.",
+        [["naoEncontrada", "Página não existe (404)", "404.html"], ["erro", "Algo deu errado", "erro.html"], ["manutencao", "Site fora do ar (manutenção)", "manutencao.html"]].map(function (k) {
+          var c = "paginasAviso." + k[0];
+          return '<h3 class="sub-t">' + k[1] + ' · <a href="' + k[2] + '" target="_blank" rel="noopener">ver &#8599;</a></h3>' +
+            linha(campo(c + ".rotulo", "Linha pequena"), campo(c + ".titulo", "Título")) + campo(c + ".texto", "Texto", { tipo: "textarea", linhas: 2 }) +
+            linha(campo(c + ".botao", "Texto do botão")) + campoImg(c + ".img", "Imagem");
+        }).join("")) +
       secao("Interlúdio 2", "A cena em tela cheia no fim da página inicial.",
         campoImg("cenas.interludio2.img", "Imagem") +
         campo("cenas.interludio2.foco", "Parte da imagem em destaque", { tipo: "select", opcoes: opcoesFoco("cenas.interludio2.foco") }) +
@@ -374,6 +427,16 @@
     papel: ["Papel", "Fundo das seções impressas"],
     noite: ["Noite", "Fundo das cenas de cinema"]
   };
+  var NOMES_MODO = {
+    fundo: ["Fundo do site", "A cor de trás de tudo"],
+    secao: ["Fundo das faixas", "A faixa dos projetos e áreas alternadas"],
+    texto: ["Letras", "Títulos e textos principais"],
+    textoSuave: ["Letras suaves", "Legendas e textos menores"],
+    barra: ["Barra do topo", "O menu, quando a pessoa rola a página"],
+    barraTexto: ["Letras da barra do topo", "Os nomes do menu"],
+    rodape: ["Rodapé", "A faixa do fim da página"],
+    rodapeTexto: ["Letras do rodapé", ""]
+  };
   function abaAparencia() {
     var ap = rascunho.aparencia;
     var paletas = '<div class="paletas">' + Object.keys(PALETAS).map(function (nome) {
@@ -382,28 +445,46 @@
         ["noite", "vinho", "poster", "rosa", "violeta", "teal", "papel"].map(function (k) { return '<i style="background:' + p[k] + '"></i>'; }).join("") +
         "</span><b>" + esc(nome) + "</b></button>";
     }).join("") + "</div>";
+    var m = modoCores, mo = ap.modos[m];
+    /* mini prévia do modo: fundo, barra, letras e botão, pra ver na hora */
+    var amostra = '<div class="amostra-modo" style="background:' + esc(mo.fundo) + ';color:' + esc(mo.texto) + '">' +
+      '<div class="am-barra" style="background:' + esc(mo.barra) + ';color:' + esc(mo.barraTexto) + '"><b>' + esc(rascunho.perfil.nome) + "</b><span>Início · Portfólio · Agenda</span></div>" +
+      '<div class="am-corpo"><p class="am-titulo">Projetos</p><p style="color:' + esc(mo.textoSuave) + '">Texto menor, legendas e descrições.</p>' +
+      '<span class="am-btn" style="background:' + esc(ap.cores.rosa) + '">Fazer encomenda</span></div>' +
+      '<div class="am-faixa" style="background:' + esc(mo.secao) + '"></div>' +
+      '<div class="am-rodape" style="background:' + esc(mo.rodape) + ';color:' + esc(mo.rodapeTexto) + '">Rodapé · Site desenvolvido pela TRIRREME</div></div>';
+    var coresModo = '<div class="grade-cores">' + Object.keys(NOMES_MODO).map(function (k) {
+      return campo("aparencia.modos." + m + "." + k, NOMES_MODO[k][0], { tipo: "cor", ajuda: NOMES_MODO[k][1] });
+    }).join("") + "</div>";
     var cores = '<div class="grade-cores">' + Object.keys(NOMES_CORES).map(function (k) {
       return campo("aparencia.cores." + k, NOMES_CORES[k][0], { tipo: "cor", ajuda: NOMES_CORES[k][1] });
     }).join("") + "</div>";
 
-    function fonte(papel, rotulo, amostra, classe) {
+    function fonte(papel, rotulo, amostraTxt, classe) {
       var atual = ap.fontes[papel];
       return '<div class="fonte-escolha">' + campo("aparencia.fontes." + papel, rotulo, { tipo: "select", opcoes: OPCOES_FONTES[papel].map(function (f) { return { v: f, t: f }; }) }) +
-        '<p class="amostra ' + classe + '" style="font-family:\'' + esc(atual) + '\'">' + amostra + "</p></div>";
+        '<p class="amostra ' + classe + '" style="font-family:\'' + esc(atual) + '\'">' + amostraTxt + "</p></div>";
     }
 
-    return secao("Paletas prontas", "Um clique troca todas as cores. Dá pra ajustar uma por uma logo abaixo.", paletas) +
-      secao("Cores", "", cores) +
+    return secao("Cores de cada modo", "O site tem modo claro e modo escuro (o botão de sol/lua no topo). Escolha qual modo você quer pintar: a mudança vale só pra ele.",
+        '<div class="seg" role="group" aria-label="Qual modo editar">' +
+          '<button type="button" data-modo-cores="claro" aria-pressed="' + (m === "claro") + '">&#9728; Modo claro</button>' +
+          '<button type="button" data-modo-cores="escuro" aria-pressed="' + (m === "escuro") + '">&#9790; Modo escuro</button></div>' +
+        '<div class="modo-edicao">' + amostra + coresModo + "</div>" +
+        '<button type="button" class="btn mini-btn" data-cores-padrao>Voltar às cores originais do modo ' + m + "</button>") +
+      secao("Como o site abre", "",
+        linha(campo("aparencia.tema", "Modo da primeira visita", { tipo: "select", opcoes: [{ v: "claro", t: "Claro" }, { v: "escuro", t: "Escuro" }, { v: "auto", t: "Igual ao celular/computador da pessoa" }] })) +
+        campo("aparencia.botaoTema", "Mostrar o botão sol/lua no topo (quem visita escolhe claro ou escuro)", { tipo: "check" }) +
+        campo("aparencia.carregamento", "Tela de carregamento com abertura de cinema", { tipo: "check", ajuda: "Na primeira visita aparece seu nome e a barrinha; depois as faixas abrem como uma tela de cinema." })) +
+      secao("Paletas prontas", "Um clique troca as cores da marca e os fundos dos dois modos. Dá pra ajustar uma por uma depois.", paletas) +
+      secao("Cores da marca", "Valem nos dois modos: botões, etiquetas, destaques e as cenas de cinema.", cores) +
       secao("Fontes", "",
         fonte("cinema", "Fonte de cinema (títulos grandes)", "Brunna Paternostro", "am-cinema") +
         fonte("poster", "Fonte de pôster (ficha e rótulos)", "Força e ódio", "am-poster") +
         fonte("mao", "Fonte de mão (frases e anotações)", "Colors and lines bring your ideas to life.", "am-mao")) +
-      secao("Efeitos de cinema", "",
+      secao("Efeitos", "",
         campo("aparencia.grao", "Grão de filme por cima do site", { tipo: "check" }) +
-        
-        linha(campo("aparencia.movimento", "Animações", { tipo: "select", opcoes: [{ v: "normal", t: "Normais" }, { v: "suave", t: "Suaves" }, { v: "desligado", t: "Desligadas" }] }),
-              campo("aparencia.tema", "Tema inicial", { tipo: "select", opcoes: [{ v: "claro", t: "Claro" }, { v: "escuro", t: "Escuro" }, { v: "auto", t: "Igual ao celular/computador da pessoa" }], ajuda: "Como o site abre na primeira visita." })) +
-        campo("aparencia.botaoTema", "Mostrar o botão sol/lua no topo (quem visita escolhe claro ou escuro)", { tipo: "check" }));
+        linha(campo("aparencia.movimento", "Animações", { tipo: "select", opcoes: [{ v: "normal", t: "Normais" }, { v: "suave", t: "Suaves" }, { v: "desligado", t: "Desligadas" }] })));
   }
 
   /* ----- 09 backup ----- */
@@ -419,6 +500,7 @@
 
   /* ===================== mudanças ===================== */
   function marcarSujo() {
+    agendarPrevia();
     sujo = true;
     $("#salvar").classList.add("ativa");
     $("#salvar").setAttribute("aria-hidden", "false");
@@ -440,6 +522,7 @@
   /* a galeria guarda duas versões (mini para a grade, img para tela cheia).
      Se a Bru trocar a imagem, a mini antiga e o tamanho deixam de valer. */
   function limparMiniatura(caminho) {
+    if (caminho === "precos.tabela.img") { delete rascunho.precos.tabela.w; delete rascunho.precos.tabela.h; return; }
     var m = /^galeria\.(\d+)\.img$/.exec(caminho);
     if (!m) return;
     var o = rascunho.galeria[Number(m[1])];
@@ -457,7 +540,7 @@
     limparMiniatura(caminho);
     marcarSujo();
     if (tipo === "cor") { var hex = document.querySelector('[data-hex="' + caminho + '"]'); if (hex) hex.value = v; }
-    if (caminho.indexOf("aparencia.") === 0) temaAplicar(rascunho);
+    if (caminho.indexOf("aparencia.") === 0) aplicarNoPainel();
     if (el.hasAttribute("data-rerender") || el.tagName === "SELECT" || tipo === "bool" || caminho.indexOf("aparencia.fontes") === 0) render();
   }
 
@@ -494,7 +577,7 @@
       var el = e.target;
       if (el.dataset.k && el.tagName !== "SELECT" && el.type !== "checkbox" && el.type !== "radio") aoMudarCampo(el);
       if (el.dataset.hex && /^#[0-9a-f]{6}$/i.test(el.value)) {
-        set(el.dataset.hex, el.value); marcarSujo(); temaAplicar(rascunho);
+        set(el.dataset.hex, el.value); marcarSujo(); aplicarNoPainel();
         var cor = document.querySelector('[data-k="' + el.dataset.hex + '"]'); if (cor) cor.value = el.value;
       }
     });
@@ -502,6 +585,7 @@
       var el = e.target;
       if (el.dataset.k && (el.tagName === "SELECT" || el.type === "checkbox" || el.type === "radio")) aoMudarCampo(el);
       /* campos de texto: ao sair do campo, redesenha pra atualizar miniaturas e títulos */
+      else if (el.dataset.k && /^aparencia\.modos\./.test(el.dataset.k)) render();
       else if (el.dataset.k && (/\.img$|avatar$|retrato$|imagem$|capa$/.test(el.dataset.k) || /^agenda\.sessoes\.\d+\.(abre|vagas)$/.test(el.dataset.k))) render();
 
       if (el.dataset.img && el.files[0]) {
@@ -528,13 +612,24 @@
           var dados = JSON.parse(txt);
           if (!dados || !dados.perfil || !dados.precos) throw new Error("Esse arquivo não parece uma cópia do site.");
           rascunho = mesclar(copiaProfunda(PADRAO), dados);
-          marcarSujo(); temaAplicar(rascunho); render(); toast("Cópia carregada. Confira e clique em Salvar.");
+          marcarSujo(); aplicarNoPainel(); render(); toast("Cópia carregada. Confira e clique em Salvar.");
         }).catch(function (err) { toast("Não deu pra restaurar: " + err.message, true); });
       }
     });
 
     aba.addEventListener("click", function (e) {
       var b;
+      if ((b = e.target.closest("[data-ir]"))) { irPara(b.dataset.ir); return; }
+      if ((b = e.target.closest("[data-modo-cores]"))) {
+        modoCores = b.dataset.modoCores;
+        previa.tema = modoCores === "escuro" ? "dark" : "light";
+        carregarPrevia(); render(); return;
+      }
+      if ((b = e.target.closest("[data-cores-padrao]"))) {
+        rascunho.aparencia.modos[modoCores] = copiaProfunda(PADRAO.aparencia.modos[modoCores]);
+        marcarSujo(); render(); toast("Cores originais do modo " + modoCores + " de volta. Lembre de salvar."); return;
+      }
+      if ((b = e.target.closest("[data-escolher]"))) { abrirEscolha(b.dataset.escolher); return; }
       if ((b = e.target.closest("[data-add]"))) {
         get(b.dataset.add).push(NOVOS[b.dataset.add]()); marcarSujo(); render();
         return;
@@ -555,7 +650,12 @@
       }
       if ((b = e.target.closest("[data-limpar-img]"))) { set(b.dataset.limparImg, ""); limparMiniatura(b.dataset.limparImg); marcarSujo(); render(); return; }
       if ((b = e.target.closest("[data-paleta]"))) {
-        rascunho.aparencia.cores = copiaProfunda(PALETAS[b.dataset.paleta]); marcarSujo(); temaAplicar(rascunho); render();
+        var pal = PALETAS[b.dataset.paleta];
+        rascunho.aparencia.cores = copiaProfunda(pal);
+        var mc = rascunho.aparencia.modos;
+        mc.claro.fundo = mc.claro.barra = pal.papel;
+        mc.escuro.fundo = mc.escuro.barra = pal.noite;
+        marcarSujo(); aplicarNoPainel(); render();
         toast("Paleta aplicada no painel. Salve pra levar pro site."); return;
       }
       if (e.target.closest("[data-exportar]")) {
@@ -563,7 +663,7 @@
       }
       if (e.target.closest("[data-restaurar]")) {
         if (!confirm("Isso apaga todas as mudanças feitas no painel e volta o site para a versão original. Continuar?")) return;
-        lojaRestaurarPadrao(); SITE = lojaCarregar(); rascunho = copiaProfunda(SITE); limparSujo(); temaAplicar(rascunho); render();
+        lojaRestaurarPadrao(); SITE = lojaCarregar(); rascunho = copiaProfunda(SITE); limparSujo(); aplicarNoPainel(); render();
         toast("Site restaurado para a versão original.");
       }
     });
@@ -571,27 +671,127 @@
     $("#abas").addEventListener("click", function (e) {
       var b = e.target.closest("[data-aba]");
       if (!b) return;
-      abaAtual = b.dataset.aba;
-      renderAbas(); render();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      irPara(b.dataset.aba);
     });
 
     function salvar() {
       try {
         lojaSalvar(rascunho);
         SITE = copiaProfunda(rascunho);
-        limparSujo();
+        limparSujo(); agendarPrevia();
         toast("Salvo! O site já mostra as mudanças.");
       } catch (err) { toast(err.message, true); }
     }
     $("#salvar-btn").addEventListener("click", salvar);
     $("#descartar").addEventListener("click", function () {
-      rascunho = copiaProfunda(SITE); limparSujo(); temaAplicar(rascunho); render(); toast("Mudanças descartadas.");
+      rascunho = copiaProfunda(SITE); limparSujo(); aplicarNoPainel(); render(); agendarPrevia(); toast("Mudanças descartadas.");
     });
     document.addEventListener("keydown", function (e) {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s" && !$("#painel").hidden) { e.preventDefault(); if (sujo) salvar(); }
     });
     window.addEventListener("beforeunload", function (e) { if (sujo) { e.preventDefault(); e.returnValue = ""; } });
+  }
+
+  /* ===================== navegar entre abas ===================== */
+  function irPara(id) {
+    if (!ABAS.some(function (a) { return a.id === id; })) return;
+    abaAtual = id;
+    var a = ABAS.filter(function (x) { return x.id === id; })[0];
+    if (a.previa && a.previa !== previa.pagina) { previa.pagina = a.previa; carregarPrevia(); }
+    renderAbas(); render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  /* ===================== prévia ao vivo =====================
+     O rascunho vai pra PREVIA_CHAVE e o site, aberto num quadro com
+     ?previa=1, redesenha sozinho a cada mudança (evento storage). */
+  var previa = { pagina: "index.html", tema: "light", aparelho: "celular", aberta: false };
+  var timerPrevia;
+  function agendarPrevia() {
+    clearTimeout(timerPrevia);
+    timerPrevia = setTimeout(function () {
+      if (!lojaPrevia(rascunho)) toast("A prévia não atualizou: as imagens enviadas estão ocupando muito espaço.", true);
+    }, 250);
+  }
+  function carregarPrevia() {
+    var f = $("#previa-frame");
+    if (!f || !previa.aberta) return;
+    lojaPrevia(rascunho);
+    f.src = previa.pagina + (previa.pagina.indexOf("?") < 0 ? "?" : "&") + "previa=1&tema=" + previa.tema;
+    pintarPrevia();
+  }
+  function pintarPrevia() {
+    var box = $("#previa");
+    if (!box) return;
+    box.hidden = !previa.aberta;
+    document.body.classList.toggle("com-previa", previa.aberta);
+    $("#previa-btn").setAttribute("aria-pressed", String(previa.aberta));
+    $("#previa-pagina").value = previa.pagina;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-previa-tema]"), function (b) { b.setAttribute("aria-pressed", String(b.dataset.previaTema === previa.tema)); });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-previa-aparelho]"), function (b) { b.setAttribute("aria-pressed", String(b.dataset.previaAparelho === previa.aparelho)); });
+    box.dataset.aparelho = previa.aparelho;
+    escalarPrevia();
+  }
+  /* no modo "computador", o site (1280px) é encolhido pra caber no quadro */
+  function escalarPrevia() {
+    var tela = $("#previa-tela"), f = $("#previa-frame");
+    if (!tela || !f) return;
+    var larg = previa.aparelho === "computador" ? 1280 : 390;
+    var fator = Math.min(1, tela.clientWidth / larg);
+    f.style.width = larg + "px";
+    f.style.height = (tela.clientHeight / fator) + "px";
+    f.style.transform = "scale(" + fator + ")";
+  }
+  function ligarPrevia() {
+    $("#previa-btn").addEventListener("click", function () {
+      previa.aberta = !previa.aberta;
+      try { localStorage.setItem("brupater:painel-previa", previa.aberta ? "1" : "0"); } catch (e) {}
+      if (previa.aberta) carregarPrevia(); else pintarPrevia();
+    });
+    $("#previa-fechar").addEventListener("click", function () { $("#previa-btn").click(); });
+    $("#previa-pagina").addEventListener("change", function (e) { previa.pagina = e.target.value; carregarPrevia(); });
+    $("#previa").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-previa-tema]");
+      if (b) { previa.tema = b.dataset.previaTema; carregarPrevia(); return; }
+      b = e.target.closest("[data-previa-aparelho]");
+      if (b) { previa.aparelho = b.dataset.previaAparelho; pintarPrevia(); }
+    });
+    window.addEventListener("resize", escalarPrevia);
+    /* começa aberta no computador (tela larga); no celular, fica no botão */
+    var guardado = null;
+    try { guardado = localStorage.getItem("brupater:painel-previa"); } catch (e) {}
+    previa.aberta = guardado ? guardado === "1" : window.innerWidth >= 1280;
+  }
+
+  /* ===================== escolher imagem das minhas artes ===================== */
+  var escolhendo = null;
+  function abrirEscolha(caminho) {
+    escolhendo = caminho;
+    var vistas = {}, itens = [];
+    function add(img, mini, titulo) {
+      if (!img || vistas[img] || /^data:/.test(img) && !mini) return;
+      vistas[img] = 1; itens.push({ img: img, mini: mini || img, titulo: titulo || "" });
+    }
+    rascunho.galeria.forEach(function (o) { add(o.img, o.mini, o.titulo); });
+    rascunho.projetos.forEach(function (p) { add(p.capa, "", p.titulo); (p.imagens || []).forEach(function (i) { add(i.img, "", p.titulo); }); });
+    $("#escolher-grade").innerHTML = itens.map(function (o) {
+      return '<button type="button" class="escolher-item" data-pegar="' + esc(o.img) + '"><img src="' + esc(urlSegura(o.mini, true)) + '" alt="" loading="lazy"><span>' + esc(o.titulo) + "</span></button>";
+    }).join("");
+    $("#escolher").showModal();
+  }
+  function ligarEscolha() {
+    var d = $("#escolher");
+    d.addEventListener("click", function (e) {
+      if (e.target === d || e.target.closest("[data-fechar-escolha]")) { d.close(); return; }
+      var b = e.target.closest("[data-pegar]");
+      if (!b || !escolhendo) return;
+      set(escolhendo, b.dataset.pegar); limparMiniatura(escolhendo);
+      var g = rascunho.galeria.filter(function (o) { return o.img === b.dataset.pegar; })[0];
+      var mt = /^galeria\.(\d+)\.img$/.exec(escolhendo);
+      if (g && mt) { var o = rascunho.galeria[Number(mt[1])]; o.mini = g.mini; o.w = g.w; o.h = g.h; }
+      if (escolhendo === "precos.tabela.img") { delete rascunho.precos.tabela.w; delete rascunho.precos.tabela.h; }
+      d.close(); marcarSujo(); render(); toast("Imagem trocada. Lembre de salvar.");
+    });
   }
 
   /* ===================== login ===================== */
@@ -601,7 +801,7 @@
     $("#login").hidden = ok;
     $("#painel").hidden = !ok;
     document.body.classList.toggle("em-login", !ok);
-    if (ok) { renderAbas(); render(); }
+    if (ok) { aplicarNoPainel(); renderAbas(); render(); agendarPrevia(); if (previa.aberta) carregarPrevia(); else pintarPrevia(); }
   }
 
   $("#login-form").addEventListener("submit", function (e) {
@@ -633,5 +833,7 @@
   })();
 
   ligarEventos();
+  ligarPrevia();
+  ligarEscolha();
   mostrar();
 })();

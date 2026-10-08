@@ -244,7 +244,22 @@ var Encomenda = (function () {
     }).join("");
   }
 
+  function renderTabela() {
+    var t = P().tabela || {}, caixa = $("#tabela-dela"), url = urlSegura(t.img, true);
+    if (!caixa) return;
+    caixa.hidden = t.mostrar === false || !url;
+    if (caixa.hidden) return;
+    var im = $("#tabela-img");
+    if (im.getAttribute("src") !== url) {
+      im.src = url;
+      if (t.w && t.h) { im.width = t.w; im.height = t.h; } else { im.removeAttribute("width"); im.removeAttribute("height"); }
+    }
+    $("#tabela-btn").setAttribute("data-lb-src", url);
+    $("#tabela-legenda").textContent = t.legenda || "";
+  }
+
   function render() {
+    renderTabela();
     garantirRascunho();
     renderTipos();
     renderPacotes();

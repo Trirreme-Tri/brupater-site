@@ -13,6 +13,16 @@
    que não existem mais — sem isso, apareceriam imagens quebradas. */
 var LOJA_CHAVE = "brupater:site:v2";
 
+/* Prévia ao vivo do painel: o painel grava o rascunho (ainda não salvo) em
+   PREVIA_CHAVE e mostra o site num quadro com ?previa=1. Nesse modo o site lê
+   o rascunho em vez do conteúdo salvo, e redesenha a cada mudança. */
+var PREVIA = /[?&]previa=1(&|$)/.test(location.search);
+var PREVIA_CHAVE = "brupater:previa";
+function lojaChaveAtual() { return PREVIA ? PREVIA_CHAVE : LOJA_CHAVE; }
+function lojaPrevia(site) {
+  try { localStorage.setItem(PREVIA_CHAVE, JSON.stringify(site)); return true; } catch (e) { return false; }
+}
+
 /* junta o que foi salvo por cima do padrão. Objetos são mesclados campo a
    campo (assim um campo novo no PADRAO aparece mesmo pra quem já salvou
    antes); listas e valores simples salvos substituem os do padrão. */
@@ -37,12 +47,14 @@ var MIGRACOES = [
     if (!String(s.perfil.whatsapp || "").replace(/\D/g, "")) s.perfil.whatsapp = PADRAO.perfil.whatsapp;
     if (s.perfil.titulo === "RPG Character Creation") s.perfil.titulo = PADRAO.perfil.titulo;
     if (s.cenas.abertura.kicker === "RPG Character Creation") s.cenas.abertura.kicker = PADRAO.cenas.abertura.kicker;
-  } }
+  } },
+  /* out/2026: o topo passou a mostrar a arte inteira por padrão (estava cortando) */
+  { id: "2026-10-topo-inteira", rodar: function (s) { s.cenas.abertura.modo = "inteira"; } }
 ];
 
 function lojaCarregar() {
   var salvo = null;
-  try { salvo = JSON.parse(localStorage.getItem(LOJA_CHAVE) || "null"); } catch (e) { salvo = null; }
+  try { salvo = JSON.parse((PREVIA && localStorage.getItem(PREVIA_CHAVE)) || localStorage.getItem(LOJA_CHAVE) || "null"); } catch (e) { salvo = null; }
   var site = mesclar(copiaProfunda(PADRAO), salvo || {});
   var feitas = (salvo && salvo.migracoes) || [];
   var rodou = false;
@@ -52,7 +64,7 @@ function lojaCarregar() {
     feitas.push(m.id);
   });
   site.migracoes = feitas;
-  if (rodou) { try { localStorage.setItem(LOJA_CHAVE, JSON.stringify(site)); } catch (e) { /* sem espaço: roda de novo na próxima */ } }
+  if (rodou && !PREVIA) { try { localStorage.setItem(LOJA_CHAVE, JSON.stringify(site)); } catch (e) { /* sem espaço: roda de novo na próxima */ } }
   return site;
 }
 

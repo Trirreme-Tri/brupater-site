@@ -107,3 +107,6 @@
 /* rodapé claro, como no site */
 .doc .rodape { --cine-ink: var(--papel-ink); --cine-soft: var(--papel-soft); --cine-line: var(--papel-line);
   background: color-mix(in srgb, var(--papel) 80%, var(--poster)); color: var(--papel-soft); }
+
+.ajuda-ap { font-size: .84rem; opacity: .8; margin-top: 10px; line-height: 1.5; }
+@media (min-width: 760px) { .cartoes-links .cartao:nth-child(3) { grid-column: 1 / -1; } }

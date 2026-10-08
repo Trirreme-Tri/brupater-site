@@ -56,7 +56,7 @@ var Vitrine = (function () {
     if (atual >= lista.length) atual = 0;
     palco.classList.toggle("vit-fade", modoFade());
     /* "fundo" = a arte cobre a tela toda; "inteira" = aparece inteira sobre ela mesma desfocada */
-    var modo = (SITE.cenas.abertura || {}).modo === "inteira" ? "inteira" : "fundo";
+    var modo = (SITE.cenas.abertura || {}).modo === "fundo" ? "fundo" : "inteira";
     palco.classList.toggle("modo-inteira", modo === "inteira");
     palco.classList.toggle("modo-fundo", modo === "fundo");
     palco.innerHTML = lista.map(function (o, i) {

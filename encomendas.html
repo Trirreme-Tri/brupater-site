@@ -9,23 +9,35 @@
 <link rel="icon" href="assets/avatar.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="css/tokens.css?v=20261008-1450">
-<link rel="stylesheet" href="css/base.css?v=20261008-1450">
-<link rel="stylesheet" href="css/site.css?v=20261008-1450">
+<link rel="stylesheet" href="css/tokens.css?v=20261008-1517">
+<link rel="stylesheet" href="css/base.css?v=20261008-1517">
+<link rel="stylesheet" href="css/site.css?v=20261008-1517">
 <!-- sem defer: aplicam cor e fonte escolhidas no painel antes da página aparecer -->
-<script src="js/dados.js?v=20261008-1450"></script>
-<script src="js/loja.js?v=20261008-1450"></script>
-<script src="js/tema.js?v=20261008-1450"></script>
-<script src="js/layout.js?v=20261008-1450" defer></script>
-<script src="js/icones.js?v=20261008-1450" defer></script>
-<script src="js/cinema.js?v=20261008-1450" defer></script>
-<script src="js/agenda.js?v=20261008-1450" defer></script>
-<script src="js/site.js?v=20261008-1450" defer></script>
-<script src="js/encomenda.js?v=20261008-1450" defer></script>
+<script src="js/dados.js?v=20261008-1517"></script>
+<script src="js/loja.js?v=20261008-1517"></script>
+<script src="js/tema.js?v=20261008-1517"></script>
+<script src="js/layout.js?v=20261008-1517" defer></script>
+<script src="js/icones.js?v=20261008-1517" defer></script>
+<script src="js/cinema.js?v=20261008-1517" defer></script>
+<script src="js/agenda.js?v=20261008-1517" defer></script>
+<script src="js/site.js?v=20261008-1517" defer></script>
+<script src="js/encomenda.js?v=20261008-1517" defer></script>
 </head>
 <body data-pagina="encomendas">
 
-<div class="cortina" aria-hidden="true"></div>
+<!-- tela de carregamento + abertura de cinema (js/cinema.js → cortina) -->
+<div class="cortina" id="cortina" aria-hidden="true">
+  <div class="cort-barra cort-topo"></div>
+  <div class="cort-barra cort-base"></div>
+  <div class="cort-centro">
+    <img class="cort-avatar" id="cort-avatar" src="assets/avatar.webp" width="88" height="88" alt="">
+    <p class="cort-nome" id="cort-nome"></p>
+    <p class="cort-sub" id="cort-sub"></p>
+    <div class="cort-trilho"><i id="cort-prog"></i></div>
+    <p class="cort-pct" id="cort-pct">0%</p>
+  </div>
+</div>
+<script>cortinaPreparar();</script>
 
 <!-- cabeçalho de cinema (imagem e textos editáveis no painel: Cenas e imagens) -->
 <section class="cabecalho" id="cabecalho" data-topo aria-labelledby="cab-t">
@@ -131,11 +143,12 @@
 
     <div class="regras surge" id="regras"></div>
 
-    <div class="tabela-dela surge">
-      <button type="button" class="tabela-btn" data-lb-src="assets/tabela-comissoes.webp" data-lb-titulo="Tabela de comissões">
-        <img src="assets/tabela-comissoes.webp" width="1350" height="1688" alt="Tabela de comissões da Brunna: busto a partir de R$ 110, meio corpo a partir de R$ 160 e corpo inteiro a partir de R$ 220" loading="lazy">
+    <!-- tabela de comissões: imagem e legenda vêm do painel (Preços → Tabela) -->
+    <div class="tabela-dela surge" id="tabela-dela">
+      <button type="button" class="tabela-btn" id="tabela-btn" data-lb-src="assets/tabela-comissoes.webp" data-lb-titulo="Tabela de comissões">
+        <img id="tabela-img" src="assets/tabela-comissoes.webp" width="1350" height="1688" alt="Tabela de comissões da Brunna" loading="lazy">
       </button>
-      <p class="t-mao">a tabela original, do jeitinho que ela aparece no Instagram &#8599;</p>
+      <p class="t-mao" id="tabela-legenda"></p>
     </div>
   </div>
 

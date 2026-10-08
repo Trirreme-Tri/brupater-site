@@ -8,13 +8,13 @@
 <link rel="icon" href="assets/avatar.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="css/tokens.css?v=20261008-1450">
-<link rel="stylesheet" href="css/base.css?v=20261008-1450">
-<link rel="stylesheet" href="css/apresentacao.css?v=20261008-1450">
-<script src="js/dados.js?v=20261008-1450"></script>
-<script src="js/loja.js?v=20261008-1450"></script>
-<script src="js/tema.js?v=20261008-1450"></script>
-<script src="js/apresentacao.js?v=20261008-1450" defer></script>
+<link rel="stylesheet" href="css/tokens.css?v=20261008-1517">
+<link rel="stylesheet" href="css/base.css?v=20261008-1517">
+<link rel="stylesheet" href="css/apresentacao.css?v=20261008-1517">
+<script src="js/dados.js?v=20261008-1517"></script>
+<script src="js/loja.js?v=20261008-1517"></script>
+<script src="js/tema.js?v=20261008-1517"></script>
+<script src="js/apresentacao.js?v=20261008-1517" defer></script>
 </head>
 <body class="doc">
 
@@ -49,6 +49,11 @@
         </div>
         <a class="btn" href="admin.html" target="_blank" rel="noopener">Abrir o painel</a>
       </div>
+      <div class="cartao">
+        <p class="rotulo">páginas de aviso (aparecem sozinhas quando precisa)</p>
+        <ul class="paginas-links" id="paginas-aviso"></ul>
+        <p class="ajuda-ap">A de <b>página não existe</b> aparece sozinha quando alguém digita um endereço errado. A de <b>erro</b> e a de <b>fora do ar</b> ficam prontas pra quando precisar (por enquanto, quem ativa é o Wellington). Os textos e imagens delas mudam no painel, em Textos e imagens.</p>
+      </div>
     </div>
   </section>
 
@@ -80,7 +85,8 @@
       <li><b>Base clara na página inicial:</b> o topo, os projetos e os links usam o tom de papel dos seus pôsteres, então artes claras e escuras ganham o mesmo destaque. O preto continua em alguns pontos (as cenas, os cartões das páginas, o rodapé) e as outras páginas seguem como estavam.</li>
       <li><b>Interlúdios:</b> cortes em tela cheia com uma arte e uma frase grande, como cenas de filme.</li>
       <li><b>Claro ou escuro:</b> o site abre no tema claro e tem um botão de sol/lua no topo pra quem visita trocar pro escuro (o visual cinema, com as cenas em preto). A escolha fica guardada no navegador da pessoa. No painel você escolhe o tema inicial e se o botão aparece.</li>
-      <li><b>Movimento:</b> no carrossel, as artes passam pro lado sozinhas, sem fim: a nova entra deslizando com um leve zoom que assenta, e depois fica parada. Os elementos aparecem conforme a pessoa rola. As imagens não ficam tremendo. Quem pediu menos movimento no celular vê a troca em fade, sem deslizar.</li>
+      <li><b>Abertura de cinema:</b> na primeira visita aparece uma tela de carregamento com seu nome e a barrinha de progresso; quando termina, as faixas escuras se abrem como a tela de um cinema e o topo "assenta". Navegando entre as páginas, só a abertura rápida.</li>
+      <li><b>Topo:</b> suas artes em destaque passam pro lado sozinhas, sem fim, e aparecem <b>inteiras</b>, sem corte, centralizadas ao lado dos textos. Nada fica tremendo: o movimento é só na troca.</li>
     </ul>
   </section>
 
@@ -156,15 +162,16 @@
     <p class="rotulo"><span class="num">08</span> o que você pode editar sozinha</p>
     <h2 class="t-cinema" id="b8">As abas do painel</h2>
     <ol class="abas-lista">
-      <li><b>Agenda</b> agendas de cada mês (data, vagas e o botão +1 vaga), pausa, textos de cada situação, datas do calendário, fila e etapas</li>
+      <li><b>Início</b> atalhos pro que você mais usa, a situação da agenda e o +1 vaga num clique</li>
+      <li><b>Agenda e vagas</b> agendas de cada mês (data, vagas e o botão +1 vaga), pausa, textos de cada situação, datas do calendário, fila e etapas</li>
       <li><b>Preços e encomendas</b> enquadramentos, acabamentos, personagem extra, fundos, descontos, uso comercial, regras de pagamento, os pacotes de identidade visual e a nota do total estimado</li>
       <li><b>Galeria</b> enviar artes do computador, trocar título e categoria, esconder, reordenar ou apagar</li>
       <li><b>Projetos</b> criar coleções, escolher a capa, a categoria (Ilustração ou Identidade visual), o texto e as imagens de cada projeto</li>
-      <li><b>Cenas e imagens</b> a imagem da abertura, o topo de cada página e os dois interlúdios, com a parte em destaque e as frases</li>
+      <li><b>Textos e imagens</b> o topo de cada página, como as artes aparecem no carrossel, os interlúdios e as páginas de aviso (erro, página não existe, fora do ar)</li>
       <li><b>Perfil e ficha</b> nome, título (ex.: <i>Illustrator &amp; Graphic Design</i>), avatar, frase, Instagram, WhatsApp e o botão flutuante, música, e tudo da ficha</li>
       <li><b>Links</b> adicionar, trocar ícone, esconder ou reordenar</li>
       <li><b>Perguntas</b> as perguntas e respostas do fim</li>
-      <li><b>Cores, fontes e estilo</b> paletas prontas, cada cor, as três fontes, grão, barras de cinema, animações e tema</li>
+      <li><b>Cores e visual</b> cores do <b>modo claro</b> e do <b>modo escuro</b> separadas (fundo, faixas, letras, barra do topo, rodapé), cores da marca, paletas prontas, fontes, tela de carregamento e animações</li>
       <li><b>Backup</b> baixar uma cópia de tudo, restaurar e voltar à versão original</li>
     </ol>
   </section>

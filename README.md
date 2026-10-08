@@ -9,6 +9,7 @@ com painel de edição. Desenvolvido pela [TRIRREME](https://trirreme.com).
 | Página | Arquivo | O que é |
 |---|---|---|
 | Início | `index.html` | Carrossel de destaques (fundo claro), projetos em coleções, links, ficha da personagem, interlúdios e chamadas para as outras páginas |
+| Avisos | `404.html`, `erro.html`, `manutencao.html` | Página não existe (o GitHub Pages usa o 404 sozinho), erro e site fora do ar |
 | Projeto | `projeto.html?p=<id>` | Um projeto inteiro (capa, texto e todas as imagens), como no Behance |
 | Portfólio | `portfolio.html` | Galeria com filtros e tela cheia |
 | Agenda | `agenda.html` | Situação atual, agendas por mês (vagas e ESGOTADO automático), calendário e fila |
@@ -36,6 +37,7 @@ js/
   site.js           desenha as páginas públicas
   vitrine.js        carrossel do topo da página inicial (loop infinito, passa pro lado)
   projetos.js       projetos (coleções): grade de capas na inicial e a página projeto.html
+  aviso.js          páginas de aviso (404, erro, manutenção)
   encomenda.js      calculadora de encomendas
   admin.js          painel
   apresentacao.js   partes dinâmicas da apresentação
@@ -77,3 +79,9 @@ cada push que mexa em CSS ou JS:
 ```
 python3 ferramentas/carimbar.py
 ```
+
+## Prévia ao vivo do painel
+
+O painel grava o rascunho (ainda não salvo) em `brupater:previa` e mostra o
+site num quadro com `?previa=1&tema=light|dark`. Nesse modo o `js/loja.js`
+lê o rascunho e o site redesenha a cada mudança (evento `storage`).

@@ -432,7 +432,7 @@ var Site = (function () {
 
     /* o painel salvou em outra aba? redesenha na hora, sem recarregar */
     window.addEventListener("storage", function (e) {
-      if (e.key !== LOJA_CHAVE) return;
+      if (e.key !== lojaChaveAtual()) return;
       SITE = lojaCarregar();
       temaAplicar(SITE);
       renderTudo();
@@ -441,6 +441,16 @@ var Site = (function () {
       if (window.Projetos) Projetos.render();
       Cinema.pintarBotaoTema();
     });
+
+    /* na prévia do painel, os links entre páginas continuam na prévia */
+    if (PREVIA) document.addEventListener("click", function (e) {
+      var a = e.target.closest("a[href]");
+      if (!a || a.target === "_blank") return;
+      var h = a.getAttribute("href");
+      if (!/^[\w-]+\.html/.test(h) || /previa=1/.test(h)) return;
+      var extra = location.search.replace(/^\?/, "");
+      a.setAttribute("href", h.replace(/(\.html)(\?)?/, function (m, html, q) { return html + "?" + extra + (q ? "&" : ""); }));
+    }, true);
 
     /* o texto do botão do WhatsApp aparece no topo da página; ao rolar, fica
        só o ícone, pra não cobrir o conteúdo */

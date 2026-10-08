@@ -9,24 +9,36 @@
 <link rel="icon" href="assets/avatar.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="css/tokens.css?v=20261008-1450">
-<link rel="stylesheet" href="css/base.css?v=20261008-1450">
-<link rel="stylesheet" href="css/site.css?v=20261008-1450">
+<link rel="stylesheet" href="css/tokens.css?v=20261008-1517">
+<link rel="stylesheet" href="css/base.css?v=20261008-1517">
+<link rel="stylesheet" href="css/site.css?v=20261008-1517">
 <!-- sem defer: aplicam cor e fonte escolhidas no painel antes da página aparecer -->
-<script src="js/dados.js?v=20261008-1450"></script>
-<script src="js/loja.js?v=20261008-1450"></script>
-<script src="js/tema.js?v=20261008-1450"></script>
-<script src="js/layout.js?v=20261008-1450" defer></script>
-<script src="js/icones.js?v=20261008-1450" defer></script>
-<script src="js/cinema.js?v=20261008-1450" defer></script>
-<script src="js/agenda.js?v=20261008-1450" defer></script>
-<script src="js/site.js?v=20261008-1450" defer></script>
-<script src="js/vitrine.js?v=20261008-1450" defer></script>
-<script src="js/projetos.js?v=20261008-1450" defer></script>
+<script src="js/dados.js?v=20261008-1517"></script>
+<script src="js/loja.js?v=20261008-1517"></script>
+<script src="js/tema.js?v=20261008-1517"></script>
+<script src="js/layout.js?v=20261008-1517" defer></script>
+<script src="js/icones.js?v=20261008-1517" defer></script>
+<script src="js/cinema.js?v=20261008-1517" defer></script>
+<script src="js/agenda.js?v=20261008-1517" defer></script>
+<script src="js/site.js?v=20261008-1517" defer></script>
+<script src="js/vitrine.js?v=20261008-1517" defer></script>
+<script src="js/projetos.js?v=20261008-1517" defer></script>
 </head>
 <body data-pagina="inicio" class="pg-clara">
 
-<div class="cortina" aria-hidden="true"></div>
+<!-- tela de carregamento + abertura de cinema (js/cinema.js → cortina) -->
+<div class="cortina" id="cortina" aria-hidden="true">
+  <div class="cort-barra cort-topo"></div>
+  <div class="cort-barra cort-base"></div>
+  <div class="cort-centro">
+    <img class="cort-avatar" id="cort-avatar" src="assets/avatar.webp" width="88" height="88" alt="">
+    <p class="cort-nome" id="cort-nome"></p>
+    <p class="cort-sub" id="cort-sub"></p>
+    <div class="cort-trilho"><i id="cort-prog"></i></div>
+    <p class="cort-pct" id="cort-pct">0%</p>
+  </div>
+</div>
+<script>cortinaPreparar();</script>
 
 <main id="topo">
 
@@ -36,27 +48,24 @@
   <div class="vit-veu" aria-hidden="true"></div>
 
   <div class="wrap vit-conteudo">
-    <header class="vit-cab">
-      <p class="rotulo vit-kicker" id="ab-kicker"></p>
-      <div class="vit-status" id="ab-status"></div>
-    </header>
-
-    <div class="vit-base">
-      <div class="vit-info">
-        <h1 class="so-leitor" id="ab-h1"></h1>
-        <p class="vit-frase t-mao" id="ab-frase"></p>
-        <p class="vit-legenda" id="ab-legenda"></p>
-        <div class="vit-ctas">
-          <a class="btn cheio" href="encomendas.html">Fazer encomenda</a>
-          <a class="btn" href="#projetos">Ver projetos</a>
-          <a class="btn trilha" id="ab-trilha" href="#" target="_blank" rel="noopener" hidden>
-            <span aria-hidden="true">&#9654;</span> <span id="ab-trilha-txt"></span>
-          </a>
-        </div>
+    <div class="vit-coluna">
+      <div class="vit-cab">
+        <p class="rotulo vit-kicker" id="ab-kicker"></p>
+        <div class="vit-status" id="ab-status"></div>
+      </div>
+      <h1 class="so-leitor" id="ab-h1"></h1>
+      <p class="vit-frase t-mao" id="ab-frase"></p>
+      <p class="vit-legenda" id="ab-legenda"></p>
+      <div class="vit-ctas">
+        <a class="btn cheio" href="encomendas.html">Fazer encomenda</a>
+        <a class="btn" href="#projetos">Ver projetos</a>
+        <a class="btn trilha" id="ab-trilha" href="#" target="_blank" rel="noopener" hidden>
+          <span aria-hidden="true">&#9654;</span> <span id="ab-trilha-txt"></span>
+        </a>
       </div>
       <div class="vit-lado">
-        <button type="button" class="vit-ampliar" id="vit-ampliar"><span aria-hidden="true">&#10530;</span> <span class="txt">ver arte inteira</span></button>
         <div class="vit-miniaturas" id="vit-miniaturas" role="tablist" aria-label="Escolher arte"></div>
+        <button type="button" class="vit-ampliar" id="vit-ampliar"><span aria-hidden="true">&#10530;</span> <span class="txt">ver em tela cheia</span></button>
       </div>
     </div>
   </div>
