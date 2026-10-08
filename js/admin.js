@@ -409,7 +409,7 @@
           ajuda: "<b>Recomendado: playlist do YouTube</b> (ou YouTube Music): toca as músicas inteiras pra todo mundo e repete sem parar. Também aceita Spotify (quem não está logado no Spotify ouve só 30 segundos de cada música, e não repete sozinho) e SoundCloud." }) +
         '<p class="ajuda dica-tam" id="mu-detectado">' + musicaDetectada() + "</p>" +
         linha(campo("perfil.trilha.rotulo", "Nome no botão do canto"),
-              campo("perfil.trilha.volume", "Volume inicial da música", { tipo: "faixa", min: 0, max: 100, passo: 5, sufixo: "%", ajuda: "Com quanto de volume a música começa. Quem visita ainda pode aumentar ou diminuir no próprio player." }))) +
+              campo("perfil.trilha.volume", "Volume inicial da música", { tipo: "faixa", min: 0, max: 100, passo: 1, sufixo: "%", ajuda: "Com quanto de volume a música começa. Quem visita ainda pode aumentar ou diminuir no próprio player." }))) +
       secao("Ficha da personagem (pôster)", "A seção no estilo do seu pôster Oásis.",
         linha(campoImg("sobre.retrato", "Retrato do topo"), campoImg("sobre.imagem", "Arte grande do pôster")) +
         campo("sobre.palavra", "Palavra gigante", { ajuda: "Curta funciona melhor (até ~8 letras)." }) +

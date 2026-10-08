@@ -41,7 +41,9 @@ var Musica = (function () {
       var v = h === "youtu.be" ? u.pathname.slice(1) : u.searchParams.get("v");
       var base = "https://www.youtube-nocookie.com/embed/";
       /* enablejsapi: permite mudar o volume pelo controle do mini player */
-      var extra = "&loop=1&rel=0&playsinline=1&autoplay=1&enablejsapi=1&origin=" + encodeURIComponent(location.origin);
+      /* mute=1: começa sem som e o volume sobe devagar (fade-in), em vez de
+         começar alto e cair de repente */
+      var extra = "&loop=1&rel=0&playsinline=1&autoplay=1&mute=1&enablejsapi=1&origin=" + encodeURIComponent(location.origin);
       if (lista && /^[\w-]+$/.test(lista)) return { servico: "YouTube", tipo: "playlist", loop: true, altura: 180, src: base + "videoseries?list=" + lista + extra };
       if (v && /^[\w-]{6,20}$/.test(v)) return { servico: "YouTube", tipo: "vídeo", loop: true, altura: 180, src: base + v + "?playlist=" + v + extra };
       return null;
@@ -61,22 +63,54 @@ var Musica = (function () {
   var raiz, painel, aberto = false, carregado = false, fixo = false, timerSaida;
   var temMouse = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-  var volume = null; // o que a pessoa escolheu no controle (vale nesta visita)
+  /* ===== volume suave =====
+     Toda mudança de volume é uma rampa (sobe/desce aos poucos), nunca um
+     salto: ao começar (fade-in), ao mexer no controle e ao parar (fade-out). */
+  var volume = null;        // o que a pessoa escolheu no controle (vale nesta visita)
+  var atual = 0;            // volume que o player está tocando agora
+  var timerRampa, timersInicio = [];
   function volumeInicial() {
     var v = Number(trilha().volume);
     return isNaN(v) ? 50 : Math.max(0, Math.min(100, Math.round(v)));
   }
-  /* manda o volume pro player (YouTube e SoundCloud aceitam por mensagem) */
-  function aplicarVolume(v) {
+  function escolhido() { return volume == null ? volumeInicial() : volume; }
+  /* manda um comando pro player (YouTube e SoundCloud aceitam por mensagem) */
+  function enviar(v, extra) {
     var f = raiz && raiz.querySelector(".mu-player iframe"), e = info();
     if (!f || !f.contentWindow || !e) return;
-    if (e.servico === "YouTube") f.contentWindow.postMessage(JSON.stringify({ event: "command", func: "setVolume", args: [v] }), "*");
+    if (e.servico === "YouTube") {
+      f.contentWindow.postMessage(JSON.stringify({ event: "command", func: "setVolume", args: [v] }), "*");
+      if (extra === "som") f.contentWindow.postMessage(JSON.stringify({ event: "command", func: "unMute", args: [] }), "*");
+    }
     if (e.servico === "SoundCloud") f.contentWindow.postMessage(JSON.stringify({ method: "setVolume", value: v }), "*");
   }
-  /* o player demora pra ficar pronto: repete o volume algumas vezes no começo */
-  function volumeAoCarregar() {
-    var n = 0, t = setInterval(function () { aplicarVolume(volume == null ? volumeInicial() : volume); if (++n >= 12) clearInterval(t); }, 500);
+  /* rampa suave (curva em "S") do volume atual até o destino */
+  function rampa(destino, ms, depois) {
+    clearInterval(timerRampa);
+    var ini = atual, t0 = Date.now();
+    timerRampa = setInterval(function () {
+      var k = Math.min(1, (Date.now() - t0) / ms), ease = k * k * (3 - 2 * k);
+      atual = ini + (destino - ini) * ease;
+      enviar(Math.round(atual), "som");
+      if (k >= 1) { clearInterval(timerRampa); if (depois) depois(); }
+    }, 50);
   }
+  /* o player demora um pouco pra ficar pronto: segura no zero, depois sobe
+     devagar até o volume escolhido, e reforça o valor final algumas vezes */
+  function aoCarregar() {
+    limparInicio();
+    atual = 0;
+    var n = 0, t = setInterval(function () {
+      enviar(0);
+      if (++n >= 6) { clearInterval(t); rampa(escolhido(), 2600); }
+    }, 250);
+    timersInicio.push(t);
+    timersInicio.push(setTimeout(function () {
+      var k = 0, t2 = setInterval(function () { enviar(Math.round(atual), "som"); if (++k >= 6) clearInterval(t2); }, 700);
+      timersInicio.push(t2);
+    }, 4600));
+  }
+  function limparInicio() { timersInicio.forEach(function (t) { clearInterval(t); clearTimeout(t); }); timersInicio = []; }
 
   function trilha() { return (window.SITE && SITE.perfil && SITE.perfil.trilha) || {}; }
   function info() { var t = trilha(); return t.mostrar === false ? null : embed(t.url); }
@@ -98,7 +132,7 @@ var Musica = (function () {
         '<div class="mu-player" style="height:' + e.altura + 'px"><button type="button" class="mu-tocar" data-mu="tocar"><span aria-hidden="true">&#9654;</span> Tocar a trilha</button></div>' +
         (e.servico === "Spotify"
           ? '<p class="mu-nota">No Spotify, quem não está logado ouve só uma prévia de cada música. O volume é o do seu aparelho.</p>'
-          : '<label class="mu-volume"><span class="mu-vol-ico" aria-hidden="true">&#128264;</span><input type="range" min="0" max="100" step="5" value="' + volumeInicial() + '" aria-label="Volume da música"><output>' + volumeInicial() + "%</output></label>") +
+          : '<label class="mu-volume"><span class="mu-vol-ico" aria-hidden="true">&#128264;</span><input type="range" min="0" max="100" step="1" value="' + volumeInicial() + '" aria-label="Volume da música"><output>' + volumeInicial() + "%</output></label>") +
       "</div>" +
       '<button type="button" class="mu-botao" data-mu="alternar" aria-expanded="false" aria-controls="mu-painel">' +
         '<span class="mu-eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="mu-txt">' + esc(t.rotulo || "Trilha sonora") + "</span></button>";
@@ -109,7 +143,7 @@ var Musica = (function () {
       volume = Number(faixa.value);
       faixa.nextElementSibling.textContent = volume + "%";
       raiz.querySelector(".mu-vol-ico").innerHTML = volume === 0 ? "&#128263;" : volume < 50 ? "&#128264;" : "&#128266;";
-      aplicarVolume(volume);
+      rampa(volume, 450);
     });
     raiz.addEventListener("click", function (ev) {
       var b = ev.target.closest("[data-mu]");
@@ -161,7 +195,7 @@ var Musica = (function () {
       f.allow = "autoplay; encrypted-media; clipboard-write; picture-in-picture";
       f.setAttribute("loading", "eager");
       f.referrerPolicy = "strict-origin-when-cross-origin";
-      f.addEventListener("load", volumeAoCarregar);
+      f.addEventListener("load", aoCarregar);
       raiz.querySelector(".mu-player").appendChild(f);
       carregado = true;
       raiz.classList.add("tocando");
@@ -178,13 +212,18 @@ var Musica = (function () {
     raiz.classList.remove("aberto");
     raiz.querySelector(".mu-botao").setAttribute("aria-expanded", "false");
   }
-  /* fechar remove o player: a música para de verdade */
+  /* fechar: o volume desce devagar (fade-out) e só então o player sai */
   function fechar() {
     if (!raiz) return;
-    raiz.querySelector(".mu-player").innerHTML = '<button type="button" class="mu-tocar" data-mu="tocar"><span aria-hidden="true">&#9654;</span> Tocar a trilha</button>';
-    carregado = false;
-    raiz.classList.remove("tocando");
+    limparInicio();
     minimizar();
+    var r0 = raiz;
+    rampa(0, 700, function () {
+      if (raiz !== r0) return;
+      raiz.querySelector(".mu-player").innerHTML = '<button type="button" class="mu-tocar" data-mu="tocar"><span aria-hidden="true">&#9654;</span> Tocar a trilha</button>';
+      carregado = false;
+      raiz.classList.remove("tocando");
+    });
   }
 
   /* no painel o script só serve pra reconhecer o link (embed) */
