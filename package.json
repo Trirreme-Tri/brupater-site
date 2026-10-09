@@ -1,0 +1,31 @@
+{
+  "name": "brupater-site",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:estatico": "node ferramentas/build-estatico.mjs",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "verificar": "npm run lint && npm run typecheck && npm run build"
+  },
+  "dependencies": {
+    "next": "16.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.0",
+    "typescript": "^5"
+  },
+  "description": "Site da artista Brunna Paternostro (@_.brupater). Desenvolvido pela TRIRREME.",
+  "engines": {
+    "node": ">=20.9"
+  }
+}

@@ -1,0 +1,102 @@
+/*
+ * Cores do site. As 7 cores da marca (--rosa ... --noite) são sobrescritas
+ * pelo painel (src/lib/tema.ts). O resto deriva delas.
+ * Tema escuro e claro funcionam por prefers-color-scheme E por [data-theme].
+ * As "cenas" (abertura, interlúdios, agenda) são sempre escuras, como cinema;
+ * as seções "pôster" (ficha, encomendas) são sempre papel, como impresso.
+ */
+:root {
+  --rosa: #E8347F;     /* etiqueta "OPEN" */
+  --poster: #C94F7C;   /* títulos do pôster Oásis */
+  --vinho: #7E1F3E;    /* tiefling */
+  --violeta: #C79BFF;  /* neon da tabela "Comissões" */
+  --teal: #4FD1C1;     /* água / cabelo */
+  --papel: #EFE6E1;    /* fundo dos pôsteres */
+  --noite: #0E0A0F;    /* tela de cinema */
+
+  --papel-ink: #1A1218;
+  --papel-soft: #5D4A53;
+  --papel-line: rgba(26, 18, 24, .18);
+
+  --cine-ink: #F6EDE9;
+  --cine-soft: #BCA9B0;
+  --cine-line: rgba(246, 237, 233, .14);
+
+  /* tema claro (padrão) */
+  --bg: var(--papel);
+  --bg-2: color-mix(in srgb, var(--papel) 86%, var(--poster));
+  --ink: var(--papel-ink);
+  --ink-soft: var(--papel-soft);
+  --line: var(--papel-line);
+  --card: rgba(255, 255, 255, .5);
+  --card-forte: #FBF6F3;
+  --sombra: rgba(26, 18, 24, .16);
+  --ring: var(--rosa);
+
+  /* página inicial e página de projeto: seguem o tema (claro = papel, escuro = cinema) */
+  --casa-bg: var(--papel);
+  --casa-bg2: color-mix(in srgb, var(--papel) 55%, white);
+  --casa-ink: var(--papel-ink);
+  --casa-soft: var(--papel-soft);
+  --casa-line: var(--papel-line);
+  --nav-bg: var(--papel);
+  --nav-ink: var(--papel-ink);
+  --rodape-bg: #07050A;
+  --rodape-ink: #F6EDE9;
+
+  --f-cinema: "Oranienbaum", "Playfair Display", Georgia, serif;
+  --f-poster: "Montserrat", system-ui, sans-serif;
+  --f-mao: "Gochi Hand", "Comic Sans MS", cursive;
+  --f-corpo: "Montserrat", system-ui, sans-serif;
+
+  --raio: 14px;
+  --gutter: 16px;
+  --larg: 1160px;
+  --ease-cine: cubic-bezier(.2, .7, .1, 1);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: var(--noite);
+    --bg-2: color-mix(in srgb, var(--noite) 82%, var(--vinho));
+    --ink: var(--cine-ink);
+    --ink-soft: var(--cine-soft);
+    --line: var(--cine-line);
+    --card: rgba(255, 255, 255, .045);
+    --card-forte: color-mix(in srgb, var(--noite) 88%, white);
+    --sombra: rgba(0, 0, 0, .5);
+    --casa-bg: var(--noite);
+    --casa-bg2: color-mix(in srgb, var(--noite) 86%, var(--vinho));
+    --casa-ink: var(--cine-ink);
+    --casa-soft: var(--cine-soft);
+    --casa-line: var(--cine-line);
+    --nav-bg: var(--noite);
+    --nav-ink: var(--cine-ink);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: var(--noite);
+  --bg-2: color-mix(in srgb, var(--noite) 82%, var(--vinho));
+  --ink: var(--cine-ink);
+  --ink-soft: var(--cine-soft);
+  --line: var(--cine-line);
+  --card: rgba(255, 255, 255, .045);
+  --card-forte: color-mix(in srgb, var(--noite) 88%, white);
+  --sombra: rgba(0, 0, 0, .5);
+  --casa-bg: var(--noite);
+  --casa-bg2: color-mix(in srgb, var(--noite) 86%, var(--vinho));
+  --casa-ink: var(--cine-ink);
+  --casa-soft: var(--cine-soft);
+  --casa-line: var(--cine-line);
+  --nav-bg: var(--noite);
+  --nav-ink: var(--cine-ink);
+  color-scheme: dark;
+}
+
+@media (min-width: 720px) {
+  :root { --gutter: 28px; }
+}
