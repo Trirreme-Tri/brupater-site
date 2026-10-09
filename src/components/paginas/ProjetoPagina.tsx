@@ -22,7 +22,7 @@ export function ProjetoPagina() {
   const titulo = (p ? p.titulo : "Projeto") + " · " + (site.perfil.nome || "");
   useEffect(() => {
     const aplicar = () => {
-      if (window.location.pathname !== "/projeto") return;
+      if (!/\/projeto\/?$/.test(window.location.pathname)) return;
       if (document.title !== titulo) document.title = titulo;
     };
     aplicar();

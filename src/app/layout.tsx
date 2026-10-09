@@ -4,6 +4,7 @@ import { PADRAO } from "@/lib/conteudo/padrao";
 import { LOJA_CHAVE, PREVIA_CHAVE } from "@/lib/loja";
 import { TEMA_CHAVE, aplicarTema } from "@/lib/tema";
 import { InlineScript } from "@/components/InlineScript";
+import { rota } from "@/lib/util";
 import "@/styles/tokens.css";
 import "@/styles/base.css";
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   ...(SITE_URL ? { metadataBase: new URL(SITE_URL) } : {}),
   title: { default: p.nome + " · " + p.titulo, template: "%s · " + p.nome },
   description: p.nome + " (@" + p.handle + "): ilustração e design gráfico. Projetos, portfólio, agenda e encomendas.",
-  icons: { icon: "/assets/avatar.webp" },
+  icons: { icon: rota("/assets/avatar.webp") },
 };
 
 export const viewport: Viewport = {

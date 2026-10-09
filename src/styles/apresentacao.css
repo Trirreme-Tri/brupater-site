@@ -2,7 +2,7 @@
 
 .doc-capa { position: relative; min-height: 78vh; min-height: 78svh; display: flex; align-items: flex-end; overflow: hidden; background: #000; color: var(--cine-ink); }
 /* imagem parada (sem zoom contínuo: imagem se mexendo sem parar parece tremer) */
-.doc-capa-img { position: absolute; inset: 0; background: url("/assets/obras/correnteza.webp") 50% 28% / cover; }
+.doc-capa-img { position: absolute; inset: 0; background: url("../../public/assets/obras/correnteza.webp") 50% 28% / cover; }
 .doc-capa::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .35), rgba(0, 0, 0, .1) 35%, rgba(7, 5, 10, .92) 88%, var(--bg)); }
 .doc-capa-txt { position: relative; z-index: 2; padding-bottom: 56px; padding-top: 120px; }
 .doc-pra { color: var(--rosa); font-size: 1.6rem; transform: rotate(-2deg); transform-origin: left; }

@@ -22,7 +22,7 @@ import { PADRAO, OPCOES_FONTES, TAMANHOS_IMAGEM } from "@/lib/conteudo/padrao";
 import type { Site } from "@/lib/conteudo/tipos";
 import { LOJA_CHAVE, PREVIA_CHAVE, lojaCarregar, lojaPrevia, lojaRestaurarPadrao, lojaSalvar, mesclar } from "@/lib/loja";
 import { TEMA_CHAVE, aplicarTema } from "@/lib/tema";
-import { copiaProfunda, esc, img, urlSegura } from "@/lib/util";
+import { copiaProfunda, esc, img, rota, urlSegura } from "@/lib/util";
 import { ICONES, iconeSvg } from "@/lib/icones";
 import { MESES, dataExtenso, estadoAgenda, estadoSessao } from "@/lib/agenda";
 import { embedMusica } from "@/lib/musica";
@@ -353,7 +353,7 @@ export function iniciarPainel(): () => void {
       secao("Projetos", "A ordem aqui é a ordem da página inicial (os 2 primeiros aparecem maiores no computador). A categoria vira um filtro quando houver mais de uma.",
         '<datalist id="cats-projetos">' + cats.map((c) => '<option value="' + esc(c) + '">').join("") + "</datalist>" +
         lista("projetos", (p, i, c) => {
-          const url = "/projeto?p=" + encodeURIComponent(p.id || "");
+          const url = rota("/projeto?p=" + encodeURIComponent(p.id || ""));
           return '<div class="obra-admin' + (p.visivel === false ? " oculta" : "") + '">' +
             linha(campo(c + ".titulo", "Nome do projeto"), campo(c + ".categoria", "Categoria", { lista: "cats-projetos" })) +
             campoImg(c + ".capa", "Capa (aparece na página inicial)", tam(4)) +
@@ -392,7 +392,7 @@ export function iniciarPainel(): () => void {
       secao("Páginas de aviso", "Aparecem quando alguém abre um endereço que não existe (404), quando dá erro, ou quando o site está fora do ar.",
         [["naoEncontrada", "Página não existe (404)", "/pagina-que-nao-existe"], ["erro", "Algo deu errado", "/erro"], ["manutencao", "Site fora do ar (manutenção)", "/manutencao"]].map((k) => {
           const c = "paginasAviso." + k[0];
-          return '<h3 class="sub-t">' + k[1] + ' · <a href="' + k[2] + '" target="_blank" rel="noopener">ver &#8599;</a></h3>' +
+          return '<h3 class="sub-t">' + k[1] + ' · <a href="' + rota(k[2]) + '" target="_blank" rel="noopener">ver &#8599;</a></h3>' +
             linha(campo(c + ".rotulo", "Linha pequena"), campo(c + ".titulo", "Título")) + campo(c + ".texto", "Texto", { tipo: "textarea", linhas: 2 }) +
             linha(campo(c + ".botao", "Texto do botão")) + campoImg(c + ".img", "Imagem", tam(6));
         }).join("")) +
@@ -768,7 +768,7 @@ export function iniciarPainel(): () => void {
     const f = $<HTMLIFrameElement>("#previa-frame");
     if (!f || !previa.aberta) return;
     lojaPrevia(rascunho);
-    f.src = previa.pagina + (previa.pagina.indexOf("?") < 0 ? "?" : "&") + "previa=1&tema=" + previa.tema;
+    f.src = rota(previa.pagina) + (previa.pagina.indexOf("?") < 0 ? "?" : "&") + "previa=1&tema=" + previa.tema;
     pintarPrevia();
   }
   function pintarPrevia() {

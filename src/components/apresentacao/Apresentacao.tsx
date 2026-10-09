@@ -10,7 +10,7 @@
 import type { ReactNode } from "react";
 import { useMontado, useSite } from "@/lib/useSite";
 import { TAMANHOS_IMAGEM } from "@/lib/conteudo/padrao";
-import { brl, img } from "@/lib/util";
+import { brl, img, rota } from "@/lib/util";
 import { SENHA, USUARIO } from "@/lib/acessoPainel";
 
 const NOMES_CORES: Record<string, [string, string]> = {
@@ -24,8 +24,8 @@ const NOMES_CORES: Record<string, [string, string]> = {
 };
 
 function LinkCompleto({ base, caminho }: { base: string; caminho: string }) {
-  const u = base + caminho;
-  return <a className="url" href={caminho} target="_blank" rel="noopener">{u.replace(/^https?:\/\//, "")}</a>;
+  const u = base + rota(caminho);
+  return <a className="url" href={rota(caminho)} target="_blank" rel="noopener">{u.replace(/^https?:\/\//, "")}</a>;
 }
 
 export function Apresentacao() {
@@ -79,7 +79,7 @@ export function Apresentacao() {
                   <li key={c}><b>{nome}</b><LinkCompleto base={base} caminho={c} /></li>
                 ))}
               </ul>
-              <a className="btn cheio" href="/" target="_blank" rel="noopener">Ver o site</a>
+              <a className="btn cheio" href={rota("/")} target="_blank" rel="noopener">Ver o site</a>
             </div>
             <div className="cartao">
               <p className="rotulo">seu painel (só você e o Wellington)</p>
@@ -89,7 +89,7 @@ export function Apresentacao() {
                 <code>Usuário: <span id="usuario">{USUARIO}</span></code>
                 <code>Senha: <span id="senha">{SENHA}</span></code>
               </div>
-              <a className="btn" href="/admin" target="_blank" rel="noopener">Abrir o painel</a>
+              <a className="btn" href={rota("/admin")} target="_blank" rel="noopener">Abrir o painel</a>
             </div>
             <div className="cartao">
               <p className="rotulo">páginas de aviso (aparecem sozinhas quando precisa)</p>

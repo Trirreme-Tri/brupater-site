@@ -22,8 +22,12 @@ const ANTIGOS: [string, string][] = [
   ["/manutencao.html", "/manutencao"],
 ];
 
+/* subpasta (só no GitHub Pages: "/brupater-site"); vazio no Firebase e no domínio próprio */
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || undefined;
+
 const nextConfig: NextConfig = {
   output: estatico ? "export" : undefined,
+  basePath,
   poweredByHeader: false,
   ...(estatico
     ? {}

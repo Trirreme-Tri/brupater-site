@@ -87,6 +87,18 @@ firebase deploy --only hosting      # usa o firebase.json (pasta out/)
 
 Conectar o repositório pelo console do Firebase (App Hosting). Cada push na branch escolhida publica sozinho.
 
+### GitHub Pages (prévia) — automático
+
+Cada push na `main` publica uma prévia em **https://trirreme-tri.github.io/brupater-site/**
+(workflow `.github/workflows/pages.yml`). É o modo estático numa subpasta (`NEXT_PUBLIC_BASE_PATH=/brupater-site`).
+Por isso, links internos usam `LinkSite` ou `rota()` e imagens usam `img()`: nunca escrever `"/assets/..."` direto no código.
+
+Testar a prévia no computador:
+
+```bash
+NEXT_PUBLIC_BASE_PATH=/brupater-site npm run build:estatico   # no Windows (PowerShell): $env:NEXT_PUBLIC_BASE_PATH="/brupater-site"; npm run build:estatico
+```
+
 ## Limitações conhecidas (fase atual)
 
 - O que a Bru salva no painel fica **no navegador dela** (localStorage). Vale pra todos quando o banco (Firebase) entrar.

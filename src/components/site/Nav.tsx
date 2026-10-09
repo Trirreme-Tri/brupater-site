@@ -93,7 +93,7 @@ export function Nav() {
     <header className={"nav" + (solida ? " solida" : "") + (menu ? " menu-aberto" : "")} id="nav">
       <div className="nav-in">
         <LinkSite className="marca" href="/" aria-label="Início">
-          <img src={img(p.avatar) || "/assets/avatar.webp"} width={150} height={150} alt="" />
+          <img src={img(p.avatar) || img("assets/avatar.webp")} width={150} height={150} alt="" />
           <span className="t-cinema">{nomeCurto}</span>
         </LinkSite>
         <nav className="nav-links" aria-label="Páginas">

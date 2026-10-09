@@ -24,12 +24,23 @@ export function urlSegura(url: unknown, permitirDataImg = false): string {
 /*
  * Endereço final de uma imagem. O conteúdo guarda caminhos como
  * "assets/obras/x.webp"; aqui eles ganham a base certa:
- *  - sem NEXT_PUBLIC_IMAGENS_URL: "/assets/obras/x.webp" (pasta public/ do site)
+ *  - sem NEXT_PUBLIC_IMAGENS_URL: "/assets/obras/x.webp" (pasta public/ do site,
+ *    com a subpasta na frente quando houver, ex.: "/brupater-site/assets/...")
  *  - com NEXT_PUBLIC_IMAGENS_URL: "<base>/assets/obras/x.webp" (ex.: Firebase Storage)
  * URLs completas (https://...) e imagens enviadas (data:) passam sem mudança.
  * É o ÚNICO lugar que decide de onde vêm as imagens.
  */
-const BASE_IMAGENS = (process.env.NEXT_PUBLIC_IMAGENS_URL || "").replace(/\/+$/, "");
+/*
+ * Subpasta onde o site está publicado (ex.: "/brupater-site" no GitHub Pages).
+ * Vazio no Firebase e no domínio próprio. Os <Link> do Next.js já usam isso
+ * sozinhos; links comuns (<a>) e o quadro da prévia usam rota().
+ */
+export const BASE = (process.env.NEXT_PUBLIC_BASE_PATH || "").replace(/\/+$/, "");
+export function rota(caminho: string): string {
+  return BASE + caminho;
+}
+
+const BASE_IMAGENS = (process.env.NEXT_PUBLIC_IMAGENS_URL || BASE).replace(/\/+$/, "");
 export function img(url: unknown): string {
   const u = urlSegura(url, true);
   if (!u || /^(https?:|data:|#)/i.test(u)) return u;

@@ -54,5 +54,5 @@ export const scriptCortina =
     nome: PADRAO.perfil.nome,
     titulo: PADRAO.perfil.titulo,
     avatar: PADRAO.perfil.avatar,
-    base: (process.env.NEXT_PUBLIC_IMAGENS_URL || "").replace(/\/+$/, ""),
+    base: (process.env.NEXT_PUBLIC_IMAGENS_URL || process.env.NEXT_PUBLIC_BASE_PATH || "").replace(/\/+$/, ""),
   }) + ");";

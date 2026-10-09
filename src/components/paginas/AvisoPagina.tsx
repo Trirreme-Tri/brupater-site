@@ -7,7 +7,7 @@
  */
 import type { TipoAviso } from "@/lib/conteudo/tipos";
 import { useSite } from "@/lib/useSite";
-import { img } from "@/lib/util";
+import { img, rota } from "@/lib/util";
 import { contatoTemWhats, instagramUrl } from "@/lib/contato";
 import { Icone } from "@/components/site/Icone";
 
@@ -33,8 +33,7 @@ export function AvisoPagina({ tipo, tentarDeNovo }: { tipo: TipoAviso; tentarDeN
   } else {
     /* link comum (recarrega): a página de aviso fica fora do layout do site,
        e assim a tela de carregamento e o player voltam do jeito certo */
-    // eslint-disable-next-line @next/next/no-html-link-for-pages
-    principal = <a className="btn cheio" href="/">{a.botao || "Voltar ao início"}</a>;
+    principal = <a className="btn cheio" href={rota("/")}>{a.botao || "Voltar ao início"}</a>;
   }
 
   return (

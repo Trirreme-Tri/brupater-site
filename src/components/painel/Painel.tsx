@@ -7,6 +7,7 @@
  */
 import { useEffect } from "react";
 import { iniciarPainel } from "./motor";
+import { img, rota } from "@/lib/util";
 
 export function Painel() {
   useEffect(() => iniciarPainel(), []);
@@ -17,7 +18,7 @@ export function Painel() {
       <main className="login" id="login" hidden>
         <div className="login-arte" aria-hidden="true"></div>
         <form className="login-caixa" id="login-form" autoComplete="on">
-          <img className="login-avatar" src="/assets/avatar.webp" width={150} height={150} alt="" />
+          <img className="login-avatar" src={img("assets/avatar.webp")} width={150} height={150} alt="" />
           <p className="rotulo">área restrita</p>
           <h1 className="t-cinema">Painel da Bru</h1>
           <p className="login-sub">Entre pra editar o site: agenda, preços, galeria, textos, cores e fontes.</p>
@@ -26,8 +27,7 @@ export function Painel() {
           <p className="erro" id="login-erro" hidden>Usuário ou senha incorretos.</p>
           <button className="btn cheio" type="submit">Entrar</button>
           {/* link comum (recarrega): o painel e o site usam folhas de estilo diferentes */}
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-          <a className="login-voltar" href="/">&#8592; voltar para o site</a>
+          <a className="login-voltar" href={rota("/")}>&#8592; voltar para o site</a>
         </form>
       </main>
 
@@ -35,12 +35,12 @@ export function Painel() {
       <div className="painel" id="painel" hidden>
         <header className="topo">
           <div className="topo-marca">
-            <img className="js-avatar" src="/assets/avatar.webp" width={150} height={150} alt="" />
+            <img className="js-avatar" src={img("assets/avatar.webp")} width={150} height={150} alt="" />
             <div><p className="rotulo">painel</p><h1 className="t-cinema">Painel da Bru</h1></div>
           </div>
           <div className="topo-acoes">
             <button className="btn cheio" type="button" id="previa-btn" aria-pressed="false">&#128065; Prévia</button>
-            <a className="btn" href="/" target="_blank" rel="noopener">Ver site &#8599;</a>
+            <a className="btn" href={rota("/")} target="_blank" rel="noopener">Ver site &#8599;</a>
             <button className="btn" type="button" id="sair">Sair</button>
           </div>
         </header>
