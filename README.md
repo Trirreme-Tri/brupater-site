@@ -4,7 +4,7 @@ Portfólio, agenda e calculadora de encomendas da artista Brunna Paternostro
 (Illustrator & Graphic Design), com painel de edição.
 Feito em **Next.js 16 + TypeScript**. Desenvolvido pela [TRIRREME](https://trirreme.com).
 
-> A versão antiga (HTML puro, GitHub Pages) está guardada na tag `legado-html`.
+> A versão antiga (HTML puro, GitHub Pages) está no histórico do Git, no commit `b90c44a`.
 
 ## Rodar no computador
 
