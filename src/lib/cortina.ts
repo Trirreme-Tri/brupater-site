@@ -5,7 +5,8 @@
  * Escrita "sozinha" (sem usar nada de fora dela) porque vira texto de script.
  */
 import { PADRAO } from "./conteudo/padrao";
-import { LOJA_CHAVE, PREVIA_CHAVE } from "./loja";
+import { CHAVE_CACHE } from "./firebase/constantes";
+import { PREVIA_CHAVE } from "./loja";
 
 export const INTRO_CHAVE = "brupater:intro";
 
@@ -16,7 +17,9 @@ export function prepararCortina(a: { lojaChave: string; previaChave: string; int
     const previa = /[?&]previa=1(&|$)/.test(location.search);
     let s: { perfil?: { nome?: string; titulo?: string; avatar?: string }; aparencia?: { carregamento?: boolean } } | null = null;
     try {
-      s = JSON.parse((previa && localStorage.getItem(a.previaChave)) || localStorage.getItem(a.lojaChave) || "null");
+      const pv = previa ? localStorage.getItem(a.previaChave) : null;
+      /* sem prévia, lê a cópia do Firestore guardada no navegador (conteúdo em .site) */
+      s = pv ? JSON.parse(pv) : (JSON.parse(localStorage.getItem(a.lojaChave) || "null") || {}).site || null;
     } catch {
       s = null;
     }
@@ -48,7 +51,7 @@ export function prepararCortina(a: { lojaChave: string; previaChave: string; int
 export const scriptCortina =
   "(" + prepararCortina.toString() + ")(" +
   JSON.stringify({
-    lojaChave: LOJA_CHAVE,
+    lojaChave: CHAVE_CACHE,
     previaChave: PREVIA_CHAVE,
     introChave: INTRO_CHAVE,
     nome: PADRAO.perfil.nome,

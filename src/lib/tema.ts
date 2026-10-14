@@ -14,6 +14,7 @@ export const TEMA_CHAVE = "brupater:modo";
 export interface ArgsTema {
   /** aparência padrão (PADRAO.aparencia) */
   padrao: Aparencia;
+  /** chave do cache local da cópia do Firestore (CHAVE_CACHE) */
   lojaChave: string;
   previaChave: string;
   temaChave: string;
@@ -32,7 +33,9 @@ export function aplicarTema(a: ArgsTema): void {
     if (!ap) {
       let salvo: { aparencia?: Partial<Aparencia> } | null = null;
       try {
-        salvo = JSON.parse((previa && localStorage.getItem(a.previaChave)) || localStorage.getItem(a.lojaChave) || "null");
+        const pv = previa ? localStorage.getItem(a.previaChave) : null;
+        /* sem prévia, lê a cópia do Firestore guardada no navegador (conteúdo em .site) */
+        salvo = pv ? JSON.parse(pv) : (JSON.parse(localStorage.getItem(a.lojaChave) || "null") || {}).site || null;
       } catch {
         salvo = null;
       }

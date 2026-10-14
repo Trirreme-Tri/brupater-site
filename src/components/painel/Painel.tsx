@@ -22,10 +22,11 @@ export function Painel() {
           <p className="rotulo">área restrita</p>
           <h1 className="t-cinema">Painel da Bru</h1>
           <p className="login-sub">Entre pra editar o site: agenda, preços, galeria, textos, cores e fontes.</p>
-          <label className="campo"><span>Usuário</span><input id="login-usuario" type="text" autoComplete="username" required /></label>
+          <label className="campo"><span>E-mail</span><input id="login-usuario" type="email" autoComplete="username" required /></label>
           <label className="campo"><span>Senha</span><input id="login-senha" type="password" autoComplete="current-password" required /></label>
-          <p className="erro" id="login-erro" hidden>Usuário ou senha incorretos.</p>
+          <p className="erro" id="login-erro" hidden>E-mail ou senha incorretos.</p>
           <button className="btn cheio" type="submit">Entrar</button>
+          <button className="login-voltar login-esqueci" type="button" id="login-esqueci">Esqueci a senha</button>
           {/* link comum (recarrega): o painel e o site usam folhas de estilo diferentes */}
           <a className="login-voltar" href={rota("/")}>&#8592; voltar para o site</a>
         </form>

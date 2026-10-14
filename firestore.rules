@@ -1,0 +1,35 @@
+rules_version = '2';
+
+// Site Bru Pater: regras do Firestore.
+// Todos leem o conteúdo; só quem está em admins/{uid} grava.
+// Tudo o que não está listado aqui é negado (falhar fechado).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function ehAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // O carimbo de quem salvou e quando não pode ser inventado pelo navegador.
+    function carimboValido() {
+      return request.resource.data.atualizadoPor == request.auth.uid
+        && request.resource.data.atualizadoEm == request.time;
+    }
+
+    match /conteudo/site {
+      allow read: if true;
+      allow create, update: if ehAdmin() && carimboValido();
+      allow delete: if false;
+    }
+
+    match /historico/{id} {
+      allow read, create: if ehAdmin();
+      allow update, delete: if false;
+    }
+
+    match /admins/{uid} {
+      allow read, write: if false;
+    }
+  }
+}

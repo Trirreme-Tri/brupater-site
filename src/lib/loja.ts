@@ -1,22 +1,30 @@
 /*
  * Camada de dados: onde o conteúdo do site fica guardado.
  *
- * HOJE: o padrão vem de src/lib/conteudo/padrao.ts (PADRAO) e o que a Bru
- * edita no painel fica salvo no navegador dela (localStorage). Por isso o que
- * ela salva ainda não aparece para os visitantes.
+ * O padrão vem de src/lib/conteudo/padrao.ts (PADRAO). O que a Bru salva no
+ * painel mora no Firestore (conteudo/site, formato do tipo Site) e vale para
+ * todos os visitantes. A última cópia recebida fica em cache no navegador, para
+ * a próxima visita abrir já com o conteúdo certo.
  *
- * PRÓXIMA ETAPA (banco de dados): este é o ÚNICO arquivo que precisa mudar.
- * carregar/salvar passam a ler e gravar no Firestore, no mesmo formato
- * (tipo Site). O resto do site não muda. Ver o guia do banco de dados.
+ * Só este arquivo e useSite.ts conversam com o armazenamento. O rascunho da
+ * prévia do painel continua local (PREVIA_CHAVE).
  *
- * Só roda no navegador (usa localStorage). No servidor, o site usa o PADRAO.
+ * Só roda no navegador. No servidor, o site usa o PADRAO.
  */
 import { PADRAO } from "./conteudo/padrao";
 import type { Site } from "./conteudo/tipos";
 import { copiaProfunda, rotaInterna } from "./util";
+import {
+  lerCache,
+  ouvirConteudo,
+  restaurarPadrao,
+  salvarConteudo,
+  type CopiaRemota,
+} from "./firebase/conteudoRemoto";
 
-/* v2: as imagens do portfólio foram trocadas (out/2026). Mudar a chave
-   descarta edições antigas que apontavam para imagens que não existem mais. */
+/* Chave antiga do localStorage (v2). O site público não lê mais daqui: o
+   conteúdo vem do Firestore. Fica só para o painel não perder o que a Bru
+   salvou neste navegador antes do banco (o dado nunca é apagado). */
 export const LOJA_CHAVE = "brupater:site:v2";
 
 /* Prévia ao vivo do painel: o painel grava o rascunho (ainda não salvo) em
@@ -27,8 +35,46 @@ export const PREVIA_CHAVE = "brupater:previa";
 export function emPrevia(): boolean {
   return typeof window !== "undefined" && /[?&]previa=1(&|$)/.test(window.location.search);
 }
-export function lojaChaveAtual(): string {
-  return emPrevia() ? PREVIA_CHAVE : LOJA_CHAVE;
+
+/* ---------- cópia vinda do Firestore ---------- */
+let remoto: CopiaRemota | null | undefined; // undefined = cache local ainda não lido
+let versaoRemoto = 0;
+const ouvintes = new Set<() => void>();
+let pararEscuta: (() => void) | null = null;
+
+function copiaRemota(): CopiaRemota | null {
+  if (remoto === undefined) remoto = lerCache();
+  return remoto;
+}
+
+/** muda a cada cópia nova recebida (para o useSite saber quando recalcular) */
+export const lojaVersao = (): number => versaoRemoto;
+
+/** hora do servidor do último salvamento conhecido, em ms (null se ainda não há) */
+export function lojaAtualizadoEmMs(): number | null {
+  return copiaRemota()?.atualizadoEmMs ?? null;
+}
+
+/** Avisa quando chega conteúdo novo. Abre UMA escuta no Firestore, compartilhada, e fecha quando o último sai. */
+export function lojaAssinar(avisar: () => void): () => void {
+  ouvintes.add(avisar);
+  if (!pararEscuta) {
+    pararEscuta = ouvirConteudo(
+      (copia) => {
+        remoto = copia;
+        versaoRemoto++;
+        ouvintes.forEach((f) => f());
+      },
+      (motivo, erro) => console.warn("[brupater] Firestore indisponível (" + motivo + "); seguindo com a cópia local ou o padrão.", erro),
+    );
+  }
+  return () => {
+    ouvintes.delete(avisar);
+    if (ouvintes.size === 0 && pararEscuta) {
+      pararEscuta();
+      pararEscuta = null;
+    }
+  };
 }
 
 /* junta o que foi salvo por cima do padrão. Objetos são mesclados campo a
@@ -134,26 +180,27 @@ const MIGRACOES: Migracao[] = [
 ];
 
 function lerSalvo(): unknown {
-  try {
-    const previa = emPrevia() ? localStorage.getItem(PREVIA_CHAVE) : null;
-    return JSON.parse(previa || localStorage.getItem(LOJA_CHAVE) || "null");
-  } catch {
-    return null;
+  if (emPrevia()) {
+    try {
+      const previa = localStorage.getItem(PREVIA_CHAVE);
+      if (previa) return JSON.parse(previa);
+    } catch {
+      /* rascunho ilegível: usa o conteúdo salvo */
+    }
   }
+  return copiaRemota()?.site ?? null;
 }
 
-/** conteúdo atual: o salvo (ou o rascunho da prévia) por cima do padrão */
+/** conteúdo atual: o salvo no Firestore (ou o rascunho da prévia) por cima do padrão */
 export function lojaCarregar(): Site {
   const salvo = typeof window === "undefined" ? null : lerSalvo();
   const site = mesclar(copiaProfunda(PADRAO), salvo || {});
   const feitas: string[] = ((salvo as Site | null)?.migracoes || []).slice();
-  let rodou = false;
   MIGRACOES.forEach((m) => {
     if (feitas.indexOf(m.id) >= 0) return;
     if (salvo) {
       try {
         m.rodar(site);
-        rodou = true;
       } catch {
         /* dado estranho: deixa como está */
       }
@@ -161,24 +208,35 @@ export function lojaCarregar(): Site {
     feitas.push(m.id);
   });
   site.migracoes = feitas;
-  if (rodou && !emPrevia()) {
-    try {
-      localStorage.setItem(LOJA_CHAVE, JSON.stringify(site));
-    } catch {
-      /* sem espaço: roda de novo na próxima */
-    }
-  }
   return site;
 }
 
-/** grava o conteúdo. Lança erro com mensagem amigável se não coube. */
-export function lojaSalvar(site: Site): true {
-  try {
-    localStorage.setItem(LOJA_CHAVE, JSON.stringify(site));
-    return true;
-  } catch {
-    throw new Error("Não coube no armazenamento do navegador. Use imagens menores ou menos imagens enviadas do computador.");
-  }
+/**
+ * Grava no Firestore (só com a Bru ou o Wellington logados). Lança erro se não conseguir; traduzir com mensagemDeErro().
+ * baseMs = lojaAtualizadoEmMs() de quando o painel carregou o conteúdo que está sendo editado: se outra pessoa
+ * salvou depois, o salvamento é recusado (ConflitoDeEdicao) em vez de sobrescrever.
+ */
+export async function lojaSalvar(site: Site, baseMs: number | null, uid: string): Promise<void> {
+  await salvarConteudo(site, baseMs, uid);
+  await aguardarCopiaNova(baseMs);
+}
+
+/* Depois de salvar, espera a escuta trazer o carimbo novo: sem isso, um segundo
+   salvamento seguido seria recusado como "edição simultânea". */
+function aguardarCopiaNova(antes: number | null): Promise<void> {
+  return new Promise((resolve) => {
+    let solta = () => {};
+    const fim = () => {
+      window.clearTimeout(limite);
+      solta();
+      resolve();
+    };
+    const limite = window.setTimeout(fim, 5000);
+    solta = lojaAssinar(() => {
+      if (lojaAtualizadoEmMs() !== antes) fim();
+    });
+    if (lojaAtualizadoEmMs() !== antes) fim();
+  });
 }
 
 /** grava o rascunho da prévia do painel (não muda o site de verdade) */
@@ -191,10 +249,10 @@ export function lojaPrevia(site: Site): boolean {
   }
 }
 
-export function lojaRestaurarPadrao(): void {
-  try {
-    localStorage.removeItem(LOJA_CHAVE);
-  } catch {
-    /* sem armazenamento: já está no padrão */
-  }
+/** Volta ao padrão. A versão anterior vai para o histórico (nada se perde). */
+export async function lojaRestaurarPadrao(baseMs: number | null, uid: string): Promise<void> {
+  const padrao = copiaProfunda(PADRAO);
+  padrao.migracoes = MIGRACOES.map((m) => m.id);
+  await restaurarPadrao(padrao, baseMs, uid);
+  await aguardarCopiaNova(baseMs);
 }

@@ -14,21 +14,21 @@
  * HTML dos formulários é montado em texto, com tudo passando por esc()). Os
  * caminhos são dinâmicos, por isso o rascunho é tratado como "any" aqui.
  *
- * ATENÇÃO: o login abaixo é só uma porta de entrada simples pra esta fase
- * (usuário e senha ficam no próprio código, visíveis pra quem procurar).
- * Na etapa do banco de dados, o login passa a ser o Firebase Authentication.
+ * Login: Firebase Authentication (e-mail e senha). Salvar grava no Firestore;
+ * quem pode gravar é decidido pelas regras de segurança (coleção admins).
  */
 import { PADRAO, OPCOES_FONTES, TAMANHOS_IMAGEM } from "@/lib/conteudo/padrao";
 import type { Site } from "@/lib/conteudo/tipos";
-import { LOJA_CHAVE, PREVIA_CHAVE, lojaCarregar, lojaPrevia, lojaRestaurarPadrao, lojaSalvar, mesclar } from "@/lib/loja";
+import { PREVIA_CHAVE, lojaAssinar, lojaAtualizadoEmMs, lojaCarregar, lojaPrevia, lojaRestaurarPadrao, lojaSalvar, mesclar } from "@/lib/loja";
+import { CHAVE_CACHE } from "@/lib/firebase/constantes";
 import { TEMA_CHAVE, aplicarTema } from "@/lib/tema";
 import { copiaProfunda, esc, img, rota, urlSegura } from "@/lib/util";
 import { ICONES, iconeSvg } from "@/lib/icones";
 import { MESES, dataExtenso, estadoAgenda, estadoSessao } from "@/lib/agenda";
 import { embedMusica } from "@/lib/musica";
-import { SENHA, USUARIO } from "@/lib/acessoPainel";
-
-const CHAVE_SESSAO = "brupater:painel";
+import { enviarRedefinicao, entrar, ouvirUsuario, sair as sairDoFirebase, type Usuario } from "@/lib/firebase/auth";
+import { mensagemDeErro } from "@/lib/firebase/erros";
+import { liberarConteudo } from "@/lib/firebase/antiPiscada";
 
 type Opts = {
   tipo?: string;
@@ -46,11 +46,15 @@ type Opts = {
 };
 
 export function iniciarPainel(): () => void {
+  liberarConteudo(); // o painel não usa o conteúdo salvo para se mostrar
   const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
   const raiz = $(".admin-raiz");
   let SITE: Site = lojaCarregar();
+  let baseMs: number | null = lojaAtualizadoEmMs(); // carimbo do conteúdo que o rascunho partiu (detecta edição simultânea)
   let rascunho: any = copiaProfunda(SITE);
   let sujo = false;
+  let usuario: Usuario | null = null; // quem está logado (Firebase Authentication)
+  let ocupado = false; // salvando ou restaurando
   let abaAtual = "inicio";
   let modoCores: "claro" | "escuro" = "claro"; // qual modo a aba de cores está editando
   const limpar: (() => void)[] = [];
@@ -62,7 +66,7 @@ export function iniciarPainel(): () => void {
   /* o painel aplica cores da marca e fontes em si mesmo (pra Bru ver), mas
      NÃO as cores por modo: assim o painel nunca fica ilegível */
   function aplicarNoPainel() {
-    aplicarTema({ padrao: PADRAO.aparencia, lojaChave: LOJA_CHAVE, previaChave: PREVIA_CHAVE, temaChave: TEMA_CHAVE, ap: rascunho.aparencia, semModos: true });
+    aplicarTema({ padrao: PADRAO.aparencia, lojaChave: CHAVE_CACHE, previaChave: PREVIA_CHAVE, temaChave: TEMA_CHAVE, ap: rascunho.aparencia, semModos: true });
   }
 
   /* ===================== caminho → valor ===================== */
@@ -722,9 +726,16 @@ export function iniciarPainel(): () => void {
         baixar("site-brupater-" + hojeTxt() + ".json", JSON.stringify(rascunho, null, 2)); return;
       }
       if (alvo.closest("[data-restaurar]")) {
-        if (!confirm("Isso apaga todas as mudanças feitas no painel e volta o site para a versão original. Continuar?")) return;
-        lojaRestaurarPadrao(); SITE = lojaCarregar(); rascunho = copiaProfunda(SITE); limparSujo(); aplicarNoPainel(); render();
-        toast("Site restaurado para a versão original.");
+        if (!confirm("Isso volta o site para a versão original para todos os visitantes (a versão atual fica guardada no histórico). Continuar?")) return;
+        if (!usuario || ocupado) return;
+        ocupado = true;
+        lojaRestaurarPadrao(baseMs, usuario.uid)
+          .then(() => {
+            SITE = lojaCarregar(); baseMs = lojaAtualizadoEmMs(); rascunho = copiaProfunda(SITE); limparSujo(); aplicarNoPainel(); render(); agendarPrevia();
+            toast("Site restaurado para a versão original.");
+          })
+          .catch((err) => toast(mensagemDeErro(err), true))
+          .finally(() => { ocupado = false; });
       }
     });
 
@@ -735,15 +746,23 @@ export function iniciarPainel(): () => void {
     });
 
     const salvar = () => {
-      try {
-        lojaSalvar(rascunho);
-        SITE = copiaProfunda(rascunho);
-        limparSujo(); agendarPrevia();
-        toast("Salvo! Neste navegador o site já mostra as mudanças.");
-      } catch (err) { toast((err as Error).message, true); }
+      if (!usuario || ocupado) return;
+      ocupado = true;
+      const btn = $<HTMLButtonElement>("#salvar-btn");
+      const rotulo = btn.textContent;
+      btn.disabled = true; btn.textContent = "Salvando…";
+      lojaSalvar(rascunho, baseMs, usuario.uid)
+        .then(() => {
+          SITE = copiaProfunda(rascunho); baseMs = lojaAtualizadoEmMs();
+          limparSujo(); agendarPrevia();
+          toast("Salvo! O site já mostra as mudanças para todos os visitantes.");
+        })
+        .catch((err) => toast(mensagemDeErro(err), true))
+        .finally(() => { ocupado = false; btn.disabled = false; btn.textContent = rotulo; });
     };
     ouvir($("#salvar-btn"), "click", salvar);
     ouvir($("#descartar"), "click", () => {
+      SITE = lojaCarregar(); baseMs = lojaAtualizadoEmMs(); // descartar também traz o conteúdo mais novo
       rascunho = copiaProfunda(SITE); limparSujo(); aplicarNoPainel(); render(); agendarPrevia(); toast("Mudanças descartadas.");
     });
     ouvir(document, "keydown", (e: KeyboardEvent) => {
@@ -855,9 +874,8 @@ export function iniciarPainel(): () => void {
   }
 
   /* ===================== login ===================== */
-  const logado = () => { try { return sessionStorage.getItem(CHAVE_SESSAO) === "1"; } catch { return false; } };
   function mostrar() {
-    const ok = logado();
+    const ok = usuario !== null;
     $("#login").hidden = ok;
     $("#painel").hidden = !ok;
     raiz.classList.toggle("em-login", !ok);
@@ -866,20 +884,24 @@ export function iniciarPainel(): () => void {
 
   ouvir($("#login-form"), "submit", (e: Event) => {
     e.preventDefault();
-    const u = $<HTMLInputElement>("#login-usuario").value.trim().toLowerCase(), s = $<HTMLInputElement>("#login-senha").value;
-    if (u === USUARIO && s === SENHA) {
-      try { sessionStorage.setItem(CHAVE_SESSAO, "1"); } catch { /* sem armazenamento */ }
-      $("#login-erro").hidden = true;
-      mostrar();
-    } else {
-      $("#login-erro").hidden = false;
-    }
+    const email = $<HTMLInputElement>("#login-usuario").value.trim(), senha = $<HTMLInputElement>("#login-senha").value;
+    const erro = $("#login-erro");
+    erro.hidden = true;
+    entrar(email, senha)
+      .then(() => { $<HTMLInputElement>("#login-senha").value = ""; }) // o painel abre pelo ouvirUsuario
+      .catch((err) => { erro.textContent = mensagemDeErro(err); erro.hidden = false; });
+  });
+  ouvir($("#login-esqueci"), "click", () => {
+    const email = $<HTMLInputElement>("#login-usuario").value.trim();
+    if (!email) { toast("Digite seu e-mail no campo acima e toque em \"Esqueci a senha\" de novo.", true); return; }
+    enviarRedefinicao(email)
+      .then(() => toast("Se esse e-mail tiver uma conta, enviamos o link para criar uma senha nova."))
+      .catch((err) => toast(mensagemDeErro(err), true));
   });
   ouvir($("#sair"), "click", () => {
     if (sujo && !confirm("Tem mudanças não salvas. Sair mesmo assim?")) return;
-    try { sessionStorage.removeItem(CHAVE_SESSAO); } catch { /* sem armazenamento */ }
     limparSujo(); rascunho = copiaProfunda(SITE);
-    mostrar();
+    sairDoFirebase().catch((err) => toast(mensagemDeErro(err), true)); // o painel fecha pelo ouvirUsuario
   });
 
   /* o painel mostra todas as fontes disponíveis, pra Bru comparar antes de escolher */
@@ -897,7 +919,16 @@ export function iniciarPainel(): () => void {
   ligarEventos();
   ligarPrevia();
   ligarEscolha();
-  mostrar();
+
+  /* a sessão vem do Firebase Authentication; enquanto ele não responde, nem login nem painel aparecem */
+  limpar.push(ouvirUsuario((u) => { usuario = u; mostrar(); }));
+
+  /* mantém o conteúdo salvo em dia (ex.: outra pessoa salvou), sem atropelar o que está sendo editado */
+  limpar.push(lojaAssinar(() => {
+    if (sujo || ocupado) return;
+    SITE = lojaCarregar(); baseMs = lojaAtualizadoEmMs(); rascunho = copiaProfunda(SITE);
+    if (usuario) { aplicarNoPainel(); render(); }
+  }));
 
   return () => {
     limpar.forEach((f) => f());

@@ -47,3 +47,10 @@ next-env.d.ts
 .firebase/
 firebase-debug.log*
 firestore-debug.log*
+
+# Firebase
+.emulador/
+firebase-debug*.log
+firestore-debug.log
+ui-debug.log
+*-service-account*.json

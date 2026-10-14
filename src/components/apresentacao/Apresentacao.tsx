@@ -11,7 +11,6 @@ import type { ReactNode } from "react";
 import { useMontado, useSite } from "@/lib/useSite";
 import { TAMANHOS_IMAGEM } from "@/lib/conteudo/padrao";
 import { brl, img, rota } from "@/lib/util";
-import { SENHA, USUARIO } from "@/lib/acessoPainel";
 
 const NOMES_CORES: Record<string, [string, string]> = {
   rosa: ["Rosa choque", "botões, etiquetas e destaques"],
@@ -85,9 +84,8 @@ export function Apresentacao() {
               <p className="rotulo">seu painel (só você e o Wellington)</p>
               <LinkCompleto base={base} caminho="/admin" />
               <div className="acesso">
-                <p><b>Acesso do painel</b> (o Wellington cria um definitivo pra você depois)</p>
-                <code>Usuário: <span id="usuario">{USUARIO}</span></code>
-                <code>Senha: <span id="senha">{SENHA}</span></code>
+                <p><b>Acesso do painel</b></p>
+                <p>Entre com o seu e-mail e a senha que você criou. Esqueceu? Use &quot;Esqueci a senha&quot; na tela de entrada.</p>
               </div>
               <a className="btn" href={rota("/admin")} target="_blank" rel="noopener">Abrir o painel</a>
             </div>

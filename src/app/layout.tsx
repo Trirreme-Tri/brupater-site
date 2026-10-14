@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
 import { PADRAO } from "@/lib/conteudo/padrao";
-import { LOJA_CHAVE, PREVIA_CHAVE } from "@/lib/loja";
+import { PREVIA_CHAVE } from "@/lib/loja";
+import { CHAVE_CACHE } from "@/lib/firebase/constantes";
+import { CSS_ANTI_PISCADA, SCRIPT_ANTI_PISCADA } from "@/lib/firebase/antiPiscada";
 import { TEMA_CHAVE, aplicarTema } from "@/lib/tema";
 import { InlineScript } from "@/components/InlineScript";
 import { rota } from "@/lib/util";
@@ -28,7 +30,7 @@ export const viewport: Viewport = {
 /* aplica cores, fontes e tema escolhidos no painel ANTES da página aparecer */
 const scriptTema =
   "(" + aplicarTema.toString() + ")(" +
-  JSON.stringify({ padrao: PADRAO.aparencia, lojaChave: LOJA_CHAVE, previaChave: PREVIA_CHAVE, temaChave: TEMA_CHAVE }) + ");";
+  JSON.stringify({ padrao: PADRAO.aparencia, lojaChave: CHAVE_CACHE, previaChave: PREVIA_CHAVE, temaChave: TEMA_CHAVE }) + ");";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -36,6 +38,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        {/* visita repetida: esconde a página até o conteúdo salvo chegar (evita ver o padrão por um instante) */}
+        <InlineScript html={SCRIPT_ANTI_PISCADA} />
+        <style dangerouslySetInnerHTML={{ __html: CSS_ANTI_PISCADA }} />
         <InlineScript html={scriptTema} />
       </head>
       <body>{children}</body>

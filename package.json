@@ -9,19 +9,29 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "verificar": "npm run lint && npm run typecheck && npm run build"
+    "verificar": "npm run lint && npm run typecheck && npm run build",
+    "emuladores": "firebase emulators:start --project demo-brupater --import ./.emulador --export-on-exit",
+    "emuladores:semear": "node scripts/semear-emulador.mjs",
+    "test:regras": "firebase emulators:exec --only firestore --project demo-brupater \"node --test tests/regras/regras.test.mjs\"",
+    "build:estatico:staging": "cross-env NEXT_PUBLIC_FIREBASE_AMBIENTE=staging npm run build:estatico",
+    "deploy:staging": "npm run build:estatico:staging && firebase deploy --project staging --only hosting,firestore",
+    "test:formato": "node --test tests/formato/padrao.test.mjs"
   },
   "dependencies": {
+    "firebase": "^13.0.0",
     "next": "16.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
+    "firebase-tools": "^15.33.0",
     "typescript": "^5"
   },
   "description": "Site da artista Brunna Paternostro (@_.brupater). Desenvolvido pela TRIRREME.",
