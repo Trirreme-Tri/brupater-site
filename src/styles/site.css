@@ -569,6 +569,12 @@ html[data-movimento="desligado"] .fila-barra i.agora { animation: none; }
 .vit-kicker { color: var(--casa-ink); background: color-mix(in srgb, var(--casa-bg) 72%, transparent); padding: 8px 14px; border-radius: 999px;
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 .vit-status .etiqueta { font-size: clamp(.95rem, 2.4vw, 1.25rem); }
+/* no computador a etiqueta (Commissions open / Esgotado) cresce: pedido da Bru (out/2026). No celular fica como está */
+@media (min-width: 900px) {
+  .vit-status .etiqueta { font-size: 1.8rem; }
+  .chamada-txt .etiqueta { font-size: 1.3rem; }
+  .enc-aviso .etiqueta { font-size: 1.4rem; }
+}
 .vit-status a { text-decoration: none; display: inline-block; }
 
 .vit-base { display: grid; gap: 16px; align-items: end; }
@@ -779,6 +785,8 @@ body:has(.barra-total.ativa) .whats-flut { bottom: 86px; }
 .pacote-nome { font-family: var(--f-cinema); text-transform: uppercase; font-size: 1.6rem; line-height: 1; }
 .pacote-preco { font-weight: 800; font-size: .9rem; }
 .pacote ul { margin: 2px 0 0; padding-left: 1.1em; color: var(--papel-soft); font-size: .88rem; display: grid; gap: 2px; }
+/* arte de preço fixo (cenário, capa de livro): o que está incluso */
+.fixa-itens { margin: 0; padding-left: 1.1em; color: var(--papel-soft); font-size: .92rem; display: grid; gap: 4px; }
 .recibo .total .rotulo sup { color: var(--rosa); font-size: 1em; top: -.2em; }
 .total-nota { margin: 6px 0 0; font-size: .74rem; color: var(--cine-soft); }
 .total-nota b { color: var(--rosa); }
