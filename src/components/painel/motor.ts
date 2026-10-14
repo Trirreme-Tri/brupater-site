@@ -167,7 +167,7 @@ export function iniciarPainel(): () => void {
   const ABAS: { id: string; nome: string; icone: string; render: () => string; desc: string; previa: string | null }[] = [
     { id: "inicio", nome: "Início", icone: "estrela", render: abaInicio, desc: "Atalhos pro que você mais usa. Tudo que mudar aparece na prévia ao lado; quando gostar, clique em Salvar.", previa: "/" },
     { id: "agenda", nome: "Agenda e vagas", icone: "agenda", render: abaAgenda, desc: "Abrir e fechar encomendas, marcar vagas preenchidas, datas e a fila.", previa: "/agenda" },
-    { id: "encomendas", nome: "Preços e pacotes", icone: "dado", render: abaEncomendas, desc: "Os preços da calculadora, os pacotes de identidade visual e a tabela.", previa: "/encomendas" },
+    { id: "encomendas", nome: "Preços e pacotes", icone: "dado", render: abaEncomendas, desc: "Os preços da calculadora, cenário e capa de livro, os pacotes de identidade visual e a tabela.", previa: "/encomendas" },
     { id: "galeria", nome: "Minhas artes", icone: "estrela", render: abaGaleria, desc: "Todas as artes do portfólio. Marque \"Destaque\" pra arte passar no topo da página inicial.", previa: "/portfolio" },
     { id: "projetos", nome: "Projetos", icone: "artstation", render: abaProjetos, desc: "Suas coleções (ilustração e identidade visual): capa, texto e imagens.", previa: "/" },
     { id: "cenas", nome: "Textos e imagens", icone: "youtube", render: abaCenas, desc: "O topo de cada página, as faixas em tela cheia e as páginas de aviso (erro e fora do ar).", previa: "/" },
@@ -307,6 +307,15 @@ export function iniciarPainel(): () => void {
       secao("As duas categorias", "Os dois botões no alto da área de encomendas.",
         linha(campo("precos.ilustracao.titulo", "Ilustração: nome"), campo("precos.ilustracao.sub", "Ilustração: frase curta")) +
         linha(campo("precos.identidade.titulo", "Identidade visual: nome"), campo("precos.identidade.sub", "Identidade visual: frase curta"))) +
+      secao("Tipos de arte da ilustração", "Os cartões do passo 1 de \"Crie sua Ilustração\". \"Personagem\" abre o montador (enquadramento, acabamento, personagens, fundo). As outras artes têm preço fixo; preço 0 aparece como \"sob consulta\". Sem nenhuma outra arte, o passo 1 some e fica só o personagem.",
+        linha(campo("precos.ilustracao.personagem.nome", "Cartão do personagem: nome"), campo("precos.ilustracao.personagem.sub", "Frase curta")) +
+        campoImg("precos.ilustracao.personagem.img", "Imagem do cartão do personagem") +
+        lista("precos.outrasArtes", (o, i, c) =>
+          linha(campo(c + ".nome", "Nome (ex.: Cenário)"), campo(c + ".preco", "Preço (R$)", { tipo: "number", passo: "0.01", min: 0 })) +
+          campo(c + ".sub", "Frase curta") +
+          campo(c + ".itens", "O que está incluso", { tipo: "textarea", linhas: 2, ajuda: "Separe os itens com · (ponto do meio). Pode deixar vazio." }) +
+          campoImg(c + ".img", "Imagem de exemplo"),
+        () => ({ id: "arte" + Date.now(), nome: "Nova arte", sub: "", preco: 0, img: "", itens: "" }), "Adicionar tipo de arte")) +
       secao("Pacotes de identidade visual", "Preço 0 aparece como \"sob consulta\" e o valor é combinado na conversa. Sem nenhum pacote, a categoria some do site.",
         lista("precos.identidade.pacotes", (o, i, c) =>
           linha(campo(c + ".nome", "Nome (ex.: Básico)"), campo(c + ".sub", "Subtítulo"), campo(c + ".preco", "Preço (R$)", { tipo: "number", passo: "0.01", min: 0 })) +

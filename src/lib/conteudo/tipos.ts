@@ -154,6 +154,23 @@ export interface Pacote {
   itens: string;
 }
 
+/**
+ * Arte de preço fixo dentro de "Crie sua Ilustração" (ex.: Cenário, Capa de livro).
+ * Não passa pelo montador de personagem; entra no pedido com o próprio preço.
+ */
+export interface ArteFixa {
+  id: string;
+  nome: string;
+  /** frase curta embaixo do nome */
+  sub: string;
+  /** 0 = "sob consulta" */
+  preco: number;
+  /** imagem de exemplo no cartão de escolha */
+  img: string;
+  /** o que está incluso, separado por " · " */
+  itens: string;
+}
+
 export interface Precos {
   enquadramentos: Enquadramento[];
   acabamentos: Acabamento[];
@@ -162,7 +179,10 @@ export interface Precos {
   fundos: Fundo[];
   descontosVolume: DescontoVolume[];
   comercialPct: number;
-  ilustracao: { titulo: string; sub: string };
+  /** personagem = o cartão "Personagem" no seletor do tipo de arte */
+  ilustracao: { titulo: string; sub: string; personagem: { nome: string; sub: string; img: string } };
+  /** cenário, capa de livro...: escolhidas no mesmo seletor; sem nenhuma, o seletor some */
+  outrasArtes: ArteFixa[];
   identidade: { titulo: string; sub: string; pacotes: Pacote[] };
   tabela: { mostrar: boolean; img: string; w?: number; h?: number; legenda: string };
   notaTotal: string;
