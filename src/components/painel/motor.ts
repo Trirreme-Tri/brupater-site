@@ -912,7 +912,15 @@ export function iniciarPainel(): () => void {
   ligarEscolha();
 
   /* a sessão vem do Firebase Authentication; enquanto ele não responde, nem login nem painel aparecem */
-  limpar.push(ouvirUsuario((u) => { usuario = u; mostrar(); }));
+  try {
+    limpar.push(ouvirUsuario((u) => { usuario = u; mostrar(); }));
+  } catch {
+    /* Firebase sem configuração (projeto ainda não criado): mostra o login com o aviso, em vez de quebrar a página */
+    usuario = null; mostrar();
+    const erro = $("#login-erro");
+    erro.textContent = "O login ainda não está disponível. Avise a TRIRREME.";
+    erro.hidden = false;
+  }
 
   /* mantém o conteúdo salvo em dia (ex.: outra pessoa salvou), sem atropelar o que está sendo editado */
   limpar.push(lojaAssinar(() => {
