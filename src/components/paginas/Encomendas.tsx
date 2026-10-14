@@ -13,7 +13,10 @@
  *
  * Duas categorias (pedido da Bru): "Crie sua Ilustração" e "Crie sua
  * Identidade Visual" (pacotes com preço fixo; preço 0 = "sob consulta").
- * Desconto de volume e uso comercial valem só pra ilustração.
+ * Dentro da ilustração, um seletor escolhe o tipo de arte: "Personagem"
+ * (o montador acima, sem mudanças) ou uma arte de preço fixo (Cenário,
+ * Capa de livro...: precos.outrasArtes; preço 0 = "sob consulta").
+ * Desconto de volume e uso comercial valem só pros personagens.
  * O botão principal manda o pedido pro WhatsApp; copiar o resumo fica pro
  * Instagram (a DM não aceita texto pronto e pede login).
  */
@@ -31,8 +34,12 @@ import { useCinema } from "@/components/site/Cinema";
 
 interface ItemIlu { id: number; tipo?: undefined; enq: string; acab: string; pers: number; fundo: string; qtd: number }
 interface ItemIdv { id: number; tipo: "idv"; pacote: string; qtd: number }
-type Item = ItemIlu | ItemIdv;
+interface ItemFixa { id: number; tipo: "fixa"; arte: string; qtd: number }
+type Item = ItemIlu | ItemIdv | ItemFixa;
 const ehIdv = (i: Item): i is ItemIdv => i.tipo === "idv";
+const ehFixa = (i: Item): i is ItemFixa => i.tipo === "fixa";
+const ehPers = (i: Item): i is ItemIlu => !i.tipo;
+const PERSONAGEM = "personagem";
 
 function porId<T extends { id: string }>(lista: T[], id: string | null | undefined): T | undefined {
   return lista.filter((x) => x.id === id)[0];
@@ -45,6 +52,7 @@ function maxPers(site: Site) {
 function precoUnitario(site: Site, item: Item | (Omit<ItemIlu, "id"> & { id?: number })): number {
   const p = site.precos;
   if ("tipo" in item && item.tipo === "idv") return Number((porId(p.identidade.pacotes || [], (item as ItemIdv).pacote) || { preco: 0 }).preco) || 0;
+  if ("tipo" in item && item.tipo === "fixa") return Number((porId(p.outrasArtes || [], (item as ItemFixa).arte) || { preco: 0 }).preco) || 0;
   const it = item as ItemIlu;
   const enq = porId(p.enquadramentos, it.enq), acab = porId(p.acabamentos, it.acab), fundo = porId(p.fundos, it.fundo);
   if (!enq || !acab || !fundo) return 0;
@@ -56,26 +64,32 @@ const subtotal = (site: Site, item: Item | (Omit<ItemIlu, "id"> & { id?: number 
 function calcular(site: Site, itens: Item[], comercialMarcado: boolean) {
   const P = site.precos;
   const faixas = (P.descontosVolume || []).slice().sort((a, b) => a.min - b.min);
-  const ilu = itens.filter((i) => !ehIdv(i));
+  const ilu = itens.filter(ehPers);
   const idv = itens.filter(ehIdv);
+  const fixas = itens.filter(ehFixa);
   const qtdTotal = ilu.reduce((t, i) => t + i.qtd, 0);
   const bruto = ilu.reduce((t, i) => t + subtotal(site, i), 0);
   const idvTotal = idv.reduce((t, i) => t + subtotal(site, i), 0);
-  const aCombinar = idv.some((i) => !precoUnitario(site, i));
+  const fixasTotal = fixas.reduce((t, i) => t + subtotal(site, i), 0);
+  const aCombinar = idv.some((i) => !precoUnitario(site, i)) || fixas.some((i) => !precoUnitario(site, i));
+  const idvCombinar = idv.some((i) => !precoUnitario(site, i));
+  const fixasCombinar = fixas.some((i) => !precoUnitario(site, i));
   const faixa = faixas.reduce((m, f) => (qtdTotal >= f.min ? f : m), { min: 0, pct: 0 });
   const desconto = (bruto * (Number(faixa.pct) || 0)) / 100;
   const comercial = comercialMarcado ? ((bruto - desconto) * (Number(P.comercialPct) || 0)) / 100 : 0;
   const proxima = faixas.filter((f) => f.min > qtdTotal && f.pct > (faixa.pct || 0))[0];
   return {
-    qtdTotal, temIlu: ilu.length > 0, temIdv: idv.length > 0, idvTotal, aCombinar,
-    soCombinar: aCombinar && ilu.length === 0 && idvTotal === 0,
-    bruto, pct: Number(faixa.pct) || 0, desconto, comercial, total: bruto - desconto + comercial + idvTotal, proxima,
+    qtdTotal, temIlu: ilu.length > 0, temIdv: idv.length > 0, temFixa: fixas.length > 0, idvTotal, fixasTotal,
+    aCombinar, idvCombinar, fixasCombinar,
+    soCombinar: aCombinar && ilu.length === 0 && idvTotal === 0 && fixasTotal === 0,
+    bruto, pct: Number(faixa.pct) || 0, desconto, comercial, total: bruto - desconto + comercial + idvTotal + fixasTotal, proxima,
   };
 }
 
 function descricao(site: Site, item: Item): string {
   const p = site.precos;
   if (ehIdv(item)) return "Identidade Visual · " + (porId(p.identidade.pacotes || [], item.pacote) || { nome: "" }).nome;
+  if (ehFixa(item)) return (porId(p.outrasArtes || [], item.arte) || { nome: "" }).nome;
   const partes = [(porId(p.enquadramentos, item.enq) || { nome: "" }).nome, (porId(p.acabamentos, item.acab) || { nome: "" }).nome];
   if (item.pers > 1) partes.push(item.pers + " personagens");
   const fundo = porId(p.fundos, item.fundo);
@@ -96,13 +110,16 @@ export function Encomendas() {
   const { lbAbrir, aviso } = useCinema();
   const P = site.precos;
   const pacotes = (P.identidade || { pacotes: [] }).pacotes || [];
+  const outras = P.outrasArtes || [];
 
   const [tipoEscolhido, setTipo] = useState<"ilu" | "idv">("ilu");
   const [rasc, setRasc] = useState({ enq: "", acab: "", pers: 1, fundo: "", qtd: 1 });
   const [pacoteEscolhido, setPacote] = useState("");
+  const [arteEscolhida, setArte] = useState(PERSONAGEM);
+  const [qtdFixa, setQtdFixa] = useState(1);
   const [itensBrutos, setItens] = useState<Item[]>([]);
   const [comercial, setComercial] = useState(false);
-  const [adicionado, setAdicionado] = useState<"" | "ilu" | "idv">("");
+  const [adicionado, setAdicionado] = useState<"" | "ilu" | "idv" | "fixa">("");
   const [copiado, setCopiado] = useState("");
   const [barraAtiva, setBarraAtiva] = useState(false);
   const proximoId = useRef(1);
@@ -119,14 +136,19 @@ export function Encomendas() {
     qtd: rasc.qtd,
   };
   const pacoteSel = porId(pacotes, pacoteEscolhido) ? pacoteEscolhido : (pacotes[0] || { id: "" }).id;
-  const itens = itensBrutos.filter((i) => (ehIdv(i) ? !!porId(pacotes, i.pacote) : !!(porId(P.enquadramentos, i.enq) && porId(P.acabamentos, i.acab) && porId(P.fundos, i.fundo))));
+  const fixaSel = porId(outras, arteEscolhida);
+  const arte = fixaSel ? fixaSel.id : PERSONAGEM;
+  const itens = itensBrutos.filter((i) =>
+    ehIdv(i) ? !!porId(pacotes, i.pacote)
+    : ehFixa(i) ? !!porId(outras, i.arte)
+    : !!(porId(P.enquadramentos, i.enq) && porId(P.acabamentos, i.acab) && porId(P.fundos, i.fundo)));
   const c = calcular(site, itens, comercial);
   const ag = montado ? estadoAgenda(site.agenda) : null;
   const aberta = !!ag && ag.estado === "aberta";
   const whats = contatoTemWhats(site);
   const vazio = itens.length === 0;
 
-  const totalTxt = c.soCombinar ? "a combinar" : brl(c.total) + (c.aCombinar ? " + identidade visual a combinar" : "");
+  const totalTxt = c.soCombinar ? "a combinar" : brl(c.total) + (c.aCombinar ? " + parte a combinar" : "");
   const resumo = () => {
     const L = [aberta ? "Oi, Bru! Montei um pedido no seu site ✨" : "Oi, Bru! Quero entrar na lista de espera com este pedido ✨", ""];
     itens.forEach((i) => L.push("• " + i.qtd + "x " + descricao(site, i) + " — " + valorTxt(site, i)));
@@ -135,7 +157,7 @@ export function Encomendas() {
     if (comercial && c.temIlu) L.push("Uso comercial: +" + P.comercialPct + "%");
     L.push("Total estimado*: " + totalTxt);
     if (P.notaTotal) L.push("*" + P.notaTotal);
-    L.push("", c.temIdv && !c.temIlu ? "Te conto mais sobre a marca por aqui!" : "Te mando as referências por aqui!");
+    L.push("", c.temIdv && !c.temIlu && !c.temFixa ? "Te conto mais sobre a marca por aqui!" : "Te mando as referências por aqui!");
     return L.join("\n");
   };
 
@@ -148,7 +170,7 @@ export function Encomendas() {
     return () => io.disconnect();
   }, []);
 
-  const feedbackAdicionado = (qual: "ilu" | "idv") => {
+  const feedbackAdicionado = (qual: "ilu" | "idv" | "fixa") => {
     setAdicionado(qual);
     window.setTimeout(() => setAdicionado(""), 1400);
     /* no celular o pedido fica embaixo: rola até ele pra pessoa ver que entrou */
@@ -168,6 +190,18 @@ export function Encomendas() {
     });
     feedbackAdicionado("idv");
   };
+  const addFixa = () => {
+    if (!fixaSel) return;
+    const qtd = qtdFixa;
+    /* a mesma arte de novo soma na quantidade (não vira outra linha) */
+    setItens((l) => {
+      const igual = l.find((i) => ehFixa(i) && i.arte === fixaSel.id);
+      if (igual) return l.map((i) => (i === igual ? { ...i, qtd: Math.min(20, i.qtd + qtd) } : i));
+      return l.concat([{ id: proximoId.current++, tipo: "fixa", arte: fixaSel.id, qtd }]);
+    });
+    setQtdFixa(1);
+    feedbackAdicionado("fixa");
+  };
   const acaoItem = (id: number, acao: "mais" | "menos" | "remover") => {
     setItens((l) => {
       if (acao === "remover") return l.filter((i) => i.id !== id);
@@ -186,6 +220,12 @@ export function Encomendas() {
   const abas: { k: "ilu" | "idv"; t: string; s: string }[] = [{ k: "ilu", t: il.titulo || "Crie sua Ilustração", s: il.sub }];
   if (pacotes.length) abas.push({ k: "idv", t: idt.titulo || "Crie sua Identidade Visual", s: idt.sub });
   const selPacote = porId(pacotes, pacoteSel);
+  const pers = il.personagem || { nome: "Personagem", sub: "", img: "" };
+  const menorPreco = Math.min(...P.enquadramentos.map((e) => Number(e.preco) || 0));
+  /* com o seletor de tipo de arte no alto, os passos do personagem começam no 2 */
+  const n0 = outras.length ? 1 : 0;
+  const itensFixa = fixaSel ? String(fixaSel.itens || "").split("·").map((x) => x.trim()).filter(Boolean) : [];
+  const nomesFixas = Array.from(new Set(itens.filter(ehFixa).map((i) => descricao(site, i))));
 
   let avisoTxt: ReactNode = null;
   if (ag) {
@@ -231,8 +271,23 @@ export function Encomendas() {
               </div>
 
               <div id="monta-ilu" hidden={tipo !== "ilu"}>
+                {outras.length ? (
+                  <div className="passo">
+                    <p className="passo-t"><span className="passo-n">1</span> O que vai ser a arte?</p>
+                    <div className="opcoes grandes" id="op-arte" role="group" aria-label="Tipo de arte">
+                      <Opcao grupo="arte" id={PERSONAGEM} nome={pers.nome || "Personagem"} desc={pers.sub} foto={img(pers.img)} sel={arte === PERSONAGEM}
+                        preco={P.enquadramentos.length ? "a partir de " + brl(menorPreco) : ""} onEscolher={() => setArte(PERSONAGEM)} />
+                      {outras.map((o) => (
+                        <Opcao key={o.id} grupo="arte" id={o.id} nome={o.nome} desc={o.sub} foto={img(o.img)} sel={o.id === arte}
+                          preco={Number(o.preco) ? brl(o.preco) : "sob consulta"} onEscolher={() => setArte(o.id)} />
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                <div id="monta-personagem" hidden={arte !== PERSONAGEM}>
                 <div className="passo">
-                  <p className="passo-t"><span className="passo-n">1</span> Enquadramento</p>
+                  <p className="passo-t"><span className="passo-n">{n0 + 1}</span> Enquadramento</p>
                   <div className="opcoes grandes" id="op-enquadramento" role="group" aria-label="Enquadramento">
                     {P.enquadramentos.map((o) => (
                       <Opcao key={o.id} grupo="enq" id={o.id} nome={o.nome} desc={o.desc} foto={img(o.img)} sel={o.id === rascunho.enq} preco={brl(o.preco)} onEscolher={() => setRasc((r) => ({ ...r, enq: o.id }))} />
@@ -241,7 +296,7 @@ export function Encomendas() {
                 </div>
 
                 <div className="passo">
-                  <p className="passo-t"><span className="passo-n">2</span> Acabamento</p>
+                  <p className="passo-t"><span className="passo-n">{n0 + 2}</span> Acabamento</p>
                   <div className="opcoes" id="op-acabamento" role="group" aria-label="Acabamento">
                     {P.acabamentos.map((o) => (
                       <Opcao key={o.id} grupo="acab" id={o.id} nome={o.nome} desc={o.desc} foto={img(o.img)} sel={o.id === rascunho.acab} preco={fatorTxt(o.fator)} onEscolher={() => setRasc((r) => ({ ...r, acab: o.id }))} />
@@ -250,7 +305,7 @@ export function Encomendas() {
                 </div>
 
                 <div className="passo">
-                  <p className="passo-t"><span className="passo-n">3</span> Personagens na arte</p>
+                  <p className="passo-t"><span className="passo-n">{n0 + 3}</span> Personagens na arte</p>
                   <div className="linha-passo">
                     <div className="stepper">
                       <button type="button" id="pers-menos" aria-label="Menos personagens" disabled={rascunho.pers <= 1} onClick={() => setRasc((r) => ({ ...r, pers: rascunho.pers - 1 }))}>&minus;</button>
@@ -262,7 +317,7 @@ export function Encomendas() {
                 </div>
 
                 <div className="passo">
-                  <p className="passo-t"><span className="passo-n">4</span> Fundo</p>
+                  <p className="passo-t"><span className="passo-n">{n0 + 4}</span> Fundo</p>
                   <div className="opcoes" id="op-fundo" role="group" aria-label="Fundo">
                     {P.fundos.map((o) => (
                       <Opcao key={o.id} grupo="fundo" id={o.id} nome={o.nome} desc={o.desc} foto="" sel={o.id === rascunho.fundo} preco={Number(o.preco) > 0 ? "+ " + brl(o.preco) : "incluso"} onEscolher={() => setRasc((r) => ({ ...r, fundo: o.id }))} />
@@ -271,7 +326,7 @@ export function Encomendas() {
                 </div>
 
                 <div className="passo">
-                  <p className="passo-t"><span className="passo-n">5</span> Quantas artes iguais a essa</p>
+                  <p className="passo-t"><span className="passo-n">{n0 + 5}</span> Quantas artes iguais a essa</p>
                   <div className="stepper">
                     <button type="button" id="qtd-menos" aria-label="Diminuir quantidade" disabled={rascunho.qtd <= 1} onClick={() => setRasc((r) => ({ ...r, qtd: Math.max(1, r.qtd - 1) }))}>&minus;</button>
                     <output id="qtd" aria-live="polite">{rascunho.qtd}</output>
@@ -284,6 +339,31 @@ export function Encomendas() {
                   <button className={"btn cheio" + (adicionado === "ilu" ? " adicionado" : "")} type="button" id="add-item" onClick={addItem}>
                     {adicionado === "ilu" ? "Adicionado ✓" : "Adicionar ao pedido"}
                   </button>
+                </div>
+                </div>
+
+                {/* arte de preço fixo (cenário, capa de livro...) */}
+                <div id="monta-fixa" hidden={!fixaSel}>
+                  {itensFixa.length ? (
+                    <div className="passo">
+                      <p className="passo-t"><span className="passo-n">2</span> O que está incluso</p>
+                      <ul className="fixa-itens">{itensFixa.map((x, j) => <li key={j}>{x}</li>)}</ul>
+                    </div>
+                  ) : null}
+                  <div className="passo">
+                    <p className="passo-t"><span className="passo-n">{itensFixa.length ? 3 : 2}</span> Quantas artes</p>
+                    <div className="stepper">
+                      <button type="button" id="fixa-menos" aria-label="Diminuir quantidade" disabled={qtdFixa <= 1} onClick={() => setQtdFixa((q) => Math.max(1, q - 1))}>&minus;</button>
+                      <output id="fixa-qtd" aria-live="polite">{qtdFixa}</output>
+                      <button type="button" id="fixa-mais" aria-label="Aumentar quantidade" disabled={qtdFixa >= 20} onClick={() => setQtdFixa((q) => Math.min(20, q + 1))}>+</button>
+                    </div>
+                  </div>
+                  <div className="construtor-pe">
+                    <p className="rascunho-preco" id="fixa-preco"><small>{qtdFixa > 1 ? qtdFixa + " artes" : "esta arte"}</small>{fixaSel && Number(fixaSel.preco) ? brl(Number(fixaSel.preco) * qtdFixa) : "sob consulta"}</p>
+                    <button className={"btn cheio" + (adicionado === "fixa" ? " adicionado" : "")} type="button" id="add-fixa" onClick={addFixa}>
+                      {adicionado === "fixa" ? "Adicionado ✓" : "Adicionar ao pedido"}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -316,7 +396,7 @@ export function Encomendas() {
 
             <aside className="pedido surge" id="pedido" aria-labelledby="pedido-t" ref={pedidoRef}>
               <h3 className="rotulo" id="pedido-t">seu pedido</h3>
-              <p className="pedido-vazio" id="pedido-vazio" hidden={!vazio}>Nada aqui ainda. Monte um personagem ao lado pra começar.</p>
+              <p className="pedido-vazio" id="pedido-vazio" hidden={!vazio}>Nada aqui ainda. Monte sua arte ao lado pra começar.</p>
               <ul className="pedido-itens" id="pedido-itens">
                 {itens.map((i) => (
                   <li key={i.id} className="pi" data-id={i.id}>
@@ -348,7 +428,8 @@ export function Encomendas() {
                     {comercial ? <div className="row"><span>Uso comercial (+{P.comercialPct}%)</span><span>{brl(c.comercial)}</span></div> : null}
                   </>
                 ) : null}
-                {c.temIdv ? <div className="row"><span>Identidade visual</span><span>{c.idvTotal ? brl(c.idvTotal) : ""}{c.aCombinar ? (c.idvTotal ? " + " : "") + "a combinar" : ""}</span></div> : null}
+                {c.temFixa ? <div className="row"><span>{nomesFixas.join(" e ")}</span><span>{c.fixasTotal ? brl(c.fixasTotal) : ""}{c.fixasCombinar ? (c.fixasTotal ? " + " : "") + "a combinar" : ""}</span></div> : null}
+                {c.temIdv ? <div className="row"><span>Identidade visual</span><span>{c.idvTotal ? brl(c.idvTotal) : ""}{c.idvCombinar ? (c.idvTotal ? " + " : "") + "a combinar" : ""}</span></div> : null}
                 <div className="row total"><span className="rotulo">total estimado<sup>*</sup></span><strong>{c.soCombinar ? "A combinar" : brl(c.total)}</strong></div>
                 {P.notaTotal ? <p className="total-nota"><b>*</b> {P.notaTotal}</p> : null}
               </div>

@@ -49,7 +49,7 @@ export const PADRAO: Site = {
     paginas: {
       portfolio: { img: "assets/obras/catedral.webp", foco: "50% 35%", titulo: "Portfólio", sub: "Personagens, pôsteres, ilustrações e estudos." },
       agenda: { img: "assets/obras/caderno-alvar.webp", foco: "50% 50%", titulo: "Agenda", sub: "Quando abre, quantas vagas e como anda a fila." },
-      encomendas: { img: "assets/obras/commissions-open.webp", foco: "50% 30%", titulo: "Encomendas", sub: "Crie seu personagem e veja o preço na hora." }
+      encomendas: { img: "assets/obras/commissions-open.webp", foco: "50% 30%", titulo: "Encomendas", sub: "Crie sua arte e veja o preço na hora." }
     },
     interludio2: {
       img: "assets/obras/caderno-de-campanha.webp",
@@ -136,7 +136,20 @@ export const PADRAO: Site = {
     ],
     comercialPct: 50,
     /* as duas categorias da área de encomendas */
-    ilustracao: { titulo: "Crie sua Ilustração", sub: "Personagens, OCs e fichas" },
+    ilustracao: {
+      titulo: "Crie sua Ilustração",
+      sub: "Personagens, cenários e capas",
+      /* cartão "Personagem" do seletor: abre o montador (enquadramento, acabamento...) */
+      personagem: { nome: "Personagem", sub: "Monte do seu jeito, passo a passo", img: "assets/ex-render.webp" }
+    },
+    /* artes de preço fixo no mesmo seletor (pedido da Bru, out/2026).
+       preco 0 = aparece "sob consulta". Imagens de exemplo: trocar no painel. */
+    outrasArtes: [
+      { id: "cenario", nome: "Cenário", sub: "Ambiente detalhado, sem personagem", preco: 0, img: "assets/obras/a-fuga.webp",
+        itens: "Cenário completo e detalhado · Render incluso" },
+      { id: "capa", nome: "Capa de livro", sub: "Ilustração pra capa do seu livro", preco: 0, img: "assets/obras/oasis.webp",
+        itens: "" }
+    ],
     identidade: {
       titulo: "Crie sua Identidade Visual",
       sub: "Pra sua marca, loja ou projeto",
@@ -292,7 +305,7 @@ export const PADRAO: Site = {
   links: [
     { nome: "Instagram", desc: "Artes novas, estudos e avisos de abertura", url: "https://www.instagram.com/_.brupater/", icone: "instagram", visivel: true },
     { nome: "Threads", desc: "Conversas, bastidores e recadinhos", url: "https://www.threads.com/@_.brupater", icone: "threads", visivel: true },
-    { nome: "Crie seu personagem", desc: "Monte sua encomenda e veja o preço na hora", url: "/encomendas", icone: "dado", visivel: true },
+    { nome: "Crie sua arte", desc: "Personagem, cenário ou capa: veja o preço na hora", url: "/encomendas", icone: "dado", visivel: true },
     { nome: "Portfólio", desc: "Personagens, pôsteres, ilustrações e estudos", url: "/portfolio", icone: "estrela", visivel: true },
     { nome: "Agenda de encomendas", desc: "Quando abre, quantas vagas e como anda a fila", url: "/agenda", icone: "agenda", visivel: true }
   ],

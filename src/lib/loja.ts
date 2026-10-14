@@ -116,6 +116,21 @@ const MIGRACOES: Migracao[] = [
       (s.links || []).forEach((l) => { l.url = rotaInterna(String(l.url || "")); });
     },
   },
+  /* out/2026: "Crie sua Ilustração" ganhou cenário e capa de livro */
+  {
+    id: "2026-10-cenario-capa",
+    rodar: (s) => {
+      if (s.precos.ilustracao.sub === "Personagens, OCs e fichas") s.precos.ilustracao.sub = PADRAO.precos.ilustracao.sub;
+      const enc = (s.cenas.paginas || {}).encomendas;
+      if (enc && enc.sub === "Crie seu personagem e veja o preço na hora.") enc.sub = PADRAO.cenas.paginas.encomendas.sub;
+      (s.links || []).forEach((l) => {
+        if (l.nome === "Crie seu personagem" && l.desc === "Monte sua encomenda e veja o preço na hora") {
+          l.nome = "Crie sua arte";
+          l.desc = "Personagem, cenário ou capa: veja o preço na hora";
+        }
+      });
+    },
+  },
 ];
 
 function lerSalvo(): unknown {
