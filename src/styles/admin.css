@@ -270,3 +270,7 @@ body:has(.admin-raiz.em-login) .rodape-mini { display: none; }
 .faixa-par { display: flex; align-items: center; gap: 12px; min-height: 46px; }
 .faixa-par input[type="range"] { flex: 1; accent-color: var(--rosa); height: 32px; }
 .faixa-par output { min-width: 4ch; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* ===== histórico de versões (aba Backup) ===== */
+.historico { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+.historico li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line, rgba(0,0,0,.12)); }
