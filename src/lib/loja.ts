@@ -17,9 +17,12 @@ import { copiaProfunda, rotaInterna } from "./util";
 import {
   lerCache,
   ouvirConteudo,
+  listarHistorico,
   restaurarPadrao,
+  restaurarVersao,
   salvarConteudo,
   type CopiaRemota,
+  type ItemHistorico,
 } from "./firebase/conteudoRemoto";
 
 /* Chave antiga do localStorage (v2). O site público não lê mais daqui: o
@@ -254,5 +257,16 @@ export async function lojaRestaurarPadrao(baseMs: number | null, uid: string): P
   const padrao = copiaProfunda(PADRAO);
   padrao.migracoes = MIGRACOES.map((m) => m.id);
   await restaurarPadrao(padrao, baseMs, uid);
+  await aguardarCopiaNova(baseMs);
+}
+
+/** As últimas versões guardadas antes de cada salvamento (só admins conseguem ler). */
+export function lojaHistorico(quantos = 10): Promise<ItemHistorico[]> {
+  return listarHistorico(quantos);
+}
+
+/** Volta para uma versão do histórico. A versão atual também vai para o histórico antes. */
+export async function lojaRestaurarVersao(id: string, baseMs: number | null, uid: string): Promise<void> {
+  await restaurarVersao(id, baseMs, uid);
   await aguardarCopiaNova(baseMs);
 }

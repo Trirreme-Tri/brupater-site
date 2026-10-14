@@ -75,7 +75,7 @@ Feita em 2026-10-13 contra o emulador (`demo-brupater`), com `npm run dev` e nav
 | 2 | Sem `conteudo/site`, o site mostra o PADRAO | Sim |
 | 3 | Salvar no painel (A) aparece no navegador B sem recarregar | Sim |
 | 4 | Firestore fora do ar: abre em < 8 s com a cópia ou o PADRAO, sem erro | Sim (~2 s, 0 erros de página) |
-| 5 | Visita repetida não mostra o PADRAO antes do conteúdo salvo | Sim (nenhum texto do PADRAO visível). Não conferido com throttling "Slow 4G" |
+| 5 | Visita repetida não mostra o PADRAO antes do conteúdo salvo | Sim, sem throttling e em Slow 4G (~400 kbit/s, 400 ms): a página fica oculta e aparece já com o conteúdo salvo |
 | 6 | Trocar de página não faz nova leitura | Sim (0 novas requisições ao Firestore) |
 | 7 | Login Firebase; usuário e senha antigos saíram do código | Sim (`acessoPainel.ts` removido; `brunna`/`brupater` recusados) |
 | 8 | Conta fora de `admins` vê a mensagem de permissão | Sim |
@@ -83,11 +83,13 @@ Feita em 2026-10-13 contra o emulador (`demo-brupater`), com `npm run dev` e nav
 | 10 | Edição simultânea é recusada, nada é gravado | Sim. Bug achado e corrigido no teste: o painel agora guarda o carimbo de quando carregou o conteúdo (`baseMs`) |
 | 11 | Imagem em base64 recusada, com o campo culpado | Sim (`site.perfil.avatar`) |
 | 12 | "Voltar ao padrão" grava o PADRAO e guarda a anterior no histórico | Sim |
-| 13 | Restaurar versão do histórico | **Não verificado**: `restaurarVersao` existe em `conteudoRemoto.ts`, mas o painel não tem tela para isso (exige decisão sobre o visual do painel) |
+| 13 | Restaurar versão do histórico | Sim no emulador: aba Backup, "Versões anteriores" (10 últimas, com botão Restaurar). Restaurar a mais antiga voltou o conteúdo e mandou a versão de antes para o histórico. **Falta repetir em staging/produção antes de a Bru editar** |
 | 14 | "Baixar cópia (.json)" continua existindo | Sim (aba Backup; presença conferida, download não) |
 | 15 | Recuperação de senha envia o e-mail | Sim (e-mail gerado no emulador) |
-| 16 | Páginas visualmente iguais ao commit `521e7fe` | **Não verificado**: comparação visual pendente. Mudanças visíveis conhecidas: tela de login do painel (E-mail no lugar de Usuário, link "Esqueci a senha") e o cartão de acesso na apresentação |
+| 16 | Páginas visualmente iguais ao original (`ff21ca5`) | Sim, com ressalvas. Comparação pixel a pixel (início, portfólio, agenda, encomendas, projeto, erro, manutenção, 404; claro/escuro, celular/desktop): iguais, exceto início, portfólio e projeto, que oscilam até entre duas capturas do próprio original (imagens com carregamento tardio, só 3 cards da home mudaram de estado de carga). Mudanças visíveis intencionais: tela de login do painel (E-mail, "Esqueci a senha") e cartão de acesso da apresentação (sem usuário/senha) |
 | 17 | Prévia ao vivo funciona e não grava | Sim |
 | 18 | `npm run verificar` | Sim |
+
+Também corrigido na comparação visual: sem projeto Firebase configurado, o `/admin` caía na página de erro; agora mostra o login com o aviso "O login ainda não está disponível".
 
 Também há `npm run test:formato`: o PADRAO é aceito por `validarParaFirestore`.

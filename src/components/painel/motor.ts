@@ -19,7 +19,7 @@
  */
 import { PADRAO, OPCOES_FONTES, TAMANHOS_IMAGEM } from "@/lib/conteudo/padrao";
 import type { Site } from "@/lib/conteudo/tipos";
-import { PREVIA_CHAVE, lojaAssinar, lojaAtualizadoEmMs, lojaCarregar, lojaPrevia, lojaRestaurarPadrao, lojaSalvar, mesclar } from "@/lib/loja";
+import { PREVIA_CHAVE, lojaAssinar, lojaAtualizadoEmMs, lojaCarregar, lojaHistorico, lojaPrevia, lojaRestaurarPadrao, lojaRestaurarVersao, lojaSalvar, mesclar } from "@/lib/loja";
 import { CHAVE_CACHE } from "@/lib/firebase/constantes";
 import { TEMA_CHAVE, aplicarTema } from "@/lib/tema";
 import { copiaProfunda, esc, img, rota, urlSegura } from "@/lib/util";
@@ -552,6 +552,8 @@ export function iniciarPainel(): () => void {
     return secao("Cópia de segurança", "Baixe um arquivo com tudo o que está no site (textos, preços, agenda, imagens enviadas). Guarde antes de grandes mudanças.",
         '<div class="botoes"><button type="button" class="btn cheio" data-exportar>Baixar cópia (.json)</button>' +
         '<label class="btn"><input type="file" accept="application/json,.json" data-importar hidden>Restaurar de um arquivo</label></div>') +
+      secao("Versões anteriores", "Cada vez que você salva, a versão de antes fica guardada. Aqui você volta para uma delas.",
+        '<button type="button" class="btn" data-historico>Ver as últimas versões</button><div id="historico-lista" aria-live="polite"></div>') +
       secao("Espaço usado", "", '<p class="uso"><b>' + kb + " KB</b> de cerca de 5.000 KB. Imagens enviadas do computador ocupam mais espaço que imagens por link.</p>") +
       secao("Voltar ao começo", "Apaga todas as mudanças e volta o site para a versão entregue.",
         '<button type="button" class="btn perigo" data-restaurar>Restaurar versão original</button>');
@@ -721,6 +723,32 @@ export function iniciarPainel(): () => void {
         mc.escuro.fundo = mc.escuro.barra = pal.noite;
         marcarSujo(); aplicarNoPainel(); render();
         toast("Paleta aplicada no painel. Salve pra levar pro site."); return;
+      }
+      if (alvo.closest("[data-historico]")) {
+        const lista = $("#historico-lista");
+        lista.innerHTML = "<p>Buscando…</p>";
+        lojaHistorico(10)
+          .then((itens) => {
+            lista.innerHTML = itens.length
+              ? '<ul class="historico">' + itens.map((v) =>
+                  "<li><span>" + esc(v.copiadoEmMs ? new Date(v.copiadoEmMs).toLocaleString("pt-BR") : "sem data") + '</span><button type="button" class="btn" data-versao="' + esc(v.id) + '">Restaurar</button></li>').join("") + "</ul>"
+              : "<p>Ainda não há versões anteriores: a primeira aparece depois do segundo salvamento.</p>";
+          })
+          .catch((err) => { lista.innerHTML = ""; toast(mensagemDeErro(err), true); });
+        return;
+      }
+      if ((b = alvo.closest("[data-versao]"))) {
+        if (!confirm("Voltar o site para esta versão? A versão de agora fica guardada no histórico.")) return;
+        if (!usuario || ocupado) return;
+        ocupado = true;
+        lojaRestaurarVersao(b.dataset.versao!, baseMs, usuario.uid)
+          .then(() => {
+            SITE = lojaCarregar(); baseMs = lojaAtualizadoEmMs(); rascunho = copiaProfunda(SITE); limparSujo(); aplicarNoPainel(); render(); agendarPrevia();
+            toast("Versão restaurada.");
+          })
+          .catch((err) => toast(mensagemDeErro(err), true))
+          .finally(() => { ocupado = false; });
+        return;
       }
       if (alvo.closest("[data-exportar]")) {
         baixar("site-brupater-" + hojeTxt() + ".json", JSON.stringify(rascunho, null, 2)); return;
@@ -921,7 +949,15 @@ export function iniciarPainel(): () => void {
   ligarEscolha();
 
   /* a sessão vem do Firebase Authentication; enquanto ele não responde, nem login nem painel aparecem */
-  limpar.push(ouvirUsuario((u) => { usuario = u; mostrar(); }));
+  try {
+    limpar.push(ouvirUsuario((u) => { usuario = u; mostrar(); }));
+  } catch {
+    /* Firebase sem configuração (projeto ainda não criado): mostra o login com o aviso, em vez de quebrar a página */
+    usuario = null; mostrar();
+    const erro = $("#login-erro");
+    erro.textContent = "O login ainda não está disponível. Avise a TRIRREME.";
+    erro.hidden = false;
+  }
 
   /* mantém o conteúdo salvo em dia (ex.: outra pessoa salvou), sem atropelar o que está sendo editado */
   limpar.push(lojaAssinar(() => {
