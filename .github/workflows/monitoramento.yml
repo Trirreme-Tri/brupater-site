@@ -1,0 +1,61 @@
+# Monitoramento 24h: a cada 15 min confere se o site e o Firestore estão no ar
+# (ferramentas/monitorar.mjs). Ver docs/monitoramento/guia.md.
+#
+# Log de cada execução: aba Actions → "Monitoramento" (tabela no resumo).
+# Se algo cair, abre UMA issue com a etiqueta "monitoramento"; quando voltar,
+# comenta e fecha a mesma issue. As issues fechadas são o histórico de quedas.
+#
+# Endereço conferido: variável do repositório MONITORAR_URL
+# (Settings → Secrets and variables → Actions → Variables). Sem ela, a prévia no GitHub Pages.
+name: Monitoramento
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: monitoramento
+  cancel-in-progress: false
+
+jobs:
+  conferir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ETIQUETA: monitoramento
+      LOG: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Sem npm ci: o script não usa dependências.
+      - id: monitorar
+        run: npm run monitorar
+        env:
+          MONITORAR_URL: ${{ vars.MONITORAR_URL }}
+
+      - name: Abrir alerta
+        if: failure() && steps.monitorar.outcome == 'failure'
+        run: |
+          aberta=$(gh issue list --label "$ETIQUETA" --state open --limit 1 --json number -q '.[0].number')
+          if [ -z "$aberta" ]; then
+            gh label create "$ETIQUETA" --color B60205 --description "Alertas do monitoramento 24h" --force
+            gh issue create --label "$ETIQUETA" --title "Site fora do ar ou com erro" \
+              --body "Falha detectada em $(date -u +%FT%TZ) (UTC). Log: $LOG"$'\n\n'"O que fazer: docs/monitoramento/guia.md"
+          fi
+
+      - name: Fechar alerta
+        if: success()
+        run: |
+          aberta=$(gh issue list --label "$ETIQUETA" --state open --limit 1 --json number -q '.[0].number')
+          if [ -n "$aberta" ]; then
+            gh issue close "$aberta" --comment "Voltou ao ar em $(date -u +%FT%TZ) (UTC). Log: $LOG"
+          fi
