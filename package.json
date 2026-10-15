@@ -15,7 +15,8 @@
     "test:regras": "firebase emulators:exec --only firestore --project demo-brupater \"node --test tests/regras/regras.test.mjs\"",
     "build:estatico:staging": "cross-env NEXT_PUBLIC_FIREBASE_AMBIENTE=staging npm run build:estatico",
     "deploy:staging": "npm run build:estatico:staging && firebase deploy --project staging --only hosting,firestore",
-    "test:formato": "node --test tests/formato/padrao.test.mjs"
+    "test:formato": "node --test tests/formato/padrao.test.mjs",
+    "monitorar": "node ferramentas/monitorar.mjs"
   },
   "dependencies": {
     "firebase": "^13.0.0",

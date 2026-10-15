@@ -23,6 +23,7 @@ npm run dev        # http://localhost:3000
 | `npm run start` | Roda o site gerado pelo `build` |
 | `npm run lint` / `npm run typecheck` | Verificações de código |
 | `npm run verificar` | Lint + tipos + build (rodar antes de cada push) |
+| `npm run monitorar` | Confere se o site e o banco estão no ar (o mesmo que roda a cada 15 min no GitHub; ver `docs/monitoramento/guia.md`) |
 
 ## Páginas (endereços)
 
